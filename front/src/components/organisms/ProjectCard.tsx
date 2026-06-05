@@ -59,8 +59,8 @@ function formatSize(bytes: number) {
   return `${(bytes / 1024 / 1024).toFixed(1)} Mo`;
 }
 
-function initials(name: string) {
-  return name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
+function initials(firstName: string, lastName: string) {
+  return (firstName[0] ?? '').toUpperCase() + (lastName[0] ?? '').toUpperCase();
 }
 
 const LINK_BUTTON_STYLE = {
@@ -85,10 +85,19 @@ function LinkButton({ href, label, variant }: { href: string; label: string; var
 export function ProjectCard({ project, companySlug, clients, onDeleteProject }: Props) {
   const qc = useQueryClient();
   const { data: deliverables = [] } = useProjectDeliverables(project.id);
+  const [idCopied, setIdCopied] = useState(false);
+
+  function copyProjectId() {
+    void navigator.clipboard.writeText(project.id).then(() => {
+      setIdCopied(true);
+      setTimeout(() => setIdCopied(false), 1500);
+    });
+  }
 
   const [confirmDeliverable, setConfirmDeliverable] = useState<Deliverable | null>(null);
   const [deliverableModalOpen, setDeliverableModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [nameDraft, setNameDraft] = useState(project.name);
   const [appUrl, setAppUrl] = useState(project.appUrl ?? '');
   const [docsUrl, setDocsUrl] = useState(project.docsUrl ?? '');
   const [changelogUrl, setChangelogUrl] = useState(project.changelogUrl ?? '');
@@ -122,9 +131,10 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
     },
   });
 
-  const updateLinks = useMutation({
+  const updateProject = useMutation({
     mutationFn: () =>
-      api.patch(`/projects/${project.id}/links`, {
+      api.patch(`/projects/${project.id}`, {
+        name: nameDraft.trim() || project.name,
         appUrl: appUrl || null,
         docsUrl: docsUrl || null,
         changelogUrl: changelogUrl || null,
@@ -141,6 +151,7 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
   }
 
   function openEditModal() {
+    setNameDraft(project.name);
     setAppUrl(project.appUrl ?? '');
     setDocsUrl(project.docsUrl ?? '');
     setChangelogUrl(project.changelogUrl ?? '');
@@ -161,6 +172,25 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
           {project.appUrl && <LinkButton href={project.appUrl} label="App" variant="app" />}
           {project.docsUrl && <LinkButton href={project.docsUrl} label="Doc" variant="doc" />}
           {project.changelogUrl && <LinkButton href={project.changelogUrl} label="Changelog" variant="changelog" />}
+          <button
+            onClick={copyProjectId}
+            className="group/id flex items-center gap-1.5 cursor-pointer"
+            title="Copier l'ID projet"
+          >
+            <span className="text-xs font-mono text-gray-600 group-hover/id:text-gray-400 transition-colors truncate max-w-[80px]">
+              {project.id}
+            </span>
+            {idCopied ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-green-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" clipRule="evenodd" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-gray-700 group-hover/id:text-gray-400 transition-colors shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+              </svg>
+            )}
+          </button>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -197,10 +227,10 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
                   className="w-full flex items-center gap-2 rounded-md px-1 py-0.5 hover:bg-gray-800/60 transition-colors cursor-pointer text-left"
                 >
                   <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                    {initials(c.name)}
+                    {initials(c.firstName, c.lastName)}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="text-xs text-gray-300">{c.name}</span>
+                    <span className="text-xs text-gray-300">{c.firstName} {c.lastName}</span>
                     <span className="text-xs text-gray-600 ml-1.5">{c.email}</span>
                   </div>
                   {c.license?.type && <LicenseBadge type={c.license.type} />}
@@ -249,9 +279,16 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
       {editModalOpen && (
         <Modal title={`Éditer — ${project.name}`} onClose={() => setEditModalOpen(false)}>
           <form
-            onSubmit={(e) => { e.preventDefault(); updateLinks.mutate(); }}
+            onSubmit={(e) => { e.preventDefault(); updateProject.mutate(); }}
             className="flex flex-col gap-4"
           >
+            <Input
+              label="Nom"
+              value={nameDraft}
+              onChange={(e) => setNameDraft(e.target.value)}
+              placeholder="Nom du projet"
+              autoFocus
+            />
             <Input
               label="URL App"
               value={appUrl}
@@ -274,7 +311,7 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
               <Button type="button" variant="ghost" onClick={() => setEditModalOpen(false)}>
                 Annuler
               </Button>
-              <Button type="submit" disabled={updateLinks.isPending}>Enregistrer</Button>
+              <Button type="submit" disabled={updateProject.isPending}>Enregistrer</Button>
             </div>
           </form>
         </Modal>

@@ -109,6 +109,7 @@ export class StripeController {
     if (!client) {
       client = await this.clientsService.create(
         dto.name ?? dto.email,
+        '',
         dto.email,
         dto.companyId,
       );
@@ -169,6 +170,7 @@ export class StripeController {
       if (!companyId) return;
       client = await this.clientsService.create(
         customer.name ?? customer.email ?? 'Unknown',
+        '',
         customer.email ?? '',
         companyId,
       );

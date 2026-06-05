@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import { ClientsService } from '../application/clients.service';
 
 @Controller('clients')
@@ -13,6 +13,15 @@ export class ClientsController {
   @Get(':id')
   findById(@Param('id') id: string) {
     return this.service.findById(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body('firstName') firstName: string,
+    @Body('lastName') lastName: string,
+  ) {
+    return this.service.update(id, firstName, lastName);
   }
 
   @Delete(':id')

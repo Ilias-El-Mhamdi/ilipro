@@ -27,6 +27,8 @@ export function CompanyDetailPage() {
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [hash, projectsLoading, projects]);
 
+  const [editingCompanyName, setEditingCompanyName] = useState(false);
+  const [companyNameDraft, setCompanyNameDraft] = useState('');
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [clientModalOpen, setClientModalOpen] = useState(false);
   const [confirmProject, setConfirmProject] = useState<Project | null>(null);
@@ -35,10 +37,19 @@ export function CompanyDetailPage() {
   const [projectAppUrl, setProjectAppUrl] = useState('');
   const [projectDocsUrl, setProjectDocsUrl] = useState('');
   const [projectChangelogUrl, setProjectChangelogUrl] = useState('');
-  const [clientName, setClientName] = useState('');
+  const [clientFirstName, setClientFirstName] = useState('');
+  const [clientLastName, setClientLastName] = useState('');
   const [clientEmail, setClientEmail] = useState('');
 
   const company = companies.find((c) => c.slug === companySlug);
+
+  const renameCompany = useMutation({
+    mutationFn: (name: string) => api.patch(`/companies/${companySlug}/name`, { name }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['companies'] });
+      setEditingCompanyName(false);
+    },
+  });
 
   const addProject = useMutation({
     mutationFn: () => api.post(`/companies/${companySlug}/projects`, {
@@ -69,11 +80,12 @@ export function CompanyDetailPage() {
 
   const addClient = useMutation({
     mutationFn: () =>
-      api.post(`/companies/${companySlug}/clients`, { name: clientName, email: clientEmail }),
+      api.post(`/companies/${companySlug}/clients`, { firstName: clientFirstName, lastName: clientLastName, email: clientEmail }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'clients'] });
       setClientModalOpen(false);
-      setClientName('');
+      setClientFirstName('');
+      setClientLastName('');
       setClientEmail('');
     },
   });
@@ -95,7 +107,35 @@ export function CompanyDetailPage() {
       </div>
 
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold">{company?.name ?? '...'}</h1>
+        {editingCompanyName ? (
+          <form
+            onSubmit={(e) => { e.preventDefault(); if (companyNameDraft.trim()) renameCompany.mutate(companyNameDraft.trim()); }}
+            className="flex items-center gap-2"
+          >
+            <input
+              autoFocus
+              value={companyNameDraft}
+              onChange={(e) => setCompanyNameDraft(e.target.value)}
+              onBlur={() => setEditingCompanyName(false)}
+              onKeyDown={(e) => e.key === 'Escape' && setEditingCompanyName(false)}
+              className="text-2xl font-bold bg-transparent border-b border-indigo-500 outline-none text-white"
+            />
+          </form>
+        ) : (
+          <button
+            className="group flex items-center gap-2 cursor-pointer"
+            onClick={() => { setCompanyNameDraft(company?.name ?? ''); setEditingCompanyName(true); }}
+            title="Cliquer pour renommer"
+          >
+            <h1 className="text-2xl font-bold group-hover:text-indigo-300 transition-colors">
+              {company?.name ?? '...'}
+            </h1>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-600 group-hover:text-indigo-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+        )}
         <Button onClick={() => setProjectModalOpen(true)}>+ Ajouter un projet</Button>
       </div>
 
@@ -205,13 +245,21 @@ export function CompanyDetailPage() {
             onSubmit={(e) => { e.preventDefault(); addClient.mutate(); }}
             className="flex flex-col gap-4"
           >
-            <Input
-              label="Nom"
-              value={clientName}
-              onChange={(e) => setClientName(e.target.value)}
-              placeholder="Nom du client"
-              autoFocus
-            />
+            <div className="flex gap-3">
+              <Input
+                label="Prénom"
+                value={clientFirstName}
+                onChange={(e) => setClientFirstName(e.target.value)}
+                placeholder="Prénom"
+                autoFocus
+              />
+              <Input
+                label="Nom"
+                value={clientLastName}
+                onChange={(e) => setClientLastName(e.target.value)}
+                placeholder="Nom"
+              />
+            </div>
             <Input
               label="Email"
               type="email"
@@ -223,7 +271,7 @@ export function CompanyDetailPage() {
               <Button type="button" variant="ghost" onClick={() => setClientModalOpen(false)}>
                 Annuler
               </Button>
-              <Button type="submit" disabled={!clientName.trim() || !clientEmail.trim()}>
+              <Button type="submit" disabled={!clientFirstName.trim() || !clientLastName.trim() || !clientEmail.trim()}>
                 Créer
               </Button>
             </div>

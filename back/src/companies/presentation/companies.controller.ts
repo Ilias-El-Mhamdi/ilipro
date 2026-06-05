@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { CompaniesService } from '../application/companies.service';
 
 @Controller('companies')
@@ -23,6 +23,11 @@ export class CompaniesController {
   @Put(':slug')
   update(@Param('slug') slug: string, @Body('name') name: string) {
     return this.service.update(slug, name);
+  }
+
+  @Patch(':slug/name')
+  updateName(@Param('slug') slug: string, @Body('name') name: string) {
+    return this.service.updateName(slug, name);
   }
 
   @Delete(':slug')

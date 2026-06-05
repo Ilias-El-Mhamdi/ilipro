@@ -38,7 +38,7 @@ export class ProjectsService {
     return this.repo.create(name, slug, companyId, appUrl, docsUrl, changelogUrl);
   }
 
-  async updateLinks(id: string, data: { appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null }) {
+  async updateProject(id: string, data: { name?: string; appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null }) {
     await this.findById(id);
     return this.repo.update(id, data);
   }

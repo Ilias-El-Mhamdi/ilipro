@@ -1,6 +1,7 @@
 export class Client {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   companyId: string;
   stripeCustomerId: string | null;

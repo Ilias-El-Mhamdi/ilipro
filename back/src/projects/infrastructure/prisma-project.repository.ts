@@ -32,7 +32,7 @@ export class PrismaProjectRepository implements ProjectRepository {
     return this.prisma.project.create({ data: { name, slug, companyId, appUrl, docsUrl, changelogUrl } });
   }
 
-  update(id: string, data: { appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null }): Promise<Project> {
+  update(id: string, data: { name?: string; appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null }): Promise<Project> {
     return this.prisma.project.update({ where: { id }, data });
   }
 

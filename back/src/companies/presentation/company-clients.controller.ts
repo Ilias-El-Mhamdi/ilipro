@@ -18,20 +18,21 @@ export class CompanyClientsController {
   @Post()
   async create(
     @Param('companySlug') companySlug: string,
-    @Body('name') name: string,
+    @Body('firstName') firstName: string,
+    @Body('lastName') lastName: string,
     @Body('email') email: string,
   ) {
     const company = await this.companiesService.findBySlug(companySlug);
-    return this.clientsService.create(name, email, company.id);
+    return this.clientsService.create(firstName, lastName, email, company.id);
   }
 
   @Put(':clientId')
   update(
     @Param('clientId') clientId: string,
-    @Body('name') name: string,
-    @Body('email') email: string,
+    @Body('firstName') firstName: string,
+    @Body('lastName') lastName: string,
   ) {
-    return this.clientsService.update(clientId, name, email);
+    return this.clientsService.update(clientId, firstName, lastName);
   }
 
   @Delete(':clientId')

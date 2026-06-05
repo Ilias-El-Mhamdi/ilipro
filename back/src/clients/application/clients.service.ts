@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { ClientRepository } from '../domain/client.repository';
 
 @Injectable()
@@ -23,13 +23,15 @@ export class ClientsService {
     return client;
   }
 
-  create(name: string, email: string, companyId: string) {
-    return this.repo.create(name, email, companyId);
+  async create(firstName: string, lastName: string, email: string, companyId: string) {
+    const existing = await this.repo.findByEmail(email);
+    if (existing) throw new ConflictException(`Email "${email}" already in use`);
+    return this.repo.create(firstName, lastName, email, companyId);
   }
 
-  async update(id: string, name: string, email: string) {
+  async update(id: string, firstName: string, lastName: string) {
     await this.findById(id);
-    return this.repo.update(id, name, email);
+    return this.repo.update(id, firstName, lastName);
   }
 
   async setStripeCustomerId(id: string, stripeCustomerId: string) {

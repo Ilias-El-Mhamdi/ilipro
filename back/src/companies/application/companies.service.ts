@@ -39,6 +39,11 @@ export class CompaniesService {
     return this.repo.update(company.id, name, newSlug);
   }
 
+  async updateName(slug: string, name: string) {
+    const company = await this.findBySlug(slug);
+    return this.repo.update(company.id, name, company.slug);
+  }
+
   async delete(slug: string) {
     const company = await this.findBySlug(slug);
     return this.repo.delete(company.id);

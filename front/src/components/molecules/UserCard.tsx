@@ -1,6 +1,11 @@
 import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Client, License, LicenseType, LicenseStatus, Project } from '../../lib/queries';
 import { LicenseModal } from './LicenseModal';
+import { Modal } from './Modal';
+import { Input } from '../atoms/Input';
+import { Button } from '../atoms/Button';
+import { api } from '../../lib/api';
 
 interface Props {
   client: Client;
@@ -10,8 +15,8 @@ interface Props {
   onDelete: (client: Client) => void;
 }
 
-function initials(name: string) {
-  return name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
+function initials(firstName: string, lastName: string) {
+  return (firstName[0] ?? '').toUpperCase() + (lastName[0] ?? '').toUpperCase();
 }
 
 const TYPE_BADGE: Record<LicenseType, { label: string; className: string }> = {
@@ -198,9 +203,27 @@ const PANELS = ['Général', 'Projets', 'Machines'] as const;
 
 // ─── UserCard ─────────────────────────────────────────────────────────────────
 export function UserCard({ client, license, projects, companySlug, onDelete }: Props) {
+  const qc = useQueryClient();
   const [panel, setPanel] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [firstNameDraft, setFirstNameDraft] = useState(client.firstName);
+  const [lastNameDraft, setLastNameDraft] = useState(client.lastName);
   const [copied, setCopied] = useState(false);
+
+  const updateClient = useMutation({
+    mutationFn: () => api.patch(`/clients/${client.id}`, { firstName: firstNameDraft.trim(), lastName: lastNameDraft.trim() }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'clients'] });
+      setEditModalOpen(false);
+    },
+  });
+
+  function openEditModal() {
+    setFirstNameDraft(client.firstName);
+    setLastNameDraft(client.lastName);
+    setEditModalOpen(true);
+  }
 
   function copyEmail() {
     void navigator.clipboard.writeText(client.email).then(() => {
@@ -227,10 +250,20 @@ export function UserCard({ client, license, projects, companySlug, onDelete }: P
         {/* Header */}
         <div className="bg-indigo-900/40 border-b border-indigo-800/40 px-3 py-3 flex items-center gap-2.5 shrink-0">
           <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
-            {initials(client.name)}
+            {initials(client.firstName, client.lastName)}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-white font-semibold text-sm truncate leading-tight">{client.name}</p>
+            <button
+              onClick={openEditModal}
+              className="group/name flex items-center gap-1.5 cursor-pointer text-left"
+              title="Modifier"
+            >
+              <p className="text-white font-semibold text-sm truncate leading-tight group-hover/name:text-indigo-300 transition-colors">{client.firstName} {client.lastName}</p>
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 shrink-0 text-gray-600 group-hover/name:text-indigo-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </button>
             <div className="flex items-center gap-1 group/email">
               <button
                 onClick={copyEmail}
@@ -311,6 +344,39 @@ export function UserCard({ client, license, projects, companySlug, onDelete }: P
           </button>
         </div>
       </div>
+
+      {editModalOpen && (
+        <Modal title={`Modifier — ${client.firstName} ${client.lastName}`} onClose={() => setEditModalOpen(false)}>
+          <form
+            onSubmit={(e) => { e.preventDefault(); updateClient.mutate(); }}
+            className="flex flex-col gap-4"
+          >
+            <div className="flex gap-3">
+              <Input
+                label="Prénom"
+                value={firstNameDraft}
+                onChange={(e) => setFirstNameDraft(e.target.value)}
+                placeholder="Prénom"
+                autoFocus
+              />
+              <Input
+                label="Nom"
+                value={lastNameDraft}
+                onChange={(e) => setLastNameDraft(e.target.value)}
+                placeholder="Nom"
+              />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button type="button" variant="ghost" onClick={() => setEditModalOpen(false)}>
+                Annuler
+              </Button>
+              <Button type="submit" disabled={!firstNameDraft.trim() || !lastNameDraft.trim() || updateClient.isPending}>
+                Enregistrer
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
 
       {modalOpen && (
         <LicenseModal

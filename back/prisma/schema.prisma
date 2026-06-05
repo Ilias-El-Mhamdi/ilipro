@@ -36,8 +36,9 @@ model Project {
 
 model Client {
   id               String    @id @default(cuid())
-  name             String
-  email            String
+  firstName        String
+  lastName         String
+  email            String    @unique
   company          Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   companyId        String
   stripeCustomerId String?

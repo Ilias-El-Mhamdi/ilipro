@@ -42,12 +42,12 @@ export class PrismaClientRepository implements ClientRepository {
     return this.prisma.client.findFirst({ where: { email } });
   }
 
-  create(name: string, email: string, companyId: string): Promise<Client> {
-    return this.prisma.client.create({ data: { name, email, companyId } });
+  create(firstName: string, lastName: string, email: string, companyId: string): Promise<Client> {
+    return this.prisma.client.create({ data: { firstName, lastName, email, companyId } });
   }
 
-  update(id: string, name: string, email: string): Promise<Client> {
-    return this.prisma.client.update({ where: { id }, data: { name, email } });
+  update(id: string, firstName: string, lastName: string): Promise<Client> {
+    return this.prisma.client.update({ where: { id }, data: { firstName, lastName } });
   }
 
   async setStripeCustomerId(id: string, stripeCustomerId: string): Promise<void> {

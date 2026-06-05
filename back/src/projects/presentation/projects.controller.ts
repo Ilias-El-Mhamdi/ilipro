@@ -15,12 +15,12 @@ export class ProjectsController {
     return this.service.findById(id);
   }
 
-  @Patch(':id/links')
-  updateLinks(
+  @Patch(':id')
+  updateProject(
     @Param('id') id: string,
-    @Body() body: { appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null },
+    @Body() body: { name?: string; appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null },
   ) {
-    return this.service.updateLinks(id, body);
+    return this.service.updateProject(id, body);
   }
 
   @Delete(':id')

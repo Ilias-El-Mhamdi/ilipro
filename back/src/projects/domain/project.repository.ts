@@ -6,6 +6,6 @@ export abstract class ProjectRepository {
   abstract findBySlug(companyId: string, slug: string): Promise<Project | null>;
   abstract findById(id: string): Promise<Project | null>;
   abstract create(name: string, slug: string, companyId: string, appUrl?: string | null, docsUrl?: string | null, changelogUrl?: string | null): Promise<Project>;
-  abstract update(id: string, data: { appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null }): Promise<Project>;
+  abstract update(id: string, data: { name?: string; appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null }): Promise<Project>;
   abstract delete(id: string): Promise<void>;
 }
