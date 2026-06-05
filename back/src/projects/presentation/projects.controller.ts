@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import { ProjectsService } from '../application/projects.service';
 
 @Controller('projects')
@@ -13,6 +13,14 @@ export class ProjectsController {
   @Get(':id')
   findById(@Param('id') id: string) {
     return this.service.findById(id);
+  }
+
+  @Patch(':id/links')
+  updateLinks(
+    @Param('id') id: string,
+    @Body() body: { appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null },
+  ) {
+    return this.service.updateLinks(id, body);
   }
 
   @Delete(':id')

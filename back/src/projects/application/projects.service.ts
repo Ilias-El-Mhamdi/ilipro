@@ -31,11 +31,16 @@ export class ProjectsService {
     return project;
   }
 
-  async create(name: string, companyId: string) {
+  async create(name: string, companyId: string, appUrl?: string | null, docsUrl?: string | null, changelogUrl?: string | null) {
     const slug = await uniqueSlug(name, (s) =>
       this.repo.findBySlug(companyId, s).then((p) => p !== null),
     );
-    return this.repo.create(name, slug, companyId);
+    return this.repo.create(name, slug, companyId, appUrl, docsUrl, changelogUrl);
+  }
+
+  async updateLinks(id: string, data: { appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null }) {
+    await this.findById(id);
+    return this.repo.update(id, data);
   }
 
   async delete(id: string) {

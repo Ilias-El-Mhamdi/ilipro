@@ -1,14 +1,11 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCompanies, useCompanyProjects, useProjectClients, useProjectDeliverables } from '../../lib/queries';
-import type { Client, Deliverable } from '../../lib/queries';
+import { useCompanies, useCompanyProjects, useCompanyClients, useProjectDeliverables } from '../../lib/queries';
+import type { Deliverable } from '../../lib/queries';
 import { AdminLayout } from '../../components/templates/AdminLayout';
-import { Button } from '../../components/atoms/Button';
-import { Input } from '../../components/atoms/Input';
-import { Modal } from '../../components/molecules/Modal';
-import { ConfirmDialog } from '../../components/molecules/ConfirmDialog';
 import { FileDropZone } from '../../components/molecules/FileDropZone';
+import { ConfirmDialog } from '../../components/molecules/ConfirmDialog';
 import { UserCard } from '../../components/molecules/UserCard';
 import { api } from '../../lib/api';
 
@@ -35,35 +32,21 @@ export function ProjectDetailPage() {
 
   const { data: companies = [] } = useCompanies();
   const { data: projects = [] } = useCompanyProjects(companySlug!);
+  const { data: allClients = [] } = useCompanyClients(companySlug!);
+
   const company = companies.find((c) => c.slug === companySlug);
   const project = projects.find((p) => p.slug === projectSlug);
 
-  const { data: clients = [] } = useProjectClients(project?.id ?? '');
   const { data: deliverables = [] } = useProjectDeliverables(project?.id ?? '');
 
-  const [clientModalOpen, setClientModalOpen] = useState(false);
-  const [confirmClient, setConfirmClient] = useState<Client | null>(null);
   const [confirmDeliverable, setConfirmDeliverable] = useState<Deliverable | null>(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
 
-  const addClient = useMutation({
-    mutationFn: () => api.post(`/projects/${project?.id}/clients`, { name, email }),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['projects', project?.id, 'clients'] });
-      void qc.invalidateQueries({ queryKey: ['clients'] });
-      setClientModalOpen(false);
-      setName('');
-      setEmail('');
-    },
-  });
-
-  const removeClient = useMutation({
-    mutationFn: (id: string) => api.delete(`/clients/${id}`),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['projects', project?.id, 'clients'] });
-      setConfirmClient(null);
-    },
+  // Clients with active license access to this project
+  const accessClients = allClients.filter((c) => {
+    const license = c.license;
+    if (!license || license.status !== 'ACTIVE') return false;
+    if (license.type === 'ADMIN') return true;
+    return license.projectAccess.some((a) => a.projectId === project?.id);
   });
 
   const uploadDeliverable = useMutation({
@@ -100,29 +83,27 @@ export function ProjectDetailPage() {
       <h1 className="text-2xl font-bold mb-8">{project?.name ?? '...'}</h1>
 
       <div className="grid grid-cols-2 gap-6">
-        {/* Clients */}
+        {/* Clients avec accès */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Utilisateurs</h2>
-            <Button onClick={() => setClientModalOpen(true)}>+ Ajouter</Button>
+            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
+              Accès ({accessClients.length})
+            </h2>
           </div>
-          {clients.length === 0 ? (
-            <p className="text-gray-600 text-sm">Aucun utilisateur</p>
+          {accessClients.length === 0 ? (
+            <p className="text-gray-600 text-sm">Aucun client — gérez les licences depuis la page entreprise.</p>
           ) : (
-            <div className="grid grid-cols-4 gap-3">
-              {clients.map((c, i) => {
-                const remainder = clients.length % 4;
-                const isLast = i === clients.length - 1;
-                const span = isLast && remainder === 1 ? 'col-span-4'
-                  : isLast && remainder === 2 ? 'col-span-2'
-                  : isLast && remainder === 3 ? 'col-span-2'
-                  : '';
-                return (
-                  <div key={c.id} className={span}>
-                    <UserCard user={c} onDelete={setConfirmClient} />
-                  </div>
-                );
-              })}
+            <div className="grid grid-cols-2 gap-3">
+              {accessClients.map((c) => (
+                <UserCard
+                  key={c.id}
+                  client={c}
+                  license={c.license ?? null}
+                  projects={projects}
+                  companySlug={companySlug!}
+                  onDelete={() => {}}
+                />
+              ))}
             </div>
           )}
         </div>
@@ -163,27 +144,6 @@ export function ProjectDetailPage() {
           </div>
         </div>
       </div>
-
-      {clientModalOpen && (
-        <Modal title="Nouvel utilisateur" onClose={() => setClientModalOpen(false)}>
-          <form onSubmit={(e) => { e.preventDefault(); addClient.mutate(); }} className="flex flex-col gap-4">
-            <Input label="Nom" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom de l'utilisateur" autoFocus />
-            <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@exemple.com" />
-            <div className="flex gap-2 justify-end">
-              <Button type="button" variant="ghost" onClick={() => setClientModalOpen(false)}>Annuler</Button>
-              <Button type="submit" disabled={!name.trim() || !email.trim()}>Ajouter</Button>
-            </div>
-          </form>
-        </Modal>
-      )}
-
-      {confirmClient && (
-        <ConfirmDialog
-          message={`Supprimer l'utilisateur « ${confirmClient.name} » ?`}
-          onConfirm={() => removeClient.mutate(confirmClient.id)}
-          onCancel={() => setConfirmClient(null)}
-        />
-      )}
 
       {confirmDeliverable && (
         <ConfirmDialog

@@ -12,43 +12,109 @@ model Company {
   name      String
   slug      String    @unique
   projects  Project[]
+  clients   Client[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
 
 model Project {
-  id           String        @id @default(cuid())
-  name         String
-  slug         String
-  company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  companyId    String
-  clients      Client[]
-  deliverables Deliverable[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id             String           @id @default(cuid())
+  name           String
+  slug           String
+  appUrl         String?
+  docsUrl        String?
+  changelogUrl   String?
+  company        Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId      String
+  licenseProjects LicenseProject[]
+  deliverables   Deliverable[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   @@unique([companyId, slug])
 }
 
 model Client {
+  id               String    @id @default(cuid())
+  name             String
+  email            String
+  company          Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId        String
+  stripeCustomerId String?
+  license          License?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+enum LicenseType {
+  CLASSIC
+  FREE
+  ADMIN
+}
+
+enum LicenseStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+model License {
+  id                   String           @id @default(cuid())
+  client               Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId             String           @unique
+  type                 LicenseType
+  status               LicenseStatus
+
+  projectAccess        LicenseProject[]
+
+  machineLock          Boolean          @default(false)
+  maxMachines          Int              @default(1)
+  machines             LicenseMachine[]
+
+  // CLASSIC — synced via Stripe webhooks
+  stripeSubscriptionId String?
+  stripeProductId      String?
+  priceLabel           String?
+  currentPeriodEnd     DateTime?
+
+  // FREE — set manually by admin
+  validUntil           DateTime?
+
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+}
+
+model LicenseProject {
   id        String   @id @default(cuid())
-  name      String
-  email     String
+  license   License  @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+  licenseId String
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  @@unique([licenseId, projectId])
+}
+
+model LicenseMachine {
+  id          String    @id @default(cuid())
+  license     License   @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+  licenseId   String
+  machineId   String
+  label       String?
+  activatedAt DateTime  @default(now())
+  lastSeenAt  DateTime?
+
+  @@unique([licenseId, machineId])
 }
 
 model Deliverable {
-  id        String   @id @default(cuid())
-  name      String
-  url       String
-  mimeType  String
-  size      Int
+  id         String   @id @default(cuid())
+  name       String
+  url        String
+  mimeType   String
+  size       Int
   storageKey String
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

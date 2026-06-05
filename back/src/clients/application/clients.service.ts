@@ -9,8 +9,12 @@ export class ClientsService {
     return this.repo.findAll();
   }
 
-  findByProjectId(projectId: string) {
-    return this.repo.findByProjectId(projectId);
+  findByCompanyId(companyId: string) {
+    return this.repo.findByCompanyId(companyId);
+  }
+
+  findByEmail(email: string) {
+    return this.repo.findByEmail(email);
   }
 
   async findById(id: string) {
@@ -19,13 +23,18 @@ export class ClientsService {
     return client;
   }
 
-  create(name: string, email: string, projectId: string) {
-    return this.repo.create(name, email, projectId);
+  create(name: string, email: string, companyId: string) {
+    return this.repo.create(name, email, companyId);
   }
 
   async update(id: string, name: string, email: string) {
     await this.findById(id);
     return this.repo.update(id, name, email);
+  }
+
+  async setStripeCustomerId(id: string, stripeCustomerId: string) {
+    await this.findById(id);
+    return this.repo.setStripeCustomerId(id, stripeCustomerId);
   }
 
   async delete(id: string) {

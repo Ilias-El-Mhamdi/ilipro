@@ -3,10 +3,12 @@ import { ClientsController } from './presentation/clients.controller';
 import { ClientsService } from './application/clients.service';
 import { ClientRepository } from './domain/client.repository';
 import { PrismaClientRepository } from './infrastructure/prisma-client.repository';
-import { ProjectClientsController } from '../projects/presentation/project-clients.controller';
+import { CompanyClientsController } from '../companies/presentation/company-clients.controller';
+import { CompaniesModule } from '../companies/companies.module';
 
 @Module({
-  controllers: [ClientsController, ProjectClientsController],
+  imports: [CompaniesModule],
+  controllers: [ClientsController, CompanyClientsController],
   providers: [
     ClientsService,
     { provide: ClientRepository, useClass: PrismaClientRepository },

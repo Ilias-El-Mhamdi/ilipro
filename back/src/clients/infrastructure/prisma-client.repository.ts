@@ -7,27 +7,51 @@ import type { Client } from '../domain/client.entity';
 export class PrismaClientRepository implements ClientRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private licenseInclude = {
+    license: {
+      include: {
+        projectAccess: true,
+        machines: { orderBy: { activatedAt: 'asc' as const } },
+      },
+    },
+  };
+
   findAll(): Promise<Client[]> {
-    return this.prisma.client.findMany({ orderBy: { createdAt: 'desc' } });
+    return this.prisma.client.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: this.licenseInclude,
+    }) as Promise<Client[]>;
   }
 
-  findByProjectId(projectId: string): Promise<Client[]> {
+  findByCompanyId(companyId: string): Promise<Client[]> {
     return this.prisma.client.findMany({
-      where: { projectId },
+      where: { companyId },
       orderBy: { createdAt: 'desc' },
-    });
+      include: this.licenseInclude,
+    }) as Promise<Client[]>;
   }
 
   findById(id: string): Promise<Client | null> {
-    return this.prisma.client.findUnique({ where: { id } });
+    return this.prisma.client.findUnique({
+      where: { id },
+      include: this.licenseInclude,
+    }) as Promise<Client | null>;
   }
 
-  create(name: string, email: string, projectId: string): Promise<Client> {
-    return this.prisma.client.create({ data: { name, email, projectId } });
+  findByEmail(email: string): Promise<Client | null> {
+    return this.prisma.client.findFirst({ where: { email } });
+  }
+
+  create(name: string, email: string, companyId: string): Promise<Client> {
+    return this.prisma.client.create({ data: { name, email, companyId } });
   }
 
   update(id: string, name: string, email: string): Promise<Client> {
     return this.prisma.client.update({ where: { id }, data: { name, email } });
+  }
+
+  async setStripeCustomerId(id: string, stripeCustomerId: string): Promise<void> {
+    await this.prisma.client.update({ where: { id }, data: { stripeCustomerId } });
   }
 
   async delete(id: string): Promise<void> {

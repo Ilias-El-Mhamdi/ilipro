@@ -28,12 +28,12 @@ export class PrismaProjectRepository implements ProjectRepository {
     return this.prisma.project.findUnique({ where: { id } });
   }
 
-  create(name: string, slug: string, companyId: string): Promise<Project> {
-    return this.prisma.project.create({ data: { name, slug, companyId } });
+  create(name: string, slug: string, companyId: string, appUrl?: string | null, docsUrl?: string | null, changelogUrl?: string | null): Promise<Project> {
+    return this.prisma.project.create({ data: { name, slug, companyId, appUrl, docsUrl, changelogUrl } });
   }
 
-  update(id: string, name: string, slug: string): Promise<Project> {
-    return this.prisma.project.update({ where: { id }, data: { name, slug } });
+  update(id: string, data: { appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null }): Promise<Project> {
+    return this.prisma.project.update({ where: { id }, data });
   }
 
   async delete(id: string): Promise<void> {

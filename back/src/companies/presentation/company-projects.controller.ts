@@ -16,8 +16,14 @@ export class CompanyProjectsController {
   }
 
   @Post()
-  async create(@Param('companySlug') companySlug: string, @Body('name') name: string) {
+  async create(
+    @Param('companySlug') companySlug: string,
+    @Body('name') name: string,
+    @Body('appUrl') appUrl?: string,
+    @Body('docsUrl') docsUrl?: string,
+    @Body('changelogUrl') changelogUrl?: string,
+  ) {
     const company = await this.companiesService.findBySlug(companySlug);
-    return this.projectsService.create(name, company.id);
+    return this.projectsService.create(name, company.id, appUrl, docsUrl, changelogUrl);
   }
 }

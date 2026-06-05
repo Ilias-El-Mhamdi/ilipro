@@ -1,20 +1,45 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useProjectClients, useProjectDeliverables } from '../../lib/queries';
-import type { Project, Client, Deliverable } from '../../lib/queries';
+import { useProjectDeliverables } from '../../lib/queries';
+import type { Project, Client, Deliverable, LicenseType } from '../../lib/queries';
 import { Button } from '../atoms/Button';
 import { Input } from '../atoms/Input';
 import { Modal } from '../molecules/Modal';
 import { ConfirmDialog } from '../molecules/ConfirmDialog';
 import { FileDropZone } from '../molecules/FileDropZone';
-import { UserCard } from '../molecules/UserCard';
 import { api } from '../../lib/api';
 
 interface Props {
   project: Project;
   companySlug: string;
+  clients: Client[];
   onDeleteProject: (project: Project) => void;
+}
+
+const LICENSE_BADGE: Record<LicenseType, string> = {
+  FREE:    'bg-green-900/40 text-green-300 border border-green-800',
+  CLASSIC: 'bg-blue-900/40 text-blue-300 border border-blue-800',
+  ADMIN:   'bg-red-900/40 text-red-300 border border-red-800',
+};
+
+function LicenseBadge({ type }: { type: LicenseType }) {
+  return (
+    <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded ${LICENSE_BADGE[type]}`}>
+      {type}
+    </span>
+  );
+}
+
+function scrollAndHighlight(clientId: string) {
+  const el = document.getElementById(`user-${clientId}`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.style.transition = 'box-shadow 0.2s ease';
+  el.style.boxShadow = '0 0 0 2px #818cf8, 0 0 16px 2px #818cf840';
+  setTimeout(() => {
+    el.style.boxShadow = '';
+  }, 1500);
 }
 
 async function downloadFile(url: string, filename: string) {
@@ -34,34 +59,45 @@ function formatSize(bytes: number) {
   return `${(bytes / 1024 / 1024).toFixed(1)} Mo`;
 }
 
-export function ProjectCard({ project, companySlug, onDeleteProject }: Props) {
+function initials(name: string) {
+  return name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
+}
+
+const LINK_BUTTON_STYLE = {
+  app:       'border-green-800 text-green-400 hover:border-green-600 hover:text-green-300',
+  doc:       'border-blue-800 text-blue-400 hover:border-blue-600 hover:text-blue-300',
+  changelog: 'border-red-800 text-red-400 hover:border-red-600 hover:text-red-300',
+} as const;
+
+function LinkButton({ href, label, variant }: { href: string; label: string; variant: keyof typeof LINK_BUTTON_STYLE }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`text-xs px-2 py-1 rounded border transition-colors ${LINK_BUTTON_STYLE[variant]}`}
+    >
+      {label}
+    </a>
+  );
+}
+
+export function ProjectCard({ project, companySlug, clients, onDeleteProject }: Props) {
   const qc = useQueryClient();
-  const { data: clients = [] } = useProjectClients(project.id);
   const { data: deliverables = [] } = useProjectDeliverables(project.id);
 
-  const [clientModalOpen, setClientModalOpen] = useState(false);
-  const [confirmClient, setConfirmClient] = useState<Client | null>(null);
   const [confirmDeliverable, setConfirmDeliverable] = useState<Deliverable | null>(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [deliverableModalOpen, setDeliverableModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [appUrl, setAppUrl] = useState(project.appUrl ?? '');
+  const [docsUrl, setDocsUrl] = useState(project.docsUrl ?? '');
+  const [changelogUrl, setChangelogUrl] = useState(project.changelogUrl ?? '');
 
-  const addClient = useMutation({
-    mutationFn: () => api.post(`/projects/${project.id}/clients`, { name, email }),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['projects', project.id, 'clients'] });
-      void qc.invalidateQueries({ queryKey: ['clients'] });
-      setClientModalOpen(false);
-      setName('');
-      setEmail('');
-    },
-  });
-
-  const removeClient = useMutation({
-    mutationFn: (id: string) => api.delete(`/clients/${id}`),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['projects', project.id, 'clients'] });
-      setConfirmClient(null);
-    },
+  const accessClients = clients.filter((c) => {
+    const license = c.license;
+    if (!license || license.status !== 'ACTIVE') return false;
+    if (license.type === 'ADMIN') return true;
+    return license.projectAccess.some((a) => a.projectId === project.id);
   });
 
   const uploadDeliverable = useMutation({
@@ -74,6 +110,7 @@ export function ProjectCard({ project, companySlug, onDeleteProject }: Props) {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['projects', project.id, 'deliverables'] });
+      setDeliverableModalOpen(false);
     },
   });
 
@@ -85,8 +122,29 @@ export function ProjectCard({ project, companySlug, onDeleteProject }: Props) {
     },
   });
 
+  const updateLinks = useMutation({
+    mutationFn: () =>
+      api.patch(`/projects/${project.id}/links`, {
+        appUrl: appUrl || null,
+        docsUrl: docsUrl || null,
+        changelogUrl: changelogUrl || null,
+      }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'projects'] });
+      void qc.invalidateQueries({ queryKey: ['projects'] });
+      setEditModalOpen(false);
+    },
+  });
+
   function handleFiles(files: File[]) {
     files.forEach((file) => uploadDeliverable.mutate(file));
+  }
+
+  function openEditModal() {
+    setAppUrl(project.appUrl ?? '');
+    setDocsUrl(project.docsUrl ?? '');
+    setChangelogUrl(project.changelogUrl ?? '');
+    setEditModalOpen(true);
   }
 
   return (
@@ -100,43 +158,53 @@ export function ProjectCard({ project, companySlug, onDeleteProject }: Props) {
           >
             {project.name}
           </Link>
-          <button
-            onClick={() => {}}
-            className="text-xs px-2 py-1 rounded border border-gray-700 text-gray-400 hover:border-indigo-500 hover:text-indigo-400 transition-colors cursor-pointer"
-          >
-            Doc
-          </button>
-          <button
-            onClick={() => {}}
-            className="text-xs px-2 py-1 rounded border border-gray-700 text-gray-400 hover:border-indigo-500 hover:text-indigo-400 transition-colors cursor-pointer"
-          >
-            Changelog
-          </button>
+          {project.appUrl && <LinkButton href={project.appUrl} label="App" variant="app" />}
+          {project.docsUrl && <LinkButton href={project.docsUrl} label="Doc" variant="doc" />}
+          {project.changelogUrl && <LinkButton href={project.changelogUrl} label="Changelog" variant="changelog" />}
         </div>
-        <Button variant="danger" onClick={() => onDeleteProject(project)}>Supprimer</Button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={openEditModal}
+            className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded border border-gray-600 text-gray-300 hover:border-indigo-500 hover:text-indigo-300 transition-colors cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Éditer
+          </button>
+          <Button variant="danger" onClick={() => onDeleteProject(project)}>Supprimer</Button>
+        </div>
       </div>
 
       {/* Body */}
       <div className="grid grid-cols-2 divide-x divide-gray-800">
-        {/* Clients */}
+        {/* Accès (read-only) */}
         <div className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs text-gray-500 uppercase tracking-wide">Utilisateurs</span>
-            <button
-              onClick={() => setClientModalOpen(true)}
-              className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
-            >
-              + Ajouter
-            </button>
+            <span className="text-xs text-gray-500 uppercase tracking-wide">
+              Accès ({accessClients.length})
+            </span>
           </div>
-          {clients.length === 0 ? (
-            <p className="text-gray-600 text-sm">Aucun utilisateur</p>
+          {accessClients.length === 0 ? (
+            <p className="text-gray-600 text-sm">Aucun client</p>
           ) : (
-            <div className="grid grid-cols-2 gap-2">
-              {clients.map((c, i) => (
-                <div key={c.id} className={i === clients.length - 1 && clients.length % 2 !== 0 ? 'col-span-2' : ''}>
-                  <UserCard user={c} onDelete={setConfirmClient} />
-                </div>
+            <div className="flex flex-col gap-1.5">
+              {accessClients.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => scrollAndHighlight(c.id)}
+                  className="w-full flex items-center gap-2 rounded-md px-1 py-0.5 hover:bg-gray-800/60 transition-colors cursor-pointer text-left"
+                >
+                  <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                    {initials(c.name)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="text-xs text-gray-300">{c.name}</span>
+                    <span className="text-xs text-gray-600 ml-1.5">{c.email}</span>
+                  </div>
+                  {c.license?.type && <LicenseBadge type={c.license.type} />}
+                </button>
               ))}
             </div>
           )}
@@ -172,26 +240,44 @@ export function ProjectCard({ project, companySlug, onDeleteProject }: Props) {
         </div>
       </div>
 
-      {/* Modal client */}
-      {clientModalOpen && (
-        <Modal title="Nouvel utilisateur" onClose={() => setClientModalOpen(false)}>
-          <form onSubmit={(e) => { e.preventDefault(); addClient.mutate(); }} className="flex flex-col gap-4">
-            <Input label="Nom" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom de l'utilisateur" autoFocus />
-            <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@exemple.com" />
-            <div className="flex gap-2 justify-end">
-              <Button type="button" variant="ghost" onClick={() => setClientModalOpen(false)}>Annuler</Button>
-              <Button type="submit" disabled={!name.trim() || !email.trim()}>Ajouter</Button>
-            </div>
-          </form>
+      {deliverableModalOpen && (
+        <Modal title="Ajouter un livrable" onClose={() => setDeliverableModalOpen(false)}>
+          <FileDropZone onFiles={handleFiles} loading={uploadDeliverable.isPending} />
         </Modal>
       )}
 
-      {confirmClient && (
-        <ConfirmDialog
-          message={`Supprimer l'utilisateur « ${confirmClient.name} » ?`}
-          onConfirm={() => removeClient.mutate(confirmClient.id)}
-          onCancel={() => setConfirmClient(null)}
-        />
+      {editModalOpen && (
+        <Modal title={`Éditer — ${project.name}`} onClose={() => setEditModalOpen(false)}>
+          <form
+            onSubmit={(e) => { e.preventDefault(); updateLinks.mutate(); }}
+            className="flex flex-col gap-4"
+          >
+            <Input
+              label="URL App"
+              value={appUrl}
+              onChange={(e) => setAppUrl(e.target.value)}
+              placeholder="https://app.exemple.com"
+            />
+            <Input
+              label="URL Documentation"
+              value={docsUrl}
+              onChange={(e) => setDocsUrl(e.target.value)}
+              placeholder="https://docs.exemple.com"
+            />
+            <Input
+              label="URL Changelog"
+              value={changelogUrl}
+              onChange={(e) => setChangelogUrl(e.target.value)}
+              placeholder="https://changelog.exemple.com"
+            />
+            <div className="flex gap-2 justify-end">
+              <Button type="button" variant="ghost" onClick={() => setEditModalOpen(false)}>
+                Annuler
+              </Button>
+              <Button type="submit" disabled={updateLinks.isPending}>Enregistrer</Button>
+            </div>
+          </form>
+        </Modal>
       )}
 
       {confirmDeliverable && (

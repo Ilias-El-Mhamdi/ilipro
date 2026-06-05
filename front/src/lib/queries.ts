@@ -12,15 +12,53 @@ export interface Project {
   id: string;
   name: string;
   slug: string;
+  appUrl: string | null;
+  docsUrl: string | null;
+  changelogUrl: string | null;
   companyId: string;
   createdAt: string;
+}
+
+export interface LicenseMachine {
+  id: string;
+  machineId: string;
+  label: string | null;
+  activatedAt: string;
+  lastSeenAt: string | null;
+}
+
+export interface LicenseProject {
+  id: string;
+  licenseId: string;
+  projectId: string;
+}
+
+export type LicenseType = 'CLASSIC' | 'FREE' | 'ADMIN';
+export type LicenseStatus = 'ACTIVE' | 'EXPIRED' | 'CANCELLED';
+
+export interface License {
+  id: string;
+  clientId: string;
+  type: LicenseType;
+  status: LicenseStatus;
+  projectAccess: LicenseProject[];
+  machineLock: boolean;
+  maxMachines: number;
+  machines: LicenseMachine[];
+  stripeSubscriptionId: string | null;
+  stripeProductId: string | null;
+  priceLabel: string | null;
+  currentPeriodEnd: string | null;
+  validUntil: string | null;
 }
 
 export interface Client {
   id: string;
   name: string;
   email: string;
-  projectId: string;
+  companyId: string;
+  stripeCustomerId: string | null;
+  license?: License | null;
   createdAt: string;
 }
 
@@ -62,10 +100,18 @@ export function useCompanyProjects(companySlug: string) {
   });
 }
 
-export function useProjectClients(projectId: string) {
+export function useCompanyClients(companySlug: string) {
   return useQuery<Client[]>({
-    queryKey: ['projects', projectId, 'clients'],
-    queryFn: () => api.get(`/projects/${projectId}/clients`).then((r) => r.data),
+    queryKey: ['companies', companySlug, 'clients'],
+    queryFn: () => api.get(`/companies/${companySlug}/clients`).then((r) => r.data),
+  });
+}
+
+export function useClientLicense(clientId: string) {
+  return useQuery<License>({
+    queryKey: ['clients', clientId, 'license'],
+    queryFn: () => api.get(`/licenses/client/${clientId}`).then((r) => r.data),
+    retry: false,
   });
 }
 
