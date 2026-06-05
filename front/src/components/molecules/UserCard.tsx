@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import type { Client, License, LicenseType, LicenseStatus, Project } from '../../lib/queries';
 import { LicenseModal } from './LicenseModal';
 import { Modal } from './Modal';
@@ -12,6 +13,7 @@ interface Props {
   license: License | null;
   projects: Project[];
   companySlug: string;
+  companyId: string;
   onDelete: (client: Client) => void;
 }
 
@@ -202,8 +204,9 @@ function PanelMachines({ license }: { license: License | null }) {
 const PANELS = ['Général', 'Projets', 'Machines'] as const;
 
 // ─── UserCard ─────────────────────────────────────────────────────────────────
-export function UserCard({ client, license, projects, companySlug, onDelete }: Props) {
+export function UserCard({ client, license, projects, companySlug, companyId, onDelete }: Props) {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [panel, setPanel] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -337,7 +340,7 @@ export function UserCard({ client, license, projects, companySlug, onDelete }: P
             {license ? 'Gérer' : '+ Licence'}
           </button>
           <button
-            onClick={() => window.open(window.location.href, '_blank')}
+            onClick={() => navigate(`/admin/users/${client.slug}`)}
             className="flex-1 text-xs py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors cursor-pointer"
           >
             See as
@@ -384,6 +387,7 @@ export function UserCard({ client, license, projects, companySlug, onDelete }: P
           license={license}
           projects={projects}
           companySlug={companySlug}
+          companyId={companyId}
           onClose={() => setModalOpen(false)}
         />
       )}

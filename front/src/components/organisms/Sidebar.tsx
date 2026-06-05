@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCompanies, useProjects, useClients } from '../../lib/queries';
-// useClients kept for search only
 
 function ChevronIcon({ open }: { open: boolean }) {
   return (
@@ -46,7 +45,10 @@ export function Sidebar() {
     return {
       companies: companies.filter((c) => c.name.toLowerCase().includes(q)),
       projects: projects.filter((p) => p.name.toLowerCase().includes(q)),
-      clients: clients.filter((c) => c.name.toLowerCase().includes(q)),
+      clients: clients.filter((c) =>
+        `${c.firstName} ${c.lastName}`.toLowerCase().includes(q) ||
+        c.email.toLowerCase().includes(q)
+      ),
     };
   }, [query, companies, projects, clients]);
 
@@ -69,6 +71,7 @@ export function Sidebar() {
   }
 
   const activeCompanySlug = location.pathname.match(/\/admin\/companies\/([^/]+)/)?.[1];
+  const isUsersActive = location.pathname.startsWith('/admin/users');
 
   return (
     <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col h-full">
@@ -117,32 +120,33 @@ export function Sidebar() {
                 {searchResults.projects.length > 0 && (
                   <div>
                     <p className="text-gray-500 text-xs px-3 pt-2 pb-1 uppercase tracking-wide">Projets</p>
-                    {searchResults.projects.map((p) => (
-                      <button
-                        key={p.id}
-                        onClick={() => { navigate(`/admin/companies/${companySlugById(p.companyId)}`); setQuery(''); }}
-                        className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700 cursor-pointer"
-                      >
-                        {p.name}
-                      </button>
-                    ))}
+                    {searchResults.projects.map((p) => {
+                      const companyName = companies.find((c) => c.id === p.companyId)?.name ?? '';
+                      return (
+                        <button
+                          key={p.id}
+                          onClick={() => { navigate(`/admin/companies/${companySlugById(p.companyId)}`); setQuery(''); }}
+                          className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700 cursor-pointer flex items-center gap-1.5 min-w-0"
+                        >
+                          <span className="shrink-0">{p.name}</span>
+                          <span className="text-gray-500 truncate">— {companyName}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
                 {searchResults.clients.length > 0 && (
                   <div>
                     <p className="text-gray-500 text-xs px-3 pt-2 pb-1 uppercase tracking-wide">Utilisateurs</p>
-                    {searchResults.clients.map((c) => {
-                      const project = projects.find((p) => p.id === c.projectId);
-                      return (
-                        <button
-                          key={c.id}
-                          onClick={() => { if (project) { navigate(`/admin/companies/${companySlugById(project.companyId)}`); } setQuery(''); }}
-                          className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700 cursor-pointer"
-                        >
-                          {c.name}
-                        </button>
-                      );
-                    })}
+                    {searchResults.clients.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => { navigate(`/admin/users/${c.slug}`); setQuery(''); }}
+                        className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700 cursor-pointer"
+                      >
+                        {c.firstName} {c.lastName}
+                      </button>
+                    ))}
                   </div>
                 )}
               </>
@@ -152,6 +156,44 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3">
+        {/* Utilisateurs section */}
+        <Link
+          to="/admin/users"
+          className={`text-xs uppercase tracking-wide px-2 mb-2 block transition-colors ${
+            isUsersActive ? 'text-indigo-400' : 'text-gray-500 hover:text-gray-300'
+          }`}
+        >
+          Utilisateurs
+        </Link>
+        <div className="mb-4">
+          {clients.length === 0 ? (
+            <p className="text-gray-600 text-xs px-2">Aucun utilisateur</p>
+          ) : (
+            clients.slice(0, 5).map((c) => (
+              <button
+                key={c.id}
+                onClick={() => navigate(`/admin/users/${c.slug}`)}
+                className={`w-full text-left py-1.5 px-2 text-sm truncate rounded-md cursor-pointer transition-colors ${
+                  location.pathname === `/admin/users/${c.slug}`
+                    ? 'text-white bg-indigo-900/40'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                {c.firstName} {c.lastName}
+              </button>
+            ))
+          )}
+          {clients.length > 5 && (
+            <button
+              onClick={() => navigate('/admin/users')}
+              className="w-full text-left py-1 px-2 text-xs text-gray-600 hover:text-gray-400 cursor-pointer"
+            >
+              + {clients.length - 5} autres
+            </button>
+          )}
+        </div>
+
+        {/* Entreprises section */}
         <Link
           to="/admin/companies"
           className="text-gray-500 hover:text-gray-300 text-xs uppercase tracking-wide px-2 mb-2 block transition-colors"
@@ -190,13 +232,7 @@ export function Sidebar() {
                 <button
                   key={project.id}
                   onClick={() => {
-                    const id = `project-${project.slug}`;
-                    const el = document.getElementById(id);
-                    if (el) {
-                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    } else {
-                      navigate(`/admin/companies/${company.slug}#${id}`);
-                    }
+                    navigate(`/admin/companies/${company.slug}#project-${project.slug}`);
                   }}
                   className="ml-6 w-full text-left py-1 px-2 text-sm text-gray-400 hover:text-white transition-colors truncate block cursor-pointer"
                 >

@@ -107,17 +107,18 @@ export class StripeController {
 
     let client = await this.clientsService.findByEmail(dto.email);
     if (!client) {
-      client = await this.clientsService.create(
-        dto.name ?? dto.email,
-        '',
-        dto.email,
-        dto.companyId,
-      );
+      if (dto.companyId) {
+        client = await this.clientsService.createOrLink(dto.name ?? dto.email, '', dto.email, dto.companyId);
+      } else {
+        client = await this.clientsService.create(dto.name ?? dto.email, '', dto.email);
+      }
     }
 
     await this.clientsService.setStripeCustomerId(client.id, fakeCustomerId);
 
-    const existing = await this.licensesService.findByClientIdOrNull(client.id);
+    const existing = dto.companyId
+      ? await this.licensesService.findByClientAndCompany(client.id, dto.companyId)
+      : null;
     let license;
 
     if (existing) {
@@ -130,6 +131,7 @@ export class StripeController {
     } else {
       license = await this.licensesService.create({
         clientId: client.id,
+        companyId: dto.companyId,
         type: 'CLASSIC',
         status: 'ACTIVE',
         stripeSubscriptionId: fakeSubscriptionId,
@@ -168,7 +170,7 @@ export class StripeController {
     if (!client) {
       const companyId = subscription.metadata?.companyId;
       if (!companyId) return;
-      client = await this.clientsService.create(
+      client = await this.clientsService.createOrLink(
         customer.name ?? customer.email ?? 'Unknown',
         '',
         customer.email ?? '',
@@ -178,8 +180,11 @@ export class StripeController {
 
     await this.clientsService.setStripeCustomerId(client.id, customerId);
 
+    const companyId = subscription.metadata?.companyId;
+    if (!companyId) return;
+
     const item = subscription.items.data[0];
-    const existing = await this.licensesService.findByClientIdOrNull(client.id);
+    const existing = await this.licensesService.findByClientAndCompany(client.id, companyId);
 
     if (existing) {
       await this.licensesService.update(existing.id, {
@@ -191,6 +196,7 @@ export class StripeController {
     } else {
       await this.licensesService.create({
         clientId: client.id,
+        companyId,
         type: 'CLASSIC',
         status: 'ACTIVE',
         stripeSubscriptionId: subscription.id,

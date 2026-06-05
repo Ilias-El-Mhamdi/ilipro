@@ -12,6 +12,7 @@ import type { LicenseType, LicenseStatus } from '../domain/license.entity';
 
 interface CreateLicenseDto {
   clientId: string;
+  companyId: string;
   type: LicenseType;
   status?: LicenseStatus;
   projectIds?: string[];

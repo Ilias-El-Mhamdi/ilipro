@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Patch } from '@nestjs/common';
 import { ClientsService } from '../../clients/application/clients.service';
 import { CompaniesService } from '../application/companies.service';
 
@@ -16,14 +16,14 @@ export class CompanyClientsController {
   }
 
   @Post()
-  async create(
+  async createOrLink(
     @Param('companySlug') companySlug: string,
     @Body('firstName') firstName: string,
     @Body('lastName') lastName: string,
     @Body('email') email: string,
   ) {
     const company = await this.companiesService.findBySlug(companySlug);
-    return this.clientsService.create(firstName, lastName, email, company.id);
+    return this.clientsService.createOrLink(firstName, lastName, email, company.id);
   }
 
   @Put(':clientId')
@@ -35,8 +35,21 @@ export class CompanyClientsController {
     return this.clientsService.update(clientId, firstName, lastName);
   }
 
+  @Patch(':clientId/link')
+  async linkExisting(
+    @Param('companySlug') companySlug: string,
+    @Param('clientId') clientId: string,
+  ) {
+    const company = await this.companiesService.findBySlug(companySlug);
+    return this.clientsService.linkToCompany(clientId, company.id);
+  }
+
   @Delete(':clientId')
-  delete(@Param('clientId') clientId: string) {
-    return this.clientsService.delete(clientId);
+  async unlink(
+    @Param('companySlug') companySlug: string,
+    @Param('clientId') clientId: string,
+  ) {
+    const company = await this.companiesService.findBySlug(companySlug);
+    return this.clientsService.unlinkFromCompany(clientId, company.id);
   }
 }

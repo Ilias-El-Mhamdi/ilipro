@@ -15,13 +15,17 @@ export class LicensesService {
     return this.repo.findByClientId(clientId);
   }
 
+  findByClientAndCompany(clientId: string, companyId: string) {
+    return this.repo.findByClientAndCompany(clientId, companyId);
+  }
+
   findByStripeSubscriptionId(subscriptionId: string) {
     return this.repo.findByStripeSubscriptionId(subscriptionId);
   }
 
   async create(input: CreateLicenseInput) {
-    const existing = await this.repo.findByClientId(input.clientId);
-    if (existing) throw new BadRequestException(`Client ${input.clientId} already has a license`);
+    const existing = await this.repo.findByClientAndCompany(input.clientId, input.companyId);
+    if (existing) throw new BadRequestException(`Client already has a license for this company`);
     return this.repo.create(input);
   }
 

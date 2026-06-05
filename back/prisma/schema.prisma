@@ -8,13 +8,14 @@ datasource db {
 }
 
 model Company {
-  id        String    @id @default(cuid())
+  id        String          @id @default(cuid())
   name      String
-  slug      String    @unique
+  slug      String          @unique
   projects  Project[]
-  clients   Client[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  clients   ClientCompany[]
+  licenses  License[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
 }
 
 model Project {
@@ -35,16 +36,27 @@ model Project {
 }
 
 model Client {
-  id               String    @id @default(cuid())
+  id               String          @id @default(cuid())
+  slug             String          @unique
   firstName        String
   lastName         String
-  email            String    @unique
-  company          Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  companyId        String
+  email            String          @unique
+  companies        ClientCompany[]
   stripeCustomerId String?
-  license          License?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  licenses         License[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model ClientCompany {
+  id        String   @id @default(cuid())
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId  String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
+  createdAt DateTime @default(now())
+
+  @@unique([clientId, companyId])
 }
 
 enum LicenseType {
@@ -62,7 +74,9 @@ enum LicenseStatus {
 model License {
   id                   String           @id @default(cuid())
   client               Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  clientId             String           @unique
+  clientId             String
+  company              Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId            String
   type                 LicenseType
   status               LicenseStatus
 
@@ -83,6 +97,8 @@ model License {
 
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
+
+  @@unique([clientId, companyId])
 }
 
 model LicenseProject {

@@ -19,6 +19,7 @@ export class LicenseProject {
 export class License {
   id: string;
   clientId: string;
+  companyId: string;
   type: LicenseType;
   status: LicenseStatus;
   projectAccess: LicenseProject[];

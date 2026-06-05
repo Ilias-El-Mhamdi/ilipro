@@ -10,6 +10,7 @@ interface Props {
   license: License | null;
   projects: Project[];
   companySlug: string;
+  companyId: string;
   onClose: () => void;
 }
 
@@ -25,7 +26,7 @@ const STATUS_LABELS: Record<LicenseStatus, string> = {
   CANCELLED: 'Annulé',
 };
 
-export function LicenseModal({ client, license, projects, companySlug, onClose }: Props) {
+export function LicenseModal({ client, license, projects, companySlug, companyId, onClose }: Props) {
   const qc = useQueryClient();
 
   const [type, setType] = useState<LicenseType>(license?.type ?? 'FREE');
@@ -59,7 +60,7 @@ export function LicenseModal({ client, license, projects, companySlug, onClose }
       if (license) {
         return api.patch(`/licenses/${license.id}`, payload);
       }
-      return api.post('/licenses', { ...payload, clientId: client.id });
+      return api.post('/licenses', { ...payload, clientId: client.id, companyId });
     },
     onSuccess: () => {
       invalidate();
@@ -93,8 +94,8 @@ export function LicenseModal({ client, license, projects, companySlug, onClose }
     mutationFn: () =>
       api.post('/stripe/dev/simulate', {
         email: client.email,
-        name: client.name,
-        companyId: client.companyId,
+        name: `${client.firstName} ${client.lastName}`,
+        companyId,
       }),
     onSuccess: () => {
       invalidate();
@@ -111,7 +112,7 @@ export function LicenseModal({ client, license, projects, companySlug, onClose }
   const machines = license?.machines ?? [];
 
   return (
-    <Modal title={`Licence — ${client.name}`} onClose={onClose}>
+    <Modal title={`Licence — ${client.firstName} ${client.lastName}`} onClose={onClose}>
       <div className="flex flex-col gap-5">
 
         {/* Type */}

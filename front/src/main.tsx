@@ -6,6 +6,8 @@ import './index.css';
 import { CompaniesPage } from './pages/admin/CompaniesPage';
 import { CompanyDetailPage } from './pages/admin/CompanyDetailPage';
 import { ProjectDetailPage } from './pages/admin/ProjectDetailPage';
+import { UsersPage } from './pages/admin/UsersPage';
+import { UserDetailPage } from './pages/admin/UserDetailPage';
 
 const queryClient = new QueryClient();
 
@@ -18,6 +20,8 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/admin/companies" element={<CompaniesPage />} />
           <Route path="/admin/companies/:companySlug" element={<CompanyDetailPage />} />
           <Route path="/admin/companies/:companySlug/projects/:projectSlug" element={<ProjectDetailPage />} />
+          <Route path="/admin/users" element={<UsersPage />} />
+          <Route path="/admin/users/:userSlug" element={<UserDetailPage />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

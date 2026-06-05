@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCompanies, useCompanyProjects, useCompanyClients } from '../../lib/queries';
+import { useCompanies, useCompanyProjects, useCompanyClients, useClients } from '../../lib/queries';
 import type { Project, Client } from '../../lib/queries';
 import { AdminLayout } from '../../components/templates/AdminLayout';
 import { Button } from '../../components/atoms/Button';
@@ -20,6 +20,7 @@ export function CompanyDetailPage() {
   const { data: companies = [] } = useCompanies();
   const { data: projects = [], isLoading: projectsLoading } = useCompanyProjects(companySlug!);
   const { data: clients = [], isLoading: clientsLoading } = useCompanyClients(companySlug!);
+  const { data: allClients = [] } = useClients();
 
   useEffect(() => {
     if (!hash || projectsLoading) return;
@@ -40,6 +41,9 @@ export function CompanyDetailPage() {
   const [clientFirstName, setClientFirstName] = useState('');
   const [clientLastName, setClientLastName] = useState('');
   const [clientEmail, setClientEmail] = useState('');
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
+  const [linkSearch, setLinkSearch] = useState('');
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
   const company = companies.find((c) => c.slug === companySlug);
 
@@ -91,10 +95,32 @@ export function CompanyDetailPage() {
   });
 
   const removeClient = useMutation({
-    mutationFn: (clientId: string) => api.delete(`/clients/${clientId}`),
+    mutationFn: (clientId: string) => api.delete(`/companies/${companySlug}/clients/${clientId}`),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'clients'] });
+      void qc.invalidateQueries({ queryKey: ['clients'] });
       setConfirmClient(null);
+    },
+  });
+
+  const linkedIds = useMemo(() => new Set(clients.map((c) => c.id)), [clients]);
+
+  const linkableClients = useMemo(() => {
+    const q = linkSearch.toLowerCase();
+    return allClients.filter((c) => {
+      if (linkedIds.has(c.id)) return false;
+      if (!q) return true;
+      return `${c.firstName} ${c.lastName} ${c.email}`.toLowerCase().includes(q);
+    });
+  }, [allClients, linkedIds, linkSearch]);
+
+  const linkClient = useMutation({
+    mutationFn: (clientId: string) => api.patch(`/companies/${companySlug}/clients/${clientId}/link`, {}),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'clients'] });
+      setLinkModalOpen(false);
+      setLinkSearch('');
+      setSelectedClientId(null);
     },
   });
 
@@ -136,19 +162,26 @@ export function CompanyDetailPage() {
             </svg>
           </button>
         )}
-        <Button onClick={() => setProjectModalOpen(true)}>+ Ajouter un projet</Button>
       </div>
 
       {/* Clients section */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xs text-gray-500 uppercase tracking-widest">Utilisateurs</h2>
-          <button
-            onClick={() => setClientModalOpen(true)}
-            className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
-          >
-            + Ajouter
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => { setLinkModalOpen(true); setLinkSearch(''); setSelectedClientId(null); }}
+              className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
+            >
+              + Lier
+            </button>
+            <button
+              onClick={() => setClientModalOpen(true)}
+              className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
+            >
+              + Ajouter
+            </button>
+          </div>
         </div>
 
         {clientsLoading ? (
@@ -164,6 +197,7 @@ export function CompanyDetailPage() {
                   license={client.license ?? null}
                   projects={projects}
                   companySlug={companySlug!}
+                  companyId={company?.id ?? ''}
                   onDelete={setConfirmClient}
                 />
               </div>
@@ -175,6 +209,12 @@ export function CompanyDetailPage() {
       {/* Projects section */}
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-xs text-gray-500 uppercase tracking-widest">Projets</h2>
+        <button
+          onClick={() => setProjectModalOpen(true)}
+          className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
+        >
+          + Ajouter
+        </button>
       </div>
 
       {projectsLoading ? (
@@ -279,6 +319,58 @@ export function CompanyDetailPage() {
         </Modal>
       )}
 
+      {/* Link existing client modal */}
+      {linkModalOpen && (
+        <Modal title="Lier un utilisateur existant" onClose={() => setLinkModalOpen(false)}>
+          <div className="flex flex-col gap-4">
+            <input
+              autoFocus
+              value={linkSearch}
+              onChange={(e) => setLinkSearch(e.target.value)}
+              placeholder="Rechercher par nom ou email..."
+              className="w-full bg-[#1a1f2e] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:border-indigo-500"
+            />
+            <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
+              {linkableClients.length === 0 ? (
+                <p className="text-gray-500 text-sm text-center py-4">Aucun utilisateur disponible.</p>
+              ) : (
+                linkableClients.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => setSelectedClientId(c.id)}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors cursor-pointer ${
+                      selectedClientId === c.id
+                        ? 'bg-indigo-600/30 border border-indigo-500'
+                        : 'hover:bg-white/5 border border-transparent'
+                    }`}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                      {c.firstName[0]}{c.lastName[0]}
+                    </div>
+                    <div>
+                      <div className="text-sm text-white font-medium">{c.firstName} {c.lastName}</div>
+                      <div className="text-xs text-gray-400">{c.email}</div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button type="button" variant="ghost" onClick={() => setLinkModalOpen(false)}>
+                Annuler
+              </Button>
+              <Button
+                type="button"
+                disabled={!selectedClientId || linkClient.isPending}
+                onClick={() => selectedClientId && linkClient.mutate(selectedClientId)}
+              >
+                Lier
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
       {confirmProject && (
         <ConfirmDialog
           message={`Supprimer le projet « ${confirmProject.name} » ? Cette action est irréversible.`}
@@ -289,7 +381,7 @@ export function CompanyDetailPage() {
 
       {confirmClient && (
         <ConfirmDialog
-          message={`Supprimer le client « ${confirmClient.name} » ?`}
+          message={`Retirer « ${confirmClient.firstName} ${confirmClient.lastName} » de cette entreprise ?`}
           onConfirm={() => removeClient.mutate(confirmClient.id)}
           onCancel={() => setConfirmClient(null)}
         />

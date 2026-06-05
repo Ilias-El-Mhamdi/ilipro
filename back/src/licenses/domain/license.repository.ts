@@ -3,6 +3,7 @@ import type { LicenseType, LicenseStatus } from './license.entity';
 
 export interface CreateLicenseInput {
   clientId: string;
+  companyId: string;
   type: LicenseType;
   status: LicenseStatus;
   projectIds?: string[];
@@ -30,6 +31,7 @@ export interface UpdateLicenseInput {
 
 export abstract class LicenseRepository {
   abstract findByClientId(clientId: string): Promise<License | null>;
+  abstract findByClientAndCompany(clientId: string, companyId: string): Promise<License | null>;
   abstract findByStripeSubscriptionId(subscriptionId: string): Promise<License | null>;
   abstract create(input: CreateLicenseInput): Promise<License>;
   abstract update(id: string, input: UpdateLicenseInput): Promise<License>;

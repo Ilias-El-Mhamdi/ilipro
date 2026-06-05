@@ -13,8 +13,15 @@ export class PrismaLicenseRepository implements LicenseRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   findByClientId(clientId: string): Promise<License | null> {
-    return this.prisma.license.findUnique({
+    return this.prisma.license.findFirst({
       where: { clientId },
+      include: licenseInclude,
+    }) as Promise<License | null>;
+  }
+
+  findByClientAndCompany(clientId: string, companyId: string): Promise<License | null> {
+    return this.prisma.license.findUnique({
+      where: { clientId_companyId: { clientId, companyId } },
       include: licenseInclude,
     }) as Promise<License | null>;
   }
@@ -38,7 +45,7 @@ export class PrismaLicenseRepository implements LicenseRepository {
           : undefined,
       },
       include: licenseInclude,
-    }) as Promise<License>;
+    }) as unknown as Promise<License>;
   }
 
   async update(id: string, input: UpdateLicenseInput): Promise<License> {
@@ -57,7 +64,7 @@ export class PrismaLicenseRepository implements LicenseRepository {
           : undefined,
       },
       include: licenseInclude,
-    }) as Promise<License>;
+    }) as unknown as Promise<License>;
   }
 
   async delete(id: string): Promise<void> {

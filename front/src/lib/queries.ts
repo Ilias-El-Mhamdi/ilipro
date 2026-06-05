@@ -31,6 +31,7 @@ export interface LicenseProject {
   id: string;
   licenseId: string;
   projectId: string;
+  project?: Project;
 }
 
 export type LicenseType = 'CLASSIC' | 'FREE' | 'ADMIN';
@@ -39,6 +40,7 @@ export type LicenseStatus = 'ACTIVE' | 'EXPIRED' | 'CANCELLED';
 export interface License {
   id: string;
   clientId: string;
+  companyId: string;
   type: LicenseType;
   status: LicenseStatus;
   projectAccess: LicenseProject[];
@@ -54,12 +56,31 @@ export interface License {
 
 export interface Client {
   id: string;
+  slug: string;
   firstName: string;
   lastName: string;
   email: string;
-  companyId: string;
   stripeCustomerId: string | null;
   license?: License | null;
+  createdAt: string;
+}
+
+export interface ClientCompanySection {
+  id: string;
+  name: string;
+  slug: string;
+  license: License | null;
+  projects: Project[];
+}
+
+export interface ClientDetail {
+  id: string;
+  slug: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  stripeCustomerId: string | null;
+  companies: ClientCompanySection[];
   createdAt: string;
 }
 
@@ -91,6 +112,22 @@ export function useClients() {
   return useQuery<Client[]>({
     queryKey: ['clients'],
     queryFn: () => api.get('/clients').then((r) => r.data),
+  });
+}
+
+export function useClient(id: string) {
+  return useQuery<Client>({
+    queryKey: ['clients', id],
+    queryFn: () => api.get(`/clients/${id}`).then((r) => r.data),
+    enabled: !!id,
+  });
+}
+
+export function useClientBySlug(slug: string) {
+  return useQuery<ClientDetail>({
+    queryKey: ['clients', 'slug', slug],
+    queryFn: () => api.get(`/clients/slug/${slug}`).then((r) => r.data),
+    enabled: !!slug,
   });
 }
 
