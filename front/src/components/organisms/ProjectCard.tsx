@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useProjectDeliverables } from '../../lib/queries';
 import type { Project, Client, Deliverable, LicenseType } from '../../lib/queries';
@@ -163,12 +162,7 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-gray-900/60 border-b border-gray-800">
         <div className="flex items-center gap-3">
-          <Link
-            to={`/admin/companies/${companySlug}/projects/${project.slug}`}
-            className="font-semibold text-white hover:text-indigo-400 transition-colors"
-          >
-            {project.name}
-          </Link>
+          <span className="font-semibold text-white">{project.name}</span>
           {project.appUrl && <LinkButton href={project.appUrl} label="App" variant="app" />}
           {project.docsUrl && <LinkButton href={project.docsUrl} label="Doc" variant="doc" />}
           {project.changelogUrl && <LinkButton href={project.changelogUrl} label="Changelog" variant="changelog" />}
