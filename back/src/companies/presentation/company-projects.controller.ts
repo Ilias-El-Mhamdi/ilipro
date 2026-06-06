@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { ProjectsUc } from '../../projects/useCase/projects.uc';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { IProjectRepository } from '../../projects/domain/project.abstract-repository';
 import { ICompanyRepository } from '../domain/company.abstract-repository';
+import { AdminGuard } from '../../auth/guards/admin.guard';
 
+@UseGuards(AdminGuard)
 @Controller('companies/:companySlug/projects')
 export class CompanyProjectsController {
   constructor(

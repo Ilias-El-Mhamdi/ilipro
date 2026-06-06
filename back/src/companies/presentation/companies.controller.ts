@@ -1,6 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UseGuards } from '@nestjs/common';
 import { ICompanyRepository } from '../domain/company.abstract-repository';
+import { AdminGuard } from '../../auth/guards/admin.guard';
 
+@UseGuards(AdminGuard)
 @Controller('companies')
 export class CompaniesController {
   constructor(private readonly repo: ICompanyRepository) {}

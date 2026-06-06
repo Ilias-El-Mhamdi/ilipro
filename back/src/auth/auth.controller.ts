@@ -2,10 +2,12 @@ import { BadRequestException, Body, Controller, Get, HttpCode, Post, Req, Res, U
 import type { Request, Response } from 'express';
 import { JwtUc } from './useCase/jwt.uc';
 import { OtpUc } from './useCase/otp.uc';
+import { Public } from './decorators/public.decorator';
 
 const COOKIE_NAME = 'ilipro_session';
 const COOKIE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
+@Public()
 @Controller('auth')
 export class AuthController {
   constructor(

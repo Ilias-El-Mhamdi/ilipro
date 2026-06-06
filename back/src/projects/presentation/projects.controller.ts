@@ -1,20 +1,24 @@
-import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { IProjectRepository } from '../domain/project.abstract-repository';
+import { AdminGuard } from '../../auth/guards/admin.guard';
 
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly repo: IProjectRepository) {}
 
+  @UseGuards(AdminGuard)
   @Get()
   findAll() {
     return this.repo.findAll();
   }
 
+  @UseGuards(AdminGuard)
   @Get(':id')
   findById(@Param('id') id: string) {
     return this.repo.findById(id);
   }
 
+  @UseGuards(AdminGuard)
   @Patch(':id')
   updateProject(
     @Param('id') id: string,
@@ -23,6 +27,7 @@ export class ProjectsController {
     return this.repo.updateProject(id, body);
   }
 
+  @UseGuards(AdminGuard)
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.repo.delete(id);

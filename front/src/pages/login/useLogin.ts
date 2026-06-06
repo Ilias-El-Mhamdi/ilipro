@@ -64,9 +64,10 @@ export function useLogin() {
     if (!value.trim()) return;
     setLoading(true);
     try {
-      const { data } = await api.post<{ user: { slug: string } }>('/auth/verify-otp', { email, otp: value.trim() });
+      const { data } = await api.post<{ user: { slug: string; isAdmin: boolean } }>('/auth/verify-otp', { email, otp: value.trim() });
       await refresh();
-      navigate(`/admin/users/${data.user.slug}`, { replace: true });
+      const dest = data.user.isAdmin ? `/admin/users/${data.user.slug}` : `/user/${data.user.slug}`;
+      navigate(dest, { replace: true });
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??

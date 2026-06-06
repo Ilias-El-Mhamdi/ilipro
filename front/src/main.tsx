@@ -7,15 +7,17 @@ import './index.css';
 import {CompaniesPage} from './pages/admin/CompaniesPage';
 import {CompanyDetailPage} from './pages/admin/CompanyDetailPage';
 import {UsersPage} from './pages/admin/UsersPage';
-import {UserDetailPage} from './pages/admin/UserDetailPage';
+import {UserDetailPage as AdminUserDetailPage} from './pages/admin/UserDetailPage';
+import {UserDetailPage as UserDetailPage} from './pages/user/UserDetailPage';
 import {LoginPage} from './pages/login/LoginPage';
 import {AuthProvider, useAuth} from './contexts/AuthContext';
-import {ProtectedRoute} from './components/ProtectedRoute';
+import {ProtectedRoute, AdminRoute} from './components/ProtectedRoute';
 
 function RootRedirect() {
     const {user, isLoading} = useAuth();
     if (isLoading) return null;
-    return <Navigate to={user ? `/admin/users/${user.slug}` : '/login'} replace />;
+    if (!user) return <Navigate to="/login" replace />;
+    return <Navigate to={user.isAdmin ? `/admin/users/${user.slug}` : `/user/${user.slug}`} replace />;
 }
 
 const queryClient = new QueryClient();
@@ -29,10 +31,15 @@ createRoot(document.getElementById('root')!).render(
                     <Routes>
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/" element={<RootRedirect />} />
-                        <Route path="/admin/companies" element={<ProtectedRoute><CompaniesPage /></ProtectedRoute>} />
-                        <Route path="/admin/companies/:companySlug" element={<ProtectedRoute><CompanyDetailPage /></ProtectedRoute>} />
-                        <Route path="/admin/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
-                        <Route path="/admin/users/:userSlug" element={<ProtectedRoute><UserDetailPage /></ProtectedRoute>} />
+
+                        {/* Routes admin */}
+                        <Route path="/admin/companies" element={<AdminRoute><CompaniesPage /></AdminRoute>} />
+                        <Route path="/admin/companies/:companySlug" element={<AdminRoute><CompanyDetailPage /></AdminRoute>} />
+                        <Route path="/admin/users" element={<AdminRoute><UsersPage /></AdminRoute>} />
+                        <Route path="/admin/users/:userSlug" element={<AdminRoute><AdminUserDetailPage /></AdminRoute>} />
+
+                        {/* Route utilisateur */}
+                        <Route path="/user/:userSlug" element={<ProtectedRoute><UserDetailPage /></ProtectedRoute>} />
                     </Routes>
                 </AuthProvider>
             </BrowserRouter>

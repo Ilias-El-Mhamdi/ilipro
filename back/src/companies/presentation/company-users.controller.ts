@@ -1,10 +1,12 @@
-import { Body, Controller, Delete, Get, Inject, Param, Post, Put, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, Post, Put, Patch, UseGuards } from '@nestjs/common';
 import { LinkUserUc } from '../../liens/lienUserCompany/useCase/linkUser.uc';
 import { IUserRepository } from '../../users/domain/user.abtract-repository';
 import { IUserCompanyRepository } from '../../liens/lienUserCompany/domain/user-company.abstract-repository';
 import { ICompanyRepository } from '../domain/company.abstract-repository';
 import { ILicenseRepository } from '../../licenses/domain/license.abstract-repository';
+import { AdminGuard } from '../../auth/guards/admin.guard';
 
+@UseGuards(AdminGuard)
 @Controller('companies/:companySlug/users')
 export class CompanyUsersController {
   constructor(

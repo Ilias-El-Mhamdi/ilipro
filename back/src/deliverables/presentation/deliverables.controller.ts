@@ -1,7 +1,9 @@
-import { Controller, Delete, Get, Param } from '@nestjs/common';
+import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
 import { DeliverablesUc } from '../useCase/deliverables.uc';
 import { IDeliverableRepository } from '../domain/deliverable.abstract-repository';
+import { AdminGuard } from '../../auth/guards/admin.guard';
 
+@UseGuards(AdminGuard)
 @Controller('deliverables')
 export class DeliverablesController {
   constructor(

@@ -1,6 +1,7 @@
 import { BadRequestException, Body, Controller, Headers, Inject, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
 import Stripe = require('stripe');
+import { Public } from '../../auth/decorators/public.decorator';
 import { LinkUserUc } from '../../liens/lienUserCompany/useCase/linkUser.uc';
 import { IUserRepository } from '../../users/domain/user.abtract-repository';
 import { UserModel } from '../../users/domain/user.model';
@@ -60,6 +61,7 @@ export class StripeController {
     return this._stripe;
   }
 
+  @Public()
   @Post('webhook')
   async handleWebhook(@Req() req: Request & { rawBody?: Buffer }, @Headers('stripe-signature') sig: string) {
     const secret = process.env.STRIPE_WEBHOOK_SECRET ?? '';
@@ -96,6 +98,7 @@ export class StripeController {
   /**
    * Dev-only — simule un webhook customer.subscription.created sans Stripe réel.
    */
+  @Public()
   @Post('dev/simulate')
   async simulateSubscription(@Body() dto: SimulateSubscriptionDto) {
     const fakeSubscriptionId = `sub_fake_${Date.now()}`;

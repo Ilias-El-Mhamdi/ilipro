@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -9,6 +10,7 @@ import { OtpRepository } from './infrastructure/otp.repository';
 import { UserModel } from '../users/domain/user.model';
 import { JwtUc } from './useCase/jwt.uc';
 import { OtpUc } from './useCase/otp.uc';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -26,8 +28,11 @@ import { OtpUc } from './useCase/otp.uc';
   controllers: [AuthController],
   providers: [
     { provide: IOtpRepository, useClass: OtpRepository },
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
     JwtUc,
     OtpUc,
+    JwtAuthGuard,
   ],
+  exports: [JwtUc],
 })
 export class AuthModule {}

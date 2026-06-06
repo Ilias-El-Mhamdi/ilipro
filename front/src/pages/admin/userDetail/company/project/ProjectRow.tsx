@@ -16,7 +16,7 @@ export function ProjectRow({project, user, license}: Props) {
         ? true : license.projectAccess.some((a) => a.projectId === project.id);
 
     return (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+        <div id={`project-${project.id}`} className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
             <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800">
                 <h3 className="text-white font-semibold">{project.name}</h3>
                 <ProjectLinks project={project}/>

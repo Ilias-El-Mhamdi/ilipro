@@ -1,5 +1,4 @@
 import {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
 import type {User, License, Project} from '../../../../../lib/queries';
 import {LicenseModal} from '../../../../../components/molecules/LicenseModal';
 import {UserCardHeader} from './UserCardHeader';
@@ -22,7 +21,6 @@ interface Props {
 const PANELS_LENGTH = 3;
 
 export function UserCard({user, license, projects, companySlug, companyId, onDelete}: Props) {
-    const navigate = useNavigate();
     const [licenseModalOpen, setLicenseModalOpen] = useState(false);
     const editActions = useUserCardActions(user, companySlug);
     const clipboard = useClipboard();
@@ -55,7 +53,7 @@ export function UserCard({user, license, projects, companySlug, companyId, onDel
                 <UserCardFooter
                     hasLicense={!!license}
                     onManage={() => setLicenseModalOpen(true)}
-                    onSeeAs={() => navigate(`/admin/users/${user.slug}`)}
+                    onSeeAs={() => window.open(`/user/${user.slug}`, '_blank')}
                 />
             </div>
 

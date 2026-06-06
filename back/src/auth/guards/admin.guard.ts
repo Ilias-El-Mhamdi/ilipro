@@ -1,0 +1,11 @@
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import type { JwtPayload } from '../domain/jwt-payload';
+
+@Injectable()
+export class AdminGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean {
+    const user = context.switchToHttp().getRequest<{ user?: JwtPayload }>()['user'];
+    if (!user?.isAdmin) throw new ForbiddenException('Accès réservé aux administrateurs');
+    return true;
+  }
+}
