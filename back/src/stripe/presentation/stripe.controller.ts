@@ -1,8 +1,8 @@
-import { BadRequestException, Body, Controller, Headers, Post, Req } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Headers, Inject, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
 import Stripe = require('stripe');
 import { LinkUserUc } from '../../liens/lienUserCompany/useCase/linkUser.uc';
-import { UserRepository } from '../../users/infrastructure/user.repository';
+import { IUserRepository } from '../../users/domain/user.abtract-repository';
 import { UserModel } from '../../users/domain/user.model';
 import { ILicenseRepository } from '../../licenses/domain/license.abstract-repository';
 
@@ -47,8 +47,8 @@ export class StripeController {
 
   constructor(
     private readonly linkUserUc: LinkUserUc,
-    private readonly userRepo: UserRepository,
-    private readonly licenseRepo: ILicenseRepository,
+    @Inject(IUserRepository) private readonly userRepo: IUserRepository,
+    @Inject(ILicenseRepository) private readonly licenseRepo: ILicenseRepository,
   ) {}
 
   private get stripe(): InstanceType<typeof Stripe> {

@@ -8,19 +8,20 @@ export class UserModel {
   @Column({ unique: true })
   slug: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   firstName: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   lastName: string | null;
 
   @Column({ unique: true })
   email: string;
 
-  @Column({ nullable: true })
-  stripeCustomerId: string | null;
+  @Column({ default: false })
+  isAdmin: boolean;
 
-  license?: unknown | null;
+  @Column({ type: 'varchar', nullable: true })
+  stripeCustomerId: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

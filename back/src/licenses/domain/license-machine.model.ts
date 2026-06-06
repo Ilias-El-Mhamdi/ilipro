@@ -13,7 +13,7 @@ export class LicenseMachineModel {
   @Column()
   machineId: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   label: string | null;
 
   @CreateDateColumn()

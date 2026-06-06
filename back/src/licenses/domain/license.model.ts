@@ -35,13 +35,13 @@ export class LicenseModel {
   @OneToMany(() => LicenseMachineModel, (m) => m.license)
   machines: LicenseMachineModel[];
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   stripeSubscriptionId: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   stripeProductId: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   priceLabel: string | null;
 
   @Column({ nullable: true, type: 'timestamptz' })
