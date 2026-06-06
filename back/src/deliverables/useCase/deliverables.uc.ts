@@ -41,6 +41,6 @@ export class DeliverablesUc {
 
   async getDownloadUrl(id: string): Promise<string> {
     const deliverable = await this.repo.findById(id);
-    return this.storage.getSignedUrl(deliverable.storageKey);
+    return this.storage.getSignedUrl(deliverable.storageKey, deliverable.name);
   }
 }

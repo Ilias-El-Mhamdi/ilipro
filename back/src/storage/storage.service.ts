@@ -8,5 +8,5 @@ export abstract class StorageService {
 
   abstract delete(storageKey: string): Promise<void>;
 
-  abstract getSignedUrl(storageKey: string, expiresIn?: number): Promise<string>;
+  abstract getSignedUrl(storageKey: string, filename: string, expiresIn?: number): Promise<string>;
 }

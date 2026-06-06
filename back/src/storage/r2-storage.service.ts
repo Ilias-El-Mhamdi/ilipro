@@ -59,8 +59,12 @@ export class R2StorageService extends StorageService {
     this.logger.log(`Deleted ${storageKey} from R2`);
   }
 
-  async getSignedUrl(storageKey: string, expiresIn = 3600): Promise<string> {
-    const command = new GetObjectCommand({ Bucket: this.bucket, Key: storageKey });
+  async getSignedUrl(storageKey: string, filename: string, expiresIn = 3600): Promise<string> {
+    const command = new GetObjectCommand({
+      Bucket: this.bucket,
+      Key: storageKey,
+      ResponseContentDisposition: `attachment; filename="${encodeURIComponent(filename)}"`,
+    });
     return getSignedUrl(this.client, command, { expiresIn });
   }
 }

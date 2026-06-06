@@ -11,22 +11,14 @@ export function formatSize(bytes: number): string {
     return `${(bytes / 1024 / 1024).toFixed(1)} Mo`;
 }
 
-async function triggerDownload(signedUrl: string, filename: string): Promise<void> {
-    const res = await fetch(signedUrl);
-    const blob = await res.blob();
-    const objectUrl = URL.createObjectURL(blob);
+export async function downloadDeliverable(apiPath: string, filename: string): Promise<void> {
+    const { data } = await api.get<{ url: string }>(apiPath);
     const a = document.createElement('a');
-    a.href = objectUrl;
+    a.href = data.url;
     a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(objectUrl);
-}
-
-export async function downloadDeliverable(apiPath: string, filename: string): Promise<void> {
-    const { data } = await api.get<{ url: string }>(apiPath);
-    await triggerDownload(data.url, filename);
 }
 
 export function expiryDate(license: License): string | null {
