@@ -1,13 +1,9 @@
 import { Module } from '@nestjs/common';
 import { StorageService } from './storage.service';
-import { MinioStorageService } from './minio-storage.service';
-import { BunnyStorageService } from './bunny-storage.service';
-
-// Switch provider here to change storage backend: MinioStorageService | BunnyStorageService
-const activeStorage = MinioStorageService;
+import { R2StorageService } from './r2-storage.service';
 
 @Module({
-  providers: [MinioStorageService, BunnyStorageService, { provide: StorageService, useClass: activeStorage }],
+  providers: [R2StorageService, { provide: StorageService, useClass: R2StorageService }],
   exports: [StorageService],
 })
 export class StorageModule {}
