@@ -46,21 +46,7 @@ function LinkButton({ href, label, variant }: { href: string; label: string; var
 
 export function ProjectCard({ project, companySlug, clients, onDeleteProject }: Props) {
   const { data: deliverables = [] } = useProjectDeliverables(project.id);
-  const {
-    idCopied, copyProjectId,
-    confirmDeliverable, setConfirmDeliverable,
-    editModalOpen, setEditModalOpen,
-    nameDraft, setNameDraft,
-    appUrl, setAppUrl,
-    docsUrl, setDocsUrl,
-    changelogUrl, setChangelogUrl,
-    uploadDeliverable,
-    removeDeliverable,
-    updateProject,
-    handleFiles,
-    openEditModal,
-  } = useProjectCardActions(project, companySlug);
-
+  const { clipboard, copyProjectId, deliverables: deliv, edit } = useProjectCardActions(project, companySlug);
   const accessClients = useMemo(() => getAccessClients(clients, project.id), [clients, project.id]);
 
   return (
@@ -80,7 +66,7 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
             <span className="text-xs font-mono text-gray-600 group-hover/id:text-gray-400 transition-colors truncate max-w-[80px]">
               {project.id}
             </span>
-            {idCopied ? (
+            {clipboard.copied ? (
               <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-green-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" clipRule="evenodd" />
               </svg>
@@ -94,7 +80,7 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={openEditModal}
+            onClick={edit.openModal}
             className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded border border-gray-600 text-gray-300 hover:border-indigo-500 hover:text-indigo-300 transition-colors cursor-pointer"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -157,7 +143,7 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
                     <span className="text-xs text-gray-600 shrink-0">{formatSize(d.size)}</span>
                   </div>
                   <button
-                    onClick={() => setConfirmDeliverable(d)}
+                    onClick={() => deliv.setConfirm(d)}
                     className="text-gray-700 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2 cursor-pointer"
                   >
                     ✕
@@ -166,33 +152,30 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
               ))}
             </ul>
           )}
-          <FileDropZone onFiles={handleFiles} loading={uploadDeliverable.isPending} />
+          <FileDropZone onFiles={deliv.handleFiles} loading={deliv.upload.isPending} />
         </div>
       </div>
 
-      {editModalOpen && (
-        <Modal title={`Éditer — ${project.name}`} onClose={() => setEditModalOpen(false)}>
-          <form
-            onSubmit={(e) => { e.preventDefault(); updateProject.mutate(); }}
-            className="flex flex-col gap-4"
-          >
-            <Input label="Nom" value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} placeholder="Nom du projet" autoFocus />
-            <Input label="URL App" value={appUrl} onChange={(e) => setAppUrl(e.target.value)} placeholder="https://app.exemple.com" />
-            <Input label="URL Documentation" value={docsUrl} onChange={(e) => setDocsUrl(e.target.value)} placeholder="https://docs.exemple.com" />
-            <Input label="URL Changelog" value={changelogUrl} onChange={(e) => setChangelogUrl(e.target.value)} placeholder="https://changelog.exemple.com" />
+      {edit.open && (
+        <Modal title={`Éditer — ${project.name}`} onClose={() => edit.setOpen(false)}>
+          <form onSubmit={(e) => { e.preventDefault(); edit.mutation.mutate(); }} className="flex flex-col gap-4">
+            <Input label="Nom" value={edit.name} onChange={(e) => edit.setName(e.target.value)} placeholder="Nom du projet" autoFocus />
+            <Input label="URL App" value={edit.appUrl} onChange={(e) => edit.setAppUrl(e.target.value)} placeholder="https://app.exemple.com" />
+            <Input label="URL Documentation" value={edit.docsUrl} onChange={(e) => edit.setDocsUrl(e.target.value)} placeholder="https://docs.exemple.com" />
+            <Input label="URL Changelog" value={edit.changelogUrl} onChange={(e) => edit.setChangelogUrl(e.target.value)} placeholder="https://changelog.exemple.com" />
             <div className="flex gap-2 justify-end">
-              <Button type="button" variant="ghost" onClick={() => setEditModalOpen(false)}>Annuler</Button>
-              <Button type="submit" disabled={updateProject.isPending}>Enregistrer</Button>
+              <Button type="button" variant="ghost" onClick={() => edit.setOpen(false)}>Annuler</Button>
+              <Button type="submit" disabled={edit.mutation.isPending}>Enregistrer</Button>
             </div>
           </form>
         </Modal>
       )}
 
-      {confirmDeliverable && (
+      {deliv.confirm && (
         <ConfirmDialog
-          message={`Supprimer le livrable « ${confirmDeliverable.name} » ?`}
-          onConfirm={() => removeDeliverable.mutate(confirmDeliverable.id)}
-          onCancel={() => setConfirmDeliverable(null)}
+          message={`Supprimer le livrable « ${deliv.confirm.name} » ?`}
+          onConfirm={() => deliv.remove.mutate(deliv.confirm!.id)}
+          onCancel={() => deliv.setConfirm(null)}
         />
       )}
     </div>

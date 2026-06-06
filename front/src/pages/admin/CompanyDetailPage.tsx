@@ -12,32 +12,11 @@ export function CompanyDetailPage() {
   const {
     companySlug,
     company,
-    projects,
-    projectsLoading,
-    clients,
-    clientsLoading,
-    editingCompanyName, setEditingCompanyName,
-    companyNameDraft, setCompanyNameDraft,
-    renameCompany,
-    projectModalOpen, setProjectModalOpen,
-    confirmProject, setConfirmProject,
-    projectName, setProjectName,
-    projectAppUrl, setProjectAppUrl,
-    projectDocsUrl, setProjectDocsUrl,
-    projectChangelogUrl, setProjectChangelogUrl,
-    addProject,
-    removeProject,
-    clientModalOpen, setClientModalOpen,
-    confirmClient, setConfirmClient,
-    clientFirstName, setClientFirstName,
-    clientLastName, setClientLastName,
-    clientEmail, setClientEmail,
-    addClient,
-    removeClient,
-    linkModalOpen, setLinkModalOpen,
-    linkSearch, setLinkSearch,
-    selectedClientId, setSelectedClientId,
-    linkableClients,
+    projects, projectsLoading,
+    clients, clientsLoading,
+    rename,
+    manageProjects,
+    manageClients,
     linkClient,
   } = useCompanyDetail();
 
@@ -49,25 +28,26 @@ export function CompanyDetailPage() {
         </Link>
       </div>
 
+      {/* Company name */}
       <div className="flex items-center justify-between mb-8">
-        {editingCompanyName ? (
+        {rename.editing ? (
           <form
-            onSubmit={(e) => { e.preventDefault(); if (companyNameDraft.trim()) renameCompany.mutate(companyNameDraft.trim()); }}
+            onSubmit={(e) => { e.preventDefault(); if (rename.draft.trim()) rename.mutation.mutate(rename.draft.trim()); }}
             className="flex items-center gap-2"
           >
             <input
               autoFocus
-              value={companyNameDraft}
-              onChange={(e) => setCompanyNameDraft(e.target.value)}
-              onBlur={() => setEditingCompanyName(false)}
-              onKeyDown={(e) => e.key === 'Escape' && setEditingCompanyName(false)}
+              value={rename.draft}
+              onChange={(e) => rename.setDraft(e.target.value)}
+              onBlur={() => rename.setEditing(false)}
+              onKeyDown={(e) => e.key === 'Escape' && rename.setEditing(false)}
               className="text-2xl font-bold bg-transparent border-b border-indigo-500 outline-none text-white"
             />
           </form>
         ) : (
           <button
             className="group flex items-center gap-2 cursor-pointer"
-            onClick={() => { setCompanyNameDraft(company?.name ?? ''); setEditingCompanyName(true); }}
+            onClick={() => { rename.setDraft(company?.name ?? ''); rename.setEditing(true); }}
             title="Cliquer pour renommer"
           >
             <h1 className="text-2xl font-bold group-hover:text-indigo-300 transition-colors">
@@ -87,13 +67,13 @@ export function CompanyDetailPage() {
           <h2 className="text-xs text-gray-500 uppercase tracking-widest">Utilisateurs</h2>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => { setLinkModalOpen(true); setLinkSearch(''); setSelectedClientId(null); }}
+              onClick={() => { linkClient.setModalOpen(true); linkClient.setSearch(''); linkClient.setSelectedId(null); }}
               className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
             >
               + Lier
             </button>
             <button
-              onClick={() => setClientModalOpen(true)}
+              onClick={() => manageClients.setModalOpen(true)}
               className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
             >
               + Ajouter
@@ -115,7 +95,7 @@ export function CompanyDetailPage() {
                   projects={projects}
                   companySlug={companySlug}
                   companyId={company?.id ?? ''}
-                  onDelete={setConfirmClient}
+                  onDelete={manageClients.setConfirm}
                 />
               </div>
             ))}
@@ -127,7 +107,7 @@ export function CompanyDetailPage() {
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-xs text-gray-500 uppercase tracking-widest">Projets</h2>
         <button
-          onClick={() => setProjectModalOpen(true)}
+          onClick={() => manageProjects.setModalOpen(true)}
           className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
         >
           + Ajouter
@@ -146,7 +126,7 @@ export function CompanyDetailPage() {
                 project={project}
                 companySlug={companySlug}
                 clients={clients}
-                onDeleteProject={setConfirmProject}
+                onDeleteProject={manageProjects.setConfirm}
               />
             </div>
           ))}
@@ -154,59 +134,59 @@ export function CompanyDetailPage() {
       )}
 
       {/* Add project modal */}
-      {projectModalOpen && (
-        <Modal title="Nouveau projet" onClose={() => setProjectModalOpen(false)}>
-          <form onSubmit={(e) => { e.preventDefault(); addProject.mutate(); }} className="flex flex-col gap-4">
-            <Input label="Nom" value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="Nom du projet" autoFocus />
-            <Input label="URL App (optionnel)" value={projectAppUrl} onChange={(e) => setProjectAppUrl(e.target.value)} placeholder="https://app.exemple.com" />
-            <Input label="URL Documentation (optionnel)" value={projectDocsUrl} onChange={(e) => setProjectDocsUrl(e.target.value)} placeholder="https://docs.exemple.com" />
-            <Input label="URL Changelog (optionnel)" value={projectChangelogUrl} onChange={(e) => setProjectChangelogUrl(e.target.value)} placeholder="https://changelog.exemple.com" />
+      {manageProjects.modalOpen && (
+        <Modal title="Nouveau projet" onClose={() => manageProjects.setModalOpen(false)}>
+          <form onSubmit={(e) => { e.preventDefault(); manageProjects.add.mutate(); }} className="flex flex-col gap-4">
+            <Input label="Nom" value={manageProjects.name} onChange={(e) => manageProjects.setName(e.target.value)} placeholder="Nom du projet" autoFocus />
+            <Input label="URL App (optionnel)" value={manageProjects.appUrl} onChange={(e) => manageProjects.setAppUrl(e.target.value)} placeholder="https://app.exemple.com" />
+            <Input label="URL Documentation (optionnel)" value={manageProjects.docsUrl} onChange={(e) => manageProjects.setDocsUrl(e.target.value)} placeholder="https://docs.exemple.com" />
+            <Input label="URL Changelog (optionnel)" value={manageProjects.changelogUrl} onChange={(e) => manageProjects.setChangelogUrl(e.target.value)} placeholder="https://changelog.exemple.com" />
             <div className="flex gap-2 justify-end">
-              <Button type="button" variant="ghost" onClick={() => setProjectModalOpen(false)}>Annuler</Button>
-              <Button type="submit" disabled={!projectName.trim()}>Créer</Button>
+              <Button type="button" variant="ghost" onClick={() => manageProjects.setModalOpen(false)}>Annuler</Button>
+              <Button type="submit" disabled={!manageProjects.name.trim()}>Créer</Button>
             </div>
           </form>
         </Modal>
       )}
 
       {/* Add client modal */}
-      {clientModalOpen && (
-        <Modal title="Nouveau client" onClose={() => setClientModalOpen(false)}>
-          <form onSubmit={(e) => { e.preventDefault(); addClient.mutate(); }} className="flex flex-col gap-4">
+      {manageClients.modalOpen && (
+        <Modal title="Nouveau client" onClose={() => manageClients.setModalOpen(false)}>
+          <form onSubmit={(e) => { e.preventDefault(); manageClients.add.mutate(); }} className="flex flex-col gap-4">
             <div className="flex gap-3">
-              <Input label="Prénom" value={clientFirstName} onChange={(e) => setClientFirstName(e.target.value)} placeholder="Prénom" autoFocus />
-              <Input label="Nom" value={clientLastName} onChange={(e) => setClientLastName(e.target.value)} placeholder="Nom" />
+              <Input label="Prénom" value={manageClients.firstName} onChange={(e) => manageClients.setFirstName(e.target.value)} placeholder="Prénom" autoFocus />
+              <Input label="Nom" value={manageClients.lastName} onChange={(e) => manageClients.setLastName(e.target.value)} placeholder="Nom" />
             </div>
-            <Input label="Email" type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="email@exemple.com" />
+            <Input label="Email" type="email" value={manageClients.email} onChange={(e) => manageClients.setEmail(e.target.value)} placeholder="email@exemple.com" />
             <div className="flex gap-2 justify-end">
-              <Button type="button" variant="ghost" onClick={() => setClientModalOpen(false)}>Annuler</Button>
-              <Button type="submit" disabled={!clientFirstName.trim() || !clientLastName.trim() || !clientEmail.trim()}>Créer</Button>
+              <Button type="button" variant="ghost" onClick={() => manageClients.setModalOpen(false)}>Annuler</Button>
+              <Button type="submit" disabled={!manageClients.firstName.trim() || !manageClients.lastName.trim() || !manageClients.email.trim()}>Créer</Button>
             </div>
           </form>
         </Modal>
       )}
 
       {/* Link existing client modal */}
-      {linkModalOpen && (
-        <Modal title="Lier un utilisateur existant" onClose={() => setLinkModalOpen(false)}>
+      {linkClient.modalOpen && (
+        <Modal title="Lier un utilisateur existant" onClose={() => linkClient.setModalOpen(false)}>
           <div className="flex flex-col gap-4">
             <input
               autoFocus
-              value={linkSearch}
-              onChange={(e) => setLinkSearch(e.target.value)}
+              value={linkClient.search}
+              onChange={(e) => linkClient.setSearch(e.target.value)}
               placeholder="Rechercher par nom ou email..."
               className="w-full bg-[#1a1f2e] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:border-indigo-500"
             />
             <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
-              {linkableClients.length === 0 ? (
+              {linkClient.linkable.length === 0 ? (
                 <p className="text-gray-500 text-sm text-center py-4">Aucun utilisateur disponible.</p>
               ) : (
-                linkableClients.map((c) => (
+                linkClient.linkable.map((c) => (
                   <button
                     key={c.id}
-                    onClick={() => setSelectedClientId(c.id)}
+                    onClick={() => linkClient.setSelectedId(c.id)}
                     className={`flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors cursor-pointer ${
-                      selectedClientId === c.id
+                      linkClient.selectedId === c.id
                         ? 'bg-indigo-600/30 border border-indigo-500'
                         : 'hover:bg-white/5 border border-transparent'
                     }`}
@@ -223,11 +203,11 @@ export function CompanyDetailPage() {
               )}
             </div>
             <div className="flex gap-2 justify-end">
-              <Button type="button" variant="ghost" onClick={() => setLinkModalOpen(false)}>Annuler</Button>
+              <Button type="button" variant="ghost" onClick={() => linkClient.setModalOpen(false)}>Annuler</Button>
               <Button
                 type="button"
-                disabled={!selectedClientId || linkClient.isPending}
-                onClick={() => selectedClientId && linkClient.mutate(selectedClientId)}
+                disabled={!linkClient.selectedId || linkClient.mutation.isPending}
+                onClick={() => linkClient.selectedId && linkClient.mutation.mutate(linkClient.selectedId)}
               >
                 Lier
               </Button>
@@ -236,19 +216,19 @@ export function CompanyDetailPage() {
         </Modal>
       )}
 
-      {confirmProject && (
+      {manageProjects.confirm && (
         <ConfirmDialog
-          message={`Supprimer le projet « ${confirmProject.name} » ? Cette action est irréversible.`}
-          onConfirm={() => removeProject.mutate(confirmProject.id)}
-          onCancel={() => setConfirmProject(null)}
+          message={`Supprimer le projet « ${manageProjects.confirm.name} » ? Cette action est irréversible.`}
+          onConfirm={() => manageProjects.remove.mutate(manageProjects.confirm!.id)}
+          onCancel={() => manageProjects.setConfirm(null)}
         />
       )}
 
-      {confirmClient && (
+      {manageClients.confirm && (
         <ConfirmDialog
-          message={`Retirer « ${confirmClient.firstName} ${confirmClient.lastName} » de cette entreprise ?`}
-          onConfirm={() => removeClient.mutate(confirmClient.id)}
-          onCancel={() => setConfirmClient(null)}
+          message={`Retirer « ${manageClients.confirm.firstName} ${manageClients.confirm.lastName} » de cette entreprise ?`}
+          onConfirm={() => manageClients.remove.mutate(manageClients.confirm!.id)}
+          onCancel={() => manageClients.setConfirm(null)}
         />
       )}
     </AdminLayout>
