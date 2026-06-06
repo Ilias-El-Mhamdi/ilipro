@@ -22,6 +22,6 @@ export class OtpRepository implements IOtpRepository {
   }
 
   async clear(userId: string): Promise<void> {
-    await this.repo.update(userId, { otp: null, otpExpiry: null, otpAttempts: 0, otpRequestedAt: null });
+    await this.repo.update(userId, { otp: null, otpExpiry: null, otpAttempts: 0 });
   }
 }
