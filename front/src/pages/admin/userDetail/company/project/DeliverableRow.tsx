@@ -1,5 +1,5 @@
 import type {Deliverable} from '../../../../../lib/queries.ts';
-import {downloadFile, formatSize} from '../../../../../lib/utils.ts';
+import {downloadDeliverable, formatSize} from '../../../../../lib/utils.ts';
 
 interface Props {
     deliverable: Deliverable;
@@ -8,7 +8,7 @@ interface Props {
 export function DeliverableRow({deliverable}: Props) {
     return (
         <button
-            onClick={() => void downloadFile(deliverable.url, deliverable.name)}
+            onClick={() => void downloadDeliverable(`/deliverables/${deliverable.id}/download`, deliverable.name)}
             className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors group cursor-pointer"
         >
             <svg xmlns="http://www.w3.org/2000/svg"

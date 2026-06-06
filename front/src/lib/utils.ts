@@ -1,4 +1,5 @@
 import type {License, User} from './queries';
+import { api } from './api';
 
 export function initials(firstName: string, lastName: string): string {
     return (firstName[0] ?? '').toUpperCase() + (lastName[0] ?? '').toUpperCase();
@@ -10,8 +11,8 @@ export function formatSize(bytes: number): string {
     return `${(bytes / 1024 / 1024).toFixed(1)} Mo`;
 }
 
-export async function downloadFile(url: string, filename: string): Promise<void> {
-    const res = await fetch(url);
+async function triggerDownload(signedUrl: string, filename: string): Promise<void> {
+    const res = await fetch(signedUrl);
     const blob = await res.blob();
     const objectUrl = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -21,6 +22,11 @@ export async function downloadFile(url: string, filename: string): Promise<void>
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(objectUrl);
+}
+
+export async function downloadDeliverable(apiPath: string, filename: string): Promise<void> {
+    const { data } = await api.get<{ url: string }>(apiPath);
+    await triggerDownload(data.url, filename);
 }
 
 export function expiryDate(license: License): string | null {

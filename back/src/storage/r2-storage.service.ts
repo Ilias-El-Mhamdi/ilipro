@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { StorageService } from './storage.service';
 import type { UploadResult } from './storage.service';
 import { randomUUID } from 'crypto';
@@ -56,5 +57,10 @@ export class R2StorageService extends StorageService {
       }),
     );
     this.logger.log(`Deleted ${storageKey} from R2`);
+  }
+
+  async getSignedUrl(storageKey: string, expiresIn = 3600): Promise<string> {
+    const command = new GetObjectCommand({ Bucket: this.bucket, Key: storageKey });
+    return getSignedUrl(this.client, command, { expiresIn });
   }
 }

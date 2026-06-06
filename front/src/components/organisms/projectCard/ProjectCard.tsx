@@ -33,6 +33,7 @@ export function ProjectCard({ project, companySlug, users, onDeleteProject }: Pr
       <div className="grid grid-cols-2 divide-x divide-gray-800">
         <ProjectAccessSection users={accessUsers} />
         <ProjectDeliverablesSection
+          projectId={project.id}
           deliverables={deliverables}
           onDeleteClick={deliv.setConfirm}
           onFiles={deliv.handleFiles}

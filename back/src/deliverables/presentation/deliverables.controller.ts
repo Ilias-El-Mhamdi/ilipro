@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Redirect, UseGuards } from '@nestjs/common';
 import { DeliverablesUc } from '../useCase/deliverables.uc';
 import { IDeliverableRepository } from '../domain/deliverable.abstract-repository';
 import { AdminGuard } from '../../auth/guards/admin.guard';
@@ -14,6 +14,12 @@ export class DeliverablesController {
   @Get(':id')
   findById(@Param('id') id: string) {
     return this.repo.findById(id);
+  }
+
+  @Get(':id/download')
+  async download(@Param('id') id: string) {
+    const url = await this.uc.getDownloadUrl(id);
+    return { url };
   }
 
   @Delete(':id')

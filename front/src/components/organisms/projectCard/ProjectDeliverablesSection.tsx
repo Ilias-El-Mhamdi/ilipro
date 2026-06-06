@@ -1,15 +1,16 @@
 import type { Deliverable } from '../../../lib/queries';
 import { FileDropZone } from '../../molecules/FileDropZone';
-import { downloadFile, formatSize } from '../../../lib/utils';
+import { downloadDeliverable, formatSize } from '../../../lib/utils';
 
 interface Props {
+  projectId: string;
   deliverables: Deliverable[];
   onDeleteClick: (d: Deliverable) => void;
   onFiles: (files: File[]) => void;
   uploading: boolean;
 }
 
-export function ProjectDeliverablesSection({ deliverables, onDeleteClick, onFiles, uploading }: Props) {
+export function ProjectDeliverablesSection({ projectId, deliverables, onDeleteClick, onFiles, uploading }: Props) {
   return (
     <div className="p-4 flex flex-col gap-3">
       <span className="text-xs text-gray-500 uppercase tracking-wide">Livrables</span>
@@ -19,7 +20,7 @@ export function ProjectDeliverablesSection({ deliverables, onDeleteClick, onFile
             <li key={d.id} className="flex items-center justify-between group">
               <div className="flex items-center gap-2 min-w-0">
                 <button
-                  onClick={() => void downloadFile(d.url, d.name)}
+                  onClick={() => void downloadDeliverable(`/projects/${projectId}/deliverables/${d.id}/download`, d.name)}
                   className="text-sm text-white hover:text-indigo-400 truncate transition-colors text-left"
                 >
                   {d.name}
