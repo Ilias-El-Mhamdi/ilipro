@@ -9,6 +9,7 @@ import { StorageModule } from './storage/storage.module';
 import { LicensesModule } from './licenses/licenses.module';
 import { StripeModule } from './stripe/stripe.module';
 import { AuthModule } from './auth/auth.module';
+import { VersionModule } from './version/version.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AuthModule } from './auth/auth.module';
     LicensesModule,
     StripeModule,
     AuthModule,
+    VersionModule,
   ],
 })
 export class AppModule {}

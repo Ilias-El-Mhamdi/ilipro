@@ -159,3 +159,12 @@ export function useProjectDeliverables(projectId: string) {
         queryFn: () => api.get(`/projects/${projectId}/deliverables`).then((r) => r.data),
     });
 }
+
+
+export function useBackVersion() {
+    return useQuery<{ version: string }>({
+        queryKey: ['version'],
+        queryFn: () => api.get('/version').then((r) => r.data),
+        staleTime: Infinity,
+    });
+}

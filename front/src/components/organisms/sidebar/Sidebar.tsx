@@ -4,6 +4,7 @@ import {SidebarUsers} from './sidebarUsers/SidebarUsers';
 import {SidebarCompanyTree} from './sidebarCompanies/SidebarCompanyTree.tsx';
 import {SidebarSearch} from "./sidebarSearch/SidebarSearch.tsx";
 import {useAuth} from '../../../contexts/AuthContext';
+import {VersionBadge} from '../../atoms/VersionBadge';
 import {toast} from 'sonner';
 
 export function Sidebar() {
@@ -38,9 +39,12 @@ export function Sidebar() {
     return (
         <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col h-full">
             <div className="p-4 border-b border-gray-800 shrink-0">
-                <Link to="/admin/companies" className="text-white font-bold text-xl block mb-1">
-                    ilipro
-                </Link>
+                <div className="flex items-baseline justify-between mb-1">
+                    <Link to="/admin/companies" className="text-white font-bold text-xl">
+                        ilipro
+                    </Link>
+                    <VersionBadge />
+                </div>
                 {user && (
                     <div className="mb-4">
                         <p className="text-gray-500 text-xs truncate">{displayName}</p>

@@ -1,12 +1,13 @@
 import { useLogin } from './useLogin';
 import { EmailStep } from './EmailStep';
 import { OtpStep } from './otpStep/OtpStep';
+import { VersionBadge } from '../../components/atoms/VersionBadge';
 
 export function LoginPage() {
   const { step, email, setEmail, otp, setOtp, loading, cooldown, otpInvalidated, sendOtp, verifyOtp, backToEmail } = useLogin();
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center relative">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <span className="text-white font-bold text-3xl">ilipro</span>
@@ -34,6 +35,10 @@ export function LoginPage() {
             />
           )}
         </div>
+      </div>
+
+      <div className="absolute bottom-4 right-4">
+        <VersionBadge />
       </div>
     </div>
   );
