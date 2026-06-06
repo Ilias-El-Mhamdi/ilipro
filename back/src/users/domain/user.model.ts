@@ -23,6 +23,18 @@ export class UserModel {
   @Column({ type: 'varchar', nullable: true })
   stripeCustomerId: string | null;
 
+  @Column({ type: 'varchar', nullable: true })
+  otp: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  otpExpiry: Date | null;
+
+  @Column({ type: 'int', default: 0 })
+  otpAttempts: number;
+
+  @Column({ type: 'timestamp', nullable: true })
+  otpRequestedAt: Date | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

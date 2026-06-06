@@ -8,6 +8,7 @@ import { DeliverablesModule } from './deliverables/deliverables.module';
 import { StorageModule } from './storage/storage.module';
 import { LicensesModule } from './licenses/licenses.module';
 import { StripeModule } from './stripe/stripe.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { StripeModule } from './stripe/stripe.module';
     StorageModule,
     LicensesModule,
     StripeModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
