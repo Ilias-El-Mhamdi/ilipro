@@ -3,6 +3,7 @@ import { LinkUserUc } from '../../liens/lienUserCompany/useCase/linkUser.uc';
 import { IUserRepository } from '../../users/domain/user.abtract-repository';
 import { IUserCompanyRepository } from '../../liens/lienUserCompany/domain/user-company.abstract-repository';
 import { ICompanyRepository } from '../domain/company.abstract-repository';
+import { ILicenseRepository } from '../../licenses/domain/license.abstract-repository';
 
 @Controller('companies/:companySlug/users')
 export class CompanyUsersController {
@@ -11,12 +12,20 @@ export class CompanyUsersController {
     @Inject(IUserRepository) private readonly userRepo: IUserRepository,
     @Inject(IUserCompanyRepository) private readonly userCompanyRepo: IUserCompanyRepository,
     @Inject(ICompanyRepository) private readonly companyRepo: ICompanyRepository,
+    @Inject(ILicenseRepository) private readonly licenseRepo: ILicenseRepository,
   ) {}
 
   @Get()
   async findByCompany(@Param('companySlug') companySlug: string) {
     const company = await this.companyRepo.findBySlug(companySlug);
-    return this.userCompanyRepo.findUsersByCompanyId(company.id);
+    const users = await this.userCompanyRepo.findUsersByCompanyId(company.id);
+
+    return Promise.all(
+      users.map(async (user) => {
+        const license = await this.licenseRepo.findByUserAndCompany(user.id, company.id);
+        return { ...user, license: license ?? null };
+      }),
+    );
   }
 
   @Post()

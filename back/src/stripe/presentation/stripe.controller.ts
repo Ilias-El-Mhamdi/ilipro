@@ -113,7 +113,7 @@ export class StripeController {
 
     await this.userRepo.setStripeCustomerId(user.id, fakeCustomerId);
 
-    const existing = dto.companyId ? await this.licenseRepo.findByClientAndCompany(user.id, dto.companyId) : null;
+    const existing = dto.companyId ? await this.licenseRepo.findByUserAndCompany(user.id, dto.companyId) : null;
     let license;
 
     if (existing) {
@@ -125,7 +125,7 @@ export class StripeController {
       });
     } else {
       license = await this.licenseRepo.create({
-        clientId: user.id,
+        userId: user.id,
         companyId: dto.companyId,
         type: 'CLASSIC',
         status: 'ACTIVE',
@@ -173,7 +173,7 @@ export class StripeController {
     if (!companyId) return;
 
     const item = subscription.items.data[0];
-    const existing = await this.licenseRepo.findByClientAndCompany(user.id, companyId);
+    const existing = await this.licenseRepo.findByUserAndCompany(user.id, companyId);
 
     if (existing) {
       await this.licenseRepo.update(existing.id, {
@@ -184,7 +184,7 @@ export class StripeController {
       });
     } else {
       await this.licenseRepo.create({
-        clientId: user.id,
+        userId: user.id,
         companyId,
         type: 'CLASSIC',
         status: 'ACTIVE',

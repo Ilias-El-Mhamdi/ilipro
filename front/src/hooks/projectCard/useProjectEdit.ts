@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Project } from '../../lib/queries';
 import { api } from '../../lib/api';
+import { toastSuccess, toastError } from '../../lib/toast';
 
 export function useProjectEdit(project: Project, companySlug: string) {
   const qc = useQueryClient();
@@ -23,7 +24,9 @@ export function useProjectEdit(project: Project, companySlug: string) {
       void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'projects'] });
       void qc.invalidateQueries({ queryKey: ['projects'] });
       setOpen(false);
+      toastSuccess('Projet mis à jour');
     },
+    onError: toastError,
   });
 
   function openModal() {

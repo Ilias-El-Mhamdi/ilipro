@@ -10,9 +10,11 @@ import { UserModel } from './domain/user.model';
 import { UserCompanyEntity } from '../liens/lienUserCompany/domain/user-company.entity';
 import { CompanyUsersController } from '../companies/presentation/company-users.controller';
 import { CompaniesModule } from '../companies/companies.module';
+import { LicensesModule } from '../licenses/licenses.module';
+import { ProjectsModule } from '../projects/projects.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserModel, UserCompanyEntity]), CompaniesModule],
+  imports: [TypeOrmModule.forFeature([UserModel, UserCompanyEntity]), CompaniesModule, LicensesModule, ProjectsModule],
   controllers: [UsersController, CompanyUsersController],
   providers: [
     LinkUserUc,

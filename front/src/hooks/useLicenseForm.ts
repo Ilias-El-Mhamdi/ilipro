@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { User, License, LicenseType, LicenseStatus } from '../lib/queries';
 import { api } from '../lib/api';
+import { toastSuccess, toastError } from '../lib/toast';
 
 interface Props {
   user: User;
@@ -45,23 +46,38 @@ export function useLicenseForm({ user, license, companySlug, companyId, onClose 
       if (license) return api.patch(`/licenses/${license.id}`, payload);
       return api.post('/licenses', { ...payload, userId: user.id, companyId });
     },
-    onSuccess: () => { invalidate(); onClose(); },
+    onSuccess: () => {
+      invalidate();
+      onClose();
+      toastSuccess(license ? 'Licence mise à jour' : 'Licence créée');
+    },
+    onError: toastError,
   });
 
   const revokeMutation = useMutation({
     mutationFn: () => api.delete(`/licenses/${license!.id}`),
-    onSuccess: () => { invalidate(); onClose(); },
+    onSuccess: () => {
+      invalidate();
+      onClose();
+      toastSuccess('Licence révoquée');
+    },
+    onError: toastError,
   });
 
   const removeMachineMutation = useMutation({
     mutationFn: (machineId: string) => api.delete(`/licenses/${license!.id}/machines/${machineId}`),
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['users', user.id, 'license'] }); },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['users', user.id, 'license'] });
+      toastSuccess('Machine retirée');
+    },
+    onError: toastError,
   });
 
   const billingPortalMutation = useMutation({
     mutationFn: () =>
       api.post('/stripe/billing-portal', { userId: user.id }).then((r) => r.data as { url: string }),
     onSuccess: ({ url }) => window.open(url, '_blank'),
+    onError: toastError,
   });
 
   const simulateMutation = useMutation({
@@ -71,7 +87,12 @@ export function useLicenseForm({ user, license, companySlug, companyId, onClose 
         name: `${user.firstName} ${user.lastName}`,
         companyId,
       }),
-    onSuccess: () => { invalidate(); onClose(); },
+    onSuccess: () => {
+      invalidate();
+      onClose();
+      toastSuccess('Abonnement simulé');
+    },
+    onError: toastError,
   });
 
   function toggleProject(id: string) {

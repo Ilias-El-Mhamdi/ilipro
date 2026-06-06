@@ -1,7 +1,7 @@
 import type { LicenseModel, LicenseType, LicenseStatus } from './license.model';
 
 export interface CreateLicenseInput {
-  clientId: string;
+  userId: string;
   companyId: string;
   type: LicenseType;
   status: LicenseStatus;
@@ -29,9 +29,9 @@ export interface UpdateLicenseInput {
 }
 
 export abstract class ILicenseRepository {
-  abstract findByClientId(clientId: string): Promise<LicenseModel>;
+  abstract findByUserId(userId: string): Promise<LicenseModel>;
 
-  abstract findByClientAndCompany(clientId: string, companyId: string): Promise<LicenseModel | null>;
+  abstract findByUserAndCompany(userId: string, companyId: string): Promise<LicenseModel | null>;
 
   abstract findByStripeSubscriptionId(subscriptionId: string): Promise<LicenseModel | null>;
 

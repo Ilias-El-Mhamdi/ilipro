@@ -21,6 +21,11 @@ export class UserCompanyRepository implements IUserCompanyRepository {
     return this.userRepo.createQueryBuilder('u').where('u.id IN (:...ids)', { ids }).orderBy('u.createdAt', 'DESC').getMany();
   }
 
+  async findCompanyIdsByUserId(userId: string): Promise<string[]> {
+    const links = await this.repo.find({ where: { userId } });
+    return links.map((l) => l.companyId);
+  }
+
   async link(userId: string, companyId: string): Promise<void> {
     await this.repo.save(this.repo.create({ userId, companyId }));
   }

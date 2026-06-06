@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUsers } from '../lib/queries';
 import type { User } from '../lib/queries';
 import { api } from '../lib/api';
+import { toastSuccess, toastError } from '../lib/toast';
 
 export function useUserCrud() {
   const qc = useQueryClient();
@@ -24,7 +25,9 @@ export function useUserCrud() {
       setFirstName('');
       setLastName('');
       setEmail('');
+      toastSuccess('Utilisateur créé');
     },
+    onError: toastError,
   });
 
   const remove = useMutation({
@@ -32,7 +35,9 @@ export function useUserCrud() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['users'] });
       setConfirmUser(null);
+      toastSuccess('Utilisateur supprimé');
     },
+    onError: toastError,
   });
 
   return {

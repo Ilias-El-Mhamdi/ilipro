@@ -1,10 +1,20 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, Patch, Post } from '@nestjs/common';
 import { IUserRepository } from '../domain/user.abtract-repository';
+import { IUserCompanyRepository } from '../../liens/lienUserCompany/domain/user-company.abstract-repository';
+import { ICompanyRepository } from '../../companies/domain/company.abstract-repository';
+import { IProjectRepository } from '../../projects/domain/project.abstract-repository';
+import { ILicenseRepository } from '../../licenses/domain/license.abstract-repository';
 import { UserModel } from '../domain/user.model';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly repo: IUserRepository) {}
+  constructor(
+    private readonly repo: IUserRepository,
+    @Inject(IUserCompanyRepository) private readonly userCompanyRepo: IUserCompanyRepository,
+    @Inject(ICompanyRepository) private readonly companyRepo: ICompanyRepository,
+    @Inject(IProjectRepository) private readonly projectRepo: IProjectRepository,
+    @Inject(ILicenseRepository) private readonly licenseRepo: ILicenseRepository,
+  ) {}
 
   @Get()
   findAll() {
@@ -12,8 +22,22 @@ export class UsersController {
   }
 
   @Get('slug/:slug')
-  findBySlug(@Param('slug') slug: string) {
-    return this.repo.findBySlug(slug);
+  async findBySlug(@Param('slug') slug: string) {
+    const user = (await this.repo.findBySlug(slug)) as UserModel;
+    const companyIds = await this.userCompanyRepo.findCompanyIdsByUserId(user.id);
+
+    const companies = await Promise.all(
+      companyIds.map(async (companyId) => {
+        const [company, projects, license] = await Promise.all([
+          this.companyRepo.findById(companyId),
+          this.projectRepo.findByCompanyId(companyId),
+          this.licenseRepo.findByUserAndCompany(user.id, companyId),
+        ]);
+        return { id: company.id, name: company.name, slug: company.slug, projects, license: license ?? null };
+      }),
+    );
+
+    return { ...user, companies };
   }
 
   @Get(':id')

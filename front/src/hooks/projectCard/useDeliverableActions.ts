@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Deliverable } from '../../lib/queries';
 import { api } from '../../lib/api';
+import { toastSuccess, toastError } from '../../lib/toast';
 
 export function useDeliverableActions(projectId: string) {
   const qc = useQueryClient();
@@ -17,7 +18,9 @@ export function useDeliverableActions(projectId: string) {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['projects', projectId, 'deliverables'] });
+      toastSuccess('Fichier uploadé');
     },
+    onError: toastError,
   });
 
   const remove = useMutation({
@@ -25,7 +28,9 @@ export function useDeliverableActions(projectId: string) {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['projects', projectId, 'deliverables'] });
       setConfirm(null);
+      toastSuccess('Fichier supprimé');
     },
+    onError: toastError,
   });
 
   function handleFiles(files: File[]) {

@@ -2,6 +2,7 @@ import {useState} from 'react';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import type {User} from '../../../../../lib/queries';
 import {api} from '../../../../../lib/api';
+import {toastSuccess, toastError} from '../../../../../lib/toast';
 
 export function useUserCardActions(user: User, companySlug: string) {
     const qc = useQueryClient();
@@ -19,7 +20,9 @@ export function useUserCardActions(user: User, companySlug: string) {
         onSuccess: () => {
             void qc.invalidateQueries({queryKey: ['companies', companySlug, 'users']});
             setEditModalOpen(false);
+            toastSuccess('Utilisateur mis à jour');
         },
+        onError: toastError,
     });
 
     function openEditModal() {

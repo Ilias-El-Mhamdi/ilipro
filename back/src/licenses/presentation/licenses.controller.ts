@@ -3,7 +3,7 @@ import { ILicenseRepository } from '../domain/license.abstract-repository';
 import type { LicenseType, LicenseStatus } from '../domain/license.model';
 
 interface CreateLicenseDto {
-  clientId: string;
+  userId: string;
   companyId: string;
   type: LicenseType;
   status?: LicenseStatus;
@@ -37,9 +37,9 @@ interface ActivateDto {
 export class LicensesController {
   constructor(private readonly repo: ILicenseRepository) {}
 
-  @Get('client/:clientId')
-  findByClient(@Param('clientId') clientId: string) {
-    return this.repo.findByClientId(clientId);
+  @Get('user/:userId')
+  findByUser(@Param('userId') userId: string) {
+    return this.repo.findByUserId(userId);
   }
 
   @Post()

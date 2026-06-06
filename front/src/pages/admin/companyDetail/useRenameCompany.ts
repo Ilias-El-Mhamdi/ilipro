@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../../lib/api';
+import { toastSuccess, toastError } from '../../../lib/toast';
 
 export function useRenameCompany(companySlug: string) {
   const qc = useQueryClient();
@@ -12,7 +13,9 @@ export function useRenameCompany(companySlug: string) {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['companies'] });
       setEditing(false);
+      toastSuccess('Entreprise renommée');
     },
+    onError: toastError,
   });
 
   return { editing, setEditing, draft, setDraft, mutation };

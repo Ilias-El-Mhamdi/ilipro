@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Project } from '../../../../lib/queries';
 import { api } from '../../../../lib/api';
+import { toastSuccess, toastError } from '../../../../lib/toast';
 
 export function useManageProjects(companySlug: string) {
   const qc = useQueryClient();
@@ -28,7 +29,9 @@ export function useManageProjects(companySlug: string) {
       setAppUrl('');
       setDocsUrl('');
       setChangelogUrl('');
+      toastSuccess('Projet ajouté');
     },
+    onError: toastError,
   });
 
   const remove = useMutation({
@@ -37,7 +40,9 @@ export function useManageProjects(companySlug: string) {
       void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'projects'] });
       void qc.invalidateQueries({ queryKey: ['projects'] });
       setConfirm(null);
+      toastSuccess('Projet supprimé');
     },
+    onError: toastError,
   });
 
   return {

@@ -37,10 +37,11 @@ export class UserRepository implements IUserRepository {
   }
 
   findByEmail(email: string): Promise<UserModel | null> {
-    return this.repo.findOne({ where: { email } });
+    return this.repo.findOne({ where: { email: email.trim().toLowerCase() } });
   }
 
   async create(user: UserModel): Promise<UserModel> {
+    user.email = user.email.trim().toLowerCase();
     const existing = await this.repo.findOne({ where: { email: user.email } });
     if (existing) throw new ConflictException(`Email "${user.email}" already in use`);
     const base = toSlug(user.firstName || user.email.split('@')[0], user.lastName || '');

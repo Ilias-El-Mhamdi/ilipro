@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCompanies } from '../lib/queries';
 import type { Company } from '../lib/queries';
 import { api } from '../lib/api';
+import { toastSuccess, toastError } from '../lib/toast';
 
 export function useCompanyCrud() {
   const qc = useQueryClient();
@@ -17,17 +18,20 @@ export function useCompanyCrud() {
 
   const create = useMutation({
     mutationFn: (n: string) => api.post('/companies', { name: n }),
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['companies'] }); closeModal(); },
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['companies'] }); closeModal(); toastSuccess('Entreprise créée'); },
+    onError: toastError,
   });
 
   const update = useMutation({
     mutationFn: ({ slug, n }: { slug: string; n: string }) => api.put(`/companies/${slug}`, { name: n }),
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['companies'] }); closeModal(); },
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['companies'] }); closeModal(); toastSuccess('Entreprise mise à jour'); },
+    onError: toastError,
   });
 
   const remove = useMutation({
     mutationFn: (slug: string) => api.delete(`/companies/${slug}`),
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['companies'] }); setConfirmId(null); },
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['companies'] }); setConfirmId(null); toastSuccess('Entreprise supprimée'); },
+    onError: toastError,
   });
 
   function openCreate() {

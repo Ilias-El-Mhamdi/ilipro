@@ -21,14 +21,14 @@ export class TypeOrmLicenseRepository implements ILicenseRepository {
     private readonly projectRepo: Repository<LicenseProjectModel>,
   ) {}
 
-  async findByClientId(clientId: string): Promise<LicenseModel> {
-    const license = await this.repo.findOne({ where: { clientId }, relations, order: machinesOrder });
-    if (!license) throw new NotFoundException(`No license found for client ${clientId}`);
+  async findByUserId(userId: string): Promise<LicenseModel> {
+    const license = await this.repo.findOne({ where: { userId }, relations, order: machinesOrder });
+    if (!license) throw new NotFoundException(`No license found for user ${userId}`);
     return license;
   }
 
-  findByClientAndCompany(clientId: string, companyId: string): Promise<LicenseModel | null> {
-    return this.repo.findOne({ where: { clientId, companyId }, relations, order: machinesOrder });
+  findByUserAndCompany(userId: string, companyId: string): Promise<LicenseModel | null> {
+    return this.repo.findOne({ where: { userId, companyId }, relations, order: machinesOrder });
   }
 
   findByStripeSubscriptionId(subscriptionId: string): Promise<LicenseModel | null> {
@@ -36,8 +36,8 @@ export class TypeOrmLicenseRepository implements ILicenseRepository {
   }
 
   async create(input: CreateLicenseInput): Promise<LicenseModel> {
-    const existing = await this.findByClientAndCompany(input.clientId, input.companyId);
-    if (existing) throw new BadRequestException(`Client already has a license for this company`);
+    const existing = await this.findByUserAndCompany(input.userId, input.companyId);
+    if (existing) throw new BadRequestException(`User already has a license for this company`);
 
     const { projectIds, ...data } = input;
     const license = await this.repo.save(
@@ -50,10 +50,7 @@ export class TypeOrmLicenseRepository implements ILicenseRepository {
     if (projectIds?.length) {
       await this.projectRepo.save(
         projectIds.map((projectId) =>
-          this.projectRepo.create({
-            licenseId: license.id,
-            projectId,
-          }),
+          this.projectRepo.create({ licenseId: license.id, projectId }),
         ),
       );
     }
@@ -67,10 +64,7 @@ export class TypeOrmLicenseRepository implements ILicenseRepository {
       if (projectIds.length) {
         await this.projectRepo.save(
           projectIds.map((projectId) =>
-            this.projectRepo.create({
-              licenseId: id,
-              projectId,
-            }),
+            this.projectRepo.create({ licenseId: id, projectId }),
           ),
         );
       }
@@ -90,7 +84,7 @@ export class TypeOrmLicenseRepository implements ILicenseRepository {
   }
 
   async activate(licenseKey: string, machineId: string, label?: string): Promise<{ valid: true }> {
-    const license = await this.findByClientId(licenseKey);
+    const license = await this.findByUserId(licenseKey);
 
     if (license.status !== 'ACTIVE') {
       throw new ForbiddenException(`License is ${license.status.toLowerCase()}`);

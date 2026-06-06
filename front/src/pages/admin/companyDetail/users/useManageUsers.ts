@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { User } from '../../../../lib/queries';
 import { api } from '../../../../lib/api';
+import { toastSuccess, toastError } from '../../../../lib/toast';
 
 export function useManageUsers(companySlug: string) {
   const qc = useQueryClient();
@@ -20,7 +21,9 @@ export function useManageUsers(companySlug: string) {
       setFirstName('');
       setLastName('');
       setEmail('');
+      toastSuccess('Utilisateur ajouté');
     },
+    onError: toastError,
   });
 
   const remove = useMutation({
@@ -29,7 +32,9 @@ export function useManageUsers(companySlug: string) {
       void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'users'] });
       void qc.invalidateQueries({ queryKey: ['users'] });
       setConfirm(null);
+      toastSuccess('Utilisateur retiré');
     },
+    onError: toastError,
   });
 
   return {
