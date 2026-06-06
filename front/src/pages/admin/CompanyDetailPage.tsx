@@ -1,8 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCompanies, useCompanyProjects, useCompanyClients, useClients } from '../../lib/queries';
-import type { Project, Client } from '../../lib/queries';
+import { Link } from 'react-router-dom';
 import { AdminLayout } from '../../components/templates/AdminLayout';
 import { Button } from '../../components/atoms/Button';
 import { Input } from '../../components/atoms/Input';
@@ -10,119 +6,40 @@ import { Modal } from '../../components/molecules/Modal';
 import { ConfirmDialog } from '../../components/molecules/ConfirmDialog';
 import { ProjectCard } from '../../components/organisms/ProjectCard';
 import { UserCard } from '../../components/molecules/UserCard';
-import { api } from '../../lib/api';
+import { useCompanyDetail } from '../../hooks/useCompanyDetail';
 
 export function CompanyDetailPage() {
-  const { companySlug } = useParams<{ companySlug: string }>();
-  const { hash } = useLocation();
-  const qc = useQueryClient();
-
-  const { data: companies = [] } = useCompanies();
-  const { data: projects = [], isLoading: projectsLoading } = useCompanyProjects(companySlug!);
-  const { data: clients = [], isLoading: clientsLoading } = useCompanyClients(companySlug!);
-  const { data: allClients = [] } = useClients();
-
-  useEffect(() => {
-    if (!hash || projectsLoading) return;
-    const el = document.getElementById(hash.slice(1));
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, [hash, projectsLoading, projects]);
-
-  const [editingCompanyName, setEditingCompanyName] = useState(false);
-  const [companyNameDraft, setCompanyNameDraft] = useState('');
-  const [projectModalOpen, setProjectModalOpen] = useState(false);
-  const [clientModalOpen, setClientModalOpen] = useState(false);
-  const [confirmProject, setConfirmProject] = useState<Project | null>(null);
-  const [confirmClient, setConfirmClient] = useState<Client | null>(null);
-  const [projectName, setProjectName] = useState('');
-  const [projectAppUrl, setProjectAppUrl] = useState('');
-  const [projectDocsUrl, setProjectDocsUrl] = useState('');
-  const [projectChangelogUrl, setProjectChangelogUrl] = useState('');
-  const [clientFirstName, setClientFirstName] = useState('');
-  const [clientLastName, setClientLastName] = useState('');
-  const [clientEmail, setClientEmail] = useState('');
-  const [linkModalOpen, setLinkModalOpen] = useState(false);
-  const [linkSearch, setLinkSearch] = useState('');
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-
-  const company = companies.find((c) => c.slug === companySlug);
-
-  const renameCompany = useMutation({
-    mutationFn: (name: string) => api.patch(`/companies/${companySlug}/name`, { name }),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['companies'] });
-      setEditingCompanyName(false);
-    },
-  });
-
-  const addProject = useMutation({
-    mutationFn: () => api.post(`/companies/${companySlug}/projects`, {
-      name: projectName,
-      appUrl: projectAppUrl || null,
-      docsUrl: projectDocsUrl || null,
-      changelogUrl: projectChangelogUrl || null,
-    }),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'projects'] });
-      void qc.invalidateQueries({ queryKey: ['projects'] });
-      setProjectModalOpen(false);
-      setProjectName('');
-      setProjectAppUrl('');
-      setProjectDocsUrl('');
-      setProjectChangelogUrl('');
-    },
-  });
-
-  const removeProject = useMutation({
-    mutationFn: (projectId: string) => api.delete(`/projects/${projectId}`),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'projects'] });
-      void qc.invalidateQueries({ queryKey: ['projects'] });
-      setConfirmProject(null);
-    },
-  });
-
-  const addClient = useMutation({
-    mutationFn: () =>
-      api.post(`/companies/${companySlug}/clients`, { firstName: clientFirstName, lastName: clientLastName, email: clientEmail }),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'clients'] });
-      setClientModalOpen(false);
-      setClientFirstName('');
-      setClientLastName('');
-      setClientEmail('');
-    },
-  });
-
-  const removeClient = useMutation({
-    mutationFn: (clientId: string) => api.delete(`/companies/${companySlug}/clients/${clientId}`),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'clients'] });
-      void qc.invalidateQueries({ queryKey: ['clients'] });
-      setConfirmClient(null);
-    },
-  });
-
-  const linkedIds = useMemo(() => new Set(clients.map((c) => c.id)), [clients]);
-
-  const linkableClients = useMemo(() => {
-    const q = linkSearch.toLowerCase();
-    return allClients.filter((c) => {
-      if (linkedIds.has(c.id)) return false;
-      if (!q) return true;
-      return `${c.firstName} ${c.lastName} ${c.email}`.toLowerCase().includes(q);
-    });
-  }, [allClients, linkedIds, linkSearch]);
-
-  const linkClient = useMutation({
-    mutationFn: (clientId: string) => api.patch(`/companies/${companySlug}/clients/${clientId}/link`, {}),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'clients'] });
-      setLinkModalOpen(false);
-      setLinkSearch('');
-      setSelectedClientId(null);
-    },
-  });
+  const {
+    companySlug,
+    company,
+    projects,
+    projectsLoading,
+    clients,
+    clientsLoading,
+    editingCompanyName, setEditingCompanyName,
+    companyNameDraft, setCompanyNameDraft,
+    renameCompany,
+    projectModalOpen, setProjectModalOpen,
+    confirmProject, setConfirmProject,
+    projectName, setProjectName,
+    projectAppUrl, setProjectAppUrl,
+    projectDocsUrl, setProjectDocsUrl,
+    projectChangelogUrl, setProjectChangelogUrl,
+    addProject,
+    removeProject,
+    clientModalOpen, setClientModalOpen,
+    confirmClient, setConfirmClient,
+    clientFirstName, setClientFirstName,
+    clientLastName, setClientLastName,
+    clientEmail, setClientEmail,
+    addClient,
+    removeClient,
+    linkModalOpen, setLinkModalOpen,
+    linkSearch, setLinkSearch,
+    selectedClientId, setSelectedClientId,
+    linkableClients,
+    linkClient,
+  } = useCompanyDetail();
 
   return (
     <AdminLayout>
@@ -164,7 +81,7 @@ export function CompanyDetailPage() {
         )}
       </div>
 
-      {/* Clients section */}
+      {/* Clients */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xs text-gray-500 uppercase tracking-widest">Utilisateurs</h2>
@@ -196,7 +113,7 @@ export function CompanyDetailPage() {
                   client={client}
                   license={client.license ?? null}
                   projects={projects}
-                  companySlug={companySlug!}
+                  companySlug={companySlug}
                   companyId={company?.id ?? ''}
                   onDelete={setConfirmClient}
                 />
@@ -206,7 +123,7 @@ export function CompanyDetailPage() {
         )}
       </div>
 
-      {/* Projects section */}
+      {/* Projects */}
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-xs text-gray-500 uppercase tracking-widest">Projets</h2>
         <button
@@ -227,9 +144,9 @@ export function CompanyDetailPage() {
             <div key={project.id} id={`project-${project.slug}`}>
               <ProjectCard
                 project={project}
-                companySlug={companySlug!}
+                companySlug={companySlug}
                 clients={clients}
-                onDeleteProject={(p) => setConfirmProject(p)}
+                onDeleteProject={setConfirmProject}
               />
             </div>
           ))}
@@ -239,39 +156,13 @@ export function CompanyDetailPage() {
       {/* Add project modal */}
       {projectModalOpen && (
         <Modal title="Nouveau projet" onClose={() => setProjectModalOpen(false)}>
-          <form
-            onSubmit={(e) => { e.preventDefault(); addProject.mutate(); }}
-            className="flex flex-col gap-4"
-          >
-            <Input
-              label="Nom"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              placeholder="Nom du projet"
-              autoFocus
-            />
-            <Input
-              label="URL App (optionnel)"
-              value={projectAppUrl}
-              onChange={(e) => setProjectAppUrl(e.target.value)}
-              placeholder="https://app.exemple.com"
-            />
-            <Input
-              label="URL Documentation (optionnel)"
-              value={projectDocsUrl}
-              onChange={(e) => setProjectDocsUrl(e.target.value)}
-              placeholder="https://docs.exemple.com"
-            />
-            <Input
-              label="URL Changelog (optionnel)"
-              value={projectChangelogUrl}
-              onChange={(e) => setProjectChangelogUrl(e.target.value)}
-              placeholder="https://changelog.exemple.com"
-            />
+          <form onSubmit={(e) => { e.preventDefault(); addProject.mutate(); }} className="flex flex-col gap-4">
+            <Input label="Nom" value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="Nom du projet" autoFocus />
+            <Input label="URL App (optionnel)" value={projectAppUrl} onChange={(e) => setProjectAppUrl(e.target.value)} placeholder="https://app.exemple.com" />
+            <Input label="URL Documentation (optionnel)" value={projectDocsUrl} onChange={(e) => setProjectDocsUrl(e.target.value)} placeholder="https://docs.exemple.com" />
+            <Input label="URL Changelog (optionnel)" value={projectChangelogUrl} onChange={(e) => setProjectChangelogUrl(e.target.value)} placeholder="https://changelog.exemple.com" />
             <div className="flex gap-2 justify-end">
-              <Button type="button" variant="ghost" onClick={() => setProjectModalOpen(false)}>
-                Annuler
-              </Button>
+              <Button type="button" variant="ghost" onClick={() => setProjectModalOpen(false)}>Annuler</Button>
               <Button type="submit" disabled={!projectName.trim()}>Créer</Button>
             </div>
           </form>
@@ -281,39 +172,15 @@ export function CompanyDetailPage() {
       {/* Add client modal */}
       {clientModalOpen && (
         <Modal title="Nouveau client" onClose={() => setClientModalOpen(false)}>
-          <form
-            onSubmit={(e) => { e.preventDefault(); addClient.mutate(); }}
-            className="flex flex-col gap-4"
-          >
+          <form onSubmit={(e) => { e.preventDefault(); addClient.mutate(); }} className="flex flex-col gap-4">
             <div className="flex gap-3">
-              <Input
-                label="Prénom"
-                value={clientFirstName}
-                onChange={(e) => setClientFirstName(e.target.value)}
-                placeholder="Prénom"
-                autoFocus
-              />
-              <Input
-                label="Nom"
-                value={clientLastName}
-                onChange={(e) => setClientLastName(e.target.value)}
-                placeholder="Nom"
-              />
+              <Input label="Prénom" value={clientFirstName} onChange={(e) => setClientFirstName(e.target.value)} placeholder="Prénom" autoFocus />
+              <Input label="Nom" value={clientLastName} onChange={(e) => setClientLastName(e.target.value)} placeholder="Nom" />
             </div>
-            <Input
-              label="Email"
-              type="email"
-              value={clientEmail}
-              onChange={(e) => setClientEmail(e.target.value)}
-              placeholder="email@exemple.com"
-            />
+            <Input label="Email" type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="email@exemple.com" />
             <div className="flex gap-2 justify-end">
-              <Button type="button" variant="ghost" onClick={() => setClientModalOpen(false)}>
-                Annuler
-              </Button>
-              <Button type="submit" disabled={!clientFirstName.trim() || !clientLastName.trim() || !clientEmail.trim()}>
-                Créer
-              </Button>
+              <Button type="button" variant="ghost" onClick={() => setClientModalOpen(false)}>Annuler</Button>
+              <Button type="submit" disabled={!clientFirstName.trim() || !clientLastName.trim() || !clientEmail.trim()}>Créer</Button>
             </div>
           </form>
         </Modal>
@@ -356,9 +223,7 @@ export function CompanyDetailPage() {
               )}
             </div>
             <div className="flex gap-2 justify-end">
-              <Button type="button" variant="ghost" onClick={() => setLinkModalOpen(false)}>
-                Annuler
-              </Button>
+              <Button type="button" variant="ghost" onClick={() => setLinkModalOpen(false)}>Annuler</Button>
               <Button
                 type="button"
                 disabled={!selectedClientId || linkClient.isPending}

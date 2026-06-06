@@ -1,9 +1,8 @@
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Client, License, LicenseType, LicenseStatus, Project } from '../../lib/queries';
 import { Modal } from './Modal';
 import { Button } from '../atoms/Button';
-import { api } from '../../lib/api';
+import { useLicenseForm } from '../../hooks/useLicenseForm';
+import { TYPE_BADGE, STATUS_LABEL } from '../../lib/licenseConstants';
 
 interface Props {
   client: Client;
@@ -14,102 +13,23 @@ interface Props {
   onClose: () => void;
 }
 
-const TYPE_LABELS: Record<LicenseType, string> = {
-  FREE: 'Free',
-  CLASSIC: 'Classic',
-  ADMIN: 'Admin',
-};
-
-const STATUS_LABELS: Record<LicenseStatus, string> = {
-  ACTIVE: 'Actif',
-  EXPIRED: 'Expiré',
-  CANCELLED: 'Annulé',
-};
-
 export function LicenseModal({ client, license, projects, companySlug, companyId, onClose }: Props) {
-  const qc = useQueryClient();
-
-  const [type, setType] = useState<LicenseType>(license?.type ?? 'FREE');
-  const [status, setStatus] = useState<LicenseStatus>(license?.status ?? 'ACTIVE');
-  const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>(
-    license?.projectAccess.map((p) => p.projectId) ?? [],
-  );
-  const [machineLock, setMachineLock] = useState(license?.machineLock ?? false);
-  const [maxMachines, setMaxMachines] = useState(license?.maxMachines ?? 1);
-  const [validUntil, setValidUntil] = useState(
-    license?.validUntil ? license.validUntil.slice(0, 10) : '',
-  );
-  const [priceLabel, setPriceLabel] = useState(license?.priceLabel ?? '');
-
-  function invalidate() {
-    void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'clients'] });
-    void qc.invalidateQueries({ queryKey: ['clients', client.id, 'license'] });
-  }
-
-  const saveMutation = useMutation({
-    mutationFn: () => {
-      const payload = {
-        type,
-        status,
-        projectIds: type === 'ADMIN' ? [] : selectedProjectIds,
-        machineLock,
-        maxMachines,
-        validUntil: type === 'FREE' && validUntil ? validUntil : null,
-        priceLabel: type === 'CLASSIC' && priceLabel ? priceLabel : null,
-      };
-      if (license) {
-        return api.patch(`/licenses/${license.id}`, payload);
-      }
-      return api.post('/licenses', { ...payload, clientId: client.id, companyId });
-    },
-    onSuccess: () => {
-      invalidate();
-      onClose();
-    },
-  });
-
-  const revokeMutation = useMutation({
-    mutationFn: () => api.delete(`/licenses/${license!.id}`),
-    onSuccess: () => {
-      invalidate();
-      onClose();
-    },
-  });
-
-  const removeMachineMutation = useMutation({
-    mutationFn: (machineId: string) =>
-      api.delete(`/licenses/${license!.id}/machines/${machineId}`),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['clients', client.id, 'license'] });
-    },
-  });
-
-  const billingPortalMutation = useMutation({
-    mutationFn: () =>
-      api.post('/stripe/billing-portal', { clientId: client.id }).then((r) => r.data as { url: string }),
-    onSuccess: ({ url }) => window.open(url, '_blank'),
-  });
-
-  const simulateMutation = useMutation({
-    mutationFn: () =>
-      api.post('/stripe/dev/simulate', {
-        email: client.email,
-        name: `${client.firstName} ${client.lastName}`,
-        companyId,
-      }),
-    onSuccess: () => {
-      invalidate();
-      onClose();
-    },
-  });
-
-  function toggleProject(id: string) {
-    setSelectedProjectIds((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
-    );
-  }
-
-  const machines = license?.machines ?? [];
+  const {
+    type, setType,
+    status, setStatus,
+    selectedProjectIds,
+    machineLock, setMachineLock,
+    maxMachines, setMaxMachines,
+    validUntil, setValidUntil,
+    priceLabel, setPriceLabel,
+    machines,
+    toggleProject,
+    saveMutation,
+    revokeMutation,
+    removeMachineMutation,
+    billingPortalMutation,
+    simulateMutation,
+  } = useLicenseForm({ client, license, companySlug, companyId, onClose });
 
   return (
     <Modal title={`Licence — ${client.firstName} ${client.lastName}`} onClose={onClose}>
@@ -129,7 +49,7 @@ export function LicenseModal({ client, license, projects, companySlug, companyId
                     : 'border-gray-700 text-gray-400 hover:border-gray-600'
                 }`}
               >
-                {TYPE_LABELS[t]}
+                {TYPE_BADGE[t].label}
               </button>
             ))}
           </div>
@@ -149,7 +69,7 @@ export function LicenseModal({ client, license, projects, companySlug, companyId
                     : 'border-gray-700 text-gray-400 hover:border-gray-600'
                 }`}
               >
-                {STATUS_LABELS[s]}
+                {STATUS_LABEL[s]}
               </button>
             ))}
           </div>
@@ -180,7 +100,7 @@ export function LicenseModal({ client, license, projects, companySlug, companyId
           <p className="text-xs text-gray-500 italic">Accès total — tous les projets, sans expiration.</p>
         )}
 
-        {/* Free trial date */}
+        {/* Free — date d'expiration */}
         {type === 'FREE' && (
           <div>
             <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide">Valide jusqu'au</p>
@@ -193,7 +113,7 @@ export function LicenseModal({ client, license, projects, companySlug, companyId
           </div>
         )}
 
-        {/* CLASSIC — prix */}
+        {/* Classic — prix */}
         {type === 'CLASSIC' && (
           <div>
             <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide">Prix</p>
@@ -207,7 +127,7 @@ export function LicenseModal({ client, license, projects, companySlug, companyId
           </div>
         )}
 
-        {/* CLASSIC Stripe info */}
+        {/* Classic — Stripe info */}
         {type === 'CLASSIC' && license?.stripeSubscriptionId && (
           <div className="bg-gray-900/50 border border-gray-700 rounded-md px-3 py-2 text-xs text-gray-400">
             <span className="text-gray-500">Subscription Stripe : </span>
@@ -253,7 +173,9 @@ export function LicenseModal({ client, license, projects, companySlug, companyId
 
           {machines.length > 0 && (
             <div>
-              <p className="text-xs text-gray-500 mb-2">Machines enregistrées ({machines.length}/{machineLock ? maxMachines : '∞'})</p>
+              <p className="text-xs text-gray-500 mb-2">
+                Machines enregistrées ({machines.length}/{machineLock ? maxMachines : '∞'})
+              </p>
               <div className="flex flex-col gap-1">
                 {machines.map((m) => (
                   <div key={m.id} className="flex items-center justify-between bg-gray-900/60 border border-gray-800 rounded px-3 py-2">
@@ -320,10 +242,7 @@ export function LicenseModal({ client, license, projects, companySlug, companyId
           </div>
           <div className="flex gap-2">
             <Button variant="ghost" onClick={onClose}>Annuler</Button>
-            <Button
-              onClick={() => saveMutation.mutate()}
-              disabled={saveMutation.isPending}
-            >
+            <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
               {license ? 'Sauvegarder' : 'Créer'}
             </Button>
           </div>

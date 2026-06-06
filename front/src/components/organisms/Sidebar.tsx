@@ -1,6 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useCompanies, useProjects, useClients } from '../../lib/queries';
+import { Link } from 'react-router-dom';
+import { useSidebar } from '../../hooks/useSidebar';
 
 function ChevronIcon({ open }: { open: boolean }) {
   return (
@@ -16,64 +15,24 @@ function ChevronIcon({ open }: { open: boolean }) {
 }
 
 export function Sidebar() {
-  const [query, setQuery] = useState('');
-  const [openCompanies, setOpenCompanies] = useState<Set<string>>(new Set());
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const { data: companies = [] } = useCompanies();
-  const { data: projects = [] } = useProjects();
-  const { data: clients = [] } = useClients();
-
-  useEffect(() => {
-    if (companies.length > 0)
-      setOpenCompanies(new Set(companies.map((c) => c.id)));
-  }, [companies]);
-
-  const projectsByCompany = useMemo(() => {
-    const map = new Map<string, typeof projects>();
-    for (const p of projects) {
-      if (!map.has(p.companyId)) map.set(p.companyId, []);
-      map.get(p.companyId)!.push(p);
-    }
-    return map;
-  }, [projects]);
-
-  const searchResults = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return null;
-    return {
-      companies: companies.filter((c) => c.name.toLowerCase().includes(q)),
-      projects: projects.filter((p) => p.name.toLowerCase().includes(q)),
-      clients: clients.filter((c) =>
-        `${c.firstName} ${c.lastName}`.toLowerCase().includes(q) ||
-        c.email.toLowerCase().includes(q)
-      ),
-    };
-  }, [query, companies, projects, clients]);
-
-  const hasResults =
-    searchResults &&
-    (searchResults.companies.length > 0 ||
-      searchResults.projects.length > 0 ||
-      searchResults.clients.length > 0);
-
-  function companySlugById(id: string) {
-    return companies.find((c) => c.id === id)?.slug ?? id;
-  }
-
-  function toggleCompany(id: string) {
-    setOpenCompanies((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  }
-
-  const activeCompanySlug = location.pathname.match(/\/admin\/companies\/([^/]+)/)?.[1];
-  const activeProjectHash = location.hash;
-  const isUsersActive = location.pathname.startsWith('/admin/users');
-  const isCompaniesActive = location.pathname.startsWith('/admin/companies');
+  const {
+    query, setQuery,
+    openCompanies,
+    toggleCompany,
+    companies,
+    projects,
+    clients,
+    projectsByCompany,
+    searchResults,
+    hasResults,
+    companySlugById,
+    navigate,
+    location,
+    activeCompanySlug,
+    activeProjectHash,
+    isUsersActive,
+    isCompaniesActive,
+  } = useSidebar();
 
   return (
     <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col h-full">
@@ -105,10 +64,10 @@ export function Sidebar() {
               <p className="text-gray-500 text-xs px-3 py-2">Aucun résultat</p>
             ) : (
               <>
-                {searchResults.companies.length > 0 && (
+                {searchResults!.companies.length > 0 && (
                   <div>
                     <p className="text-gray-500 text-xs px-3 pt-2 pb-1 uppercase tracking-wide">Entreprises</p>
-                    {searchResults.companies.map((c) => (
+                    {searchResults!.companies.map((c) => (
                       <button
                         key={c.id}
                         onClick={() => { navigate(`/admin/companies/${c.slug}`); setQuery(''); }}
@@ -119,10 +78,10 @@ export function Sidebar() {
                     ))}
                   </div>
                 )}
-                {searchResults.projects.length > 0 && (
+                {searchResults!.projects.length > 0 && (
                   <div>
                     <p className="text-gray-500 text-xs px-3 pt-2 pb-1 uppercase tracking-wide">Projets</p>
-                    {searchResults.projects.map((p) => {
+                    {searchResults!.projects.map((p) => {
                       const companyName = companies.find((c) => c.id === p.companyId)?.name ?? '';
                       return (
                         <button
@@ -137,10 +96,10 @@ export function Sidebar() {
                     })}
                   </div>
                 )}
-                {searchResults.clients.length > 0 && (
+                {searchResults!.clients.length > 0 && (
                   <div>
                     <p className="text-gray-500 text-xs px-3 pt-2 pb-1 uppercase tracking-wide">Utilisateurs</p>
-                    {searchResults.clients.map((c) => (
+                    {searchResults!.clients.map((c) => (
                       <button
                         key={c.id}
                         onClick={() => { navigate(`/admin/users/${c.slug}`); setQuery(''); }}
@@ -158,7 +117,6 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3">
-        {/* Utilisateurs section */}
         <Link
           to="/admin/users"
           className={`text-xs uppercase tracking-wide px-2 mb-2 block transition-colors ${
@@ -195,7 +153,6 @@ export function Sidebar() {
           )}
         </div>
 
-        {/* Entreprises section */}
         <Link
           to="/admin/companies"
           className={`text-xs uppercase tracking-wide px-2 mb-2 block transition-colors ${

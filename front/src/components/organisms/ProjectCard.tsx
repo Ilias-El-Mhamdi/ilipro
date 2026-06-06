@@ -1,13 +1,14 @@
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { useProjectDeliverables } from '../../lib/queries';
-import type { Project, Client, Deliverable, LicenseType } from '../../lib/queries';
+import type { Project, Client, LicenseType } from '../../lib/queries';
 import { Button } from '../atoms/Button';
 import { Input } from '../atoms/Input';
 import { Modal } from '../molecules/Modal';
 import { ConfirmDialog } from '../molecules/ConfirmDialog';
 import { FileDropZone } from '../molecules/FileDropZone';
-import { api } from '../../lib/api';
+import { useProjectCardActions } from '../../hooks/useProjectCardActions';
+import { initials, formatSize, downloadFile, scrollAndHighlight, getAccessClients } from '../../lib/utils';
+import { TYPE_BADGE } from '../../lib/licenseConstants';
 
 interface Props {
   project: Project;
@@ -16,50 +17,12 @@ interface Props {
   onDeleteProject: (project: Project) => void;
 }
 
-const LICENSE_BADGE: Record<LicenseType, string> = {
-  FREE:    'bg-green-900/40 text-green-300 border border-green-800',
-  CLASSIC: 'bg-blue-900/40 text-blue-300 border border-blue-800',
-  ADMIN:   'bg-red-900/40 text-red-300 border border-red-800',
-};
-
 function LicenseBadge({ type }: { type: LicenseType }) {
   return (
-    <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded ${LICENSE_BADGE[type]}`}>
-      {type}
+    <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded ${TYPE_BADGE[type].className}`}>
+      {TYPE_BADGE[type].label}
     </span>
   );
-}
-
-function scrollAndHighlight(clientId: string) {
-  const el = document.getElementById(`user-${clientId}`);
-  if (!el) return;
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  el.style.transition = 'box-shadow 0.2s ease';
-  el.style.boxShadow = '0 0 0 2px #818cf8, 0 0 16px 2px #818cf840';
-  setTimeout(() => {
-    el.style.boxShadow = '';
-  }, 1500);
-}
-
-async function downloadFile(url: string, filename: string) {
-  const res = await fetch(url);
-  const blob = await res.blob();
-  const objectUrl = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = objectUrl;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(objectUrl);
-}
-
-function formatSize(bytes: number) {
-  if (bytes < 1024) return `${bytes} o`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} Ko`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} Mo`;
-}
-
-function initials(firstName: string, lastName: string) {
-  return (firstName[0] ?? '').toUpperCase() + (lastName[0] ?? '').toUpperCase();
 }
 
 const LINK_BUTTON_STYLE = {
@@ -82,80 +45,23 @@ function LinkButton({ href, label, variant }: { href: string; label: string; var
 }
 
 export function ProjectCard({ project, companySlug, clients, onDeleteProject }: Props) {
-  const qc = useQueryClient();
   const { data: deliverables = [] } = useProjectDeliverables(project.id);
-  const [idCopied, setIdCopied] = useState(false);
+  const {
+    idCopied, copyProjectId,
+    confirmDeliverable, setConfirmDeliverable,
+    editModalOpen, setEditModalOpen,
+    nameDraft, setNameDraft,
+    appUrl, setAppUrl,
+    docsUrl, setDocsUrl,
+    changelogUrl, setChangelogUrl,
+    uploadDeliverable,
+    removeDeliverable,
+    updateProject,
+    handleFiles,
+    openEditModal,
+  } = useProjectCardActions(project, companySlug);
 
-  function copyProjectId() {
-    void navigator.clipboard.writeText(project.id).then(() => {
-      setIdCopied(true);
-      setTimeout(() => setIdCopied(false), 1500);
-    });
-  }
-
-  const [confirmDeliverable, setConfirmDeliverable] = useState<Deliverable | null>(null);
-  const [deliverableModalOpen, setDeliverableModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [nameDraft, setNameDraft] = useState(project.name);
-  const [appUrl, setAppUrl] = useState(project.appUrl ?? '');
-  const [docsUrl, setDocsUrl] = useState(project.docsUrl ?? '');
-  const [changelogUrl, setChangelogUrl] = useState(project.changelogUrl ?? '');
-
-  const accessClients = clients.filter((c) => {
-    const license = c.license;
-    if (!license || license.status !== 'ACTIVE') return false;
-    if (license.type === 'ADMIN') return true;
-    return license.projectAccess.some((a) => a.projectId === project.id);
-  });
-
-  const uploadDeliverable = useMutation({
-    mutationFn: (file: File) => {
-      const form = new FormData();
-      form.append('file', file);
-      return api.post(`/projects/${project.id}/deliverables`, form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-    },
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['projects', project.id, 'deliverables'] });
-      setDeliverableModalOpen(false);
-    },
-  });
-
-  const removeDeliverable = useMutation({
-    mutationFn: (id: string) => api.delete(`/deliverables/${id}`),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['projects', project.id, 'deliverables'] });
-      setConfirmDeliverable(null);
-    },
-  });
-
-  const updateProject = useMutation({
-    mutationFn: () =>
-      api.patch(`/projects/${project.id}`, {
-        name: nameDraft.trim() || project.name,
-        appUrl: appUrl || null,
-        docsUrl: docsUrl || null,
-        changelogUrl: changelogUrl || null,
-      }),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'projects'] });
-      void qc.invalidateQueries({ queryKey: ['projects'] });
-      setEditModalOpen(false);
-    },
-  });
-
-  function handleFiles(files: File[]) {
-    files.forEach((file) => uploadDeliverable.mutate(file));
-  }
-
-  function openEditModal() {
-    setNameDraft(project.name);
-    setAppUrl(project.appUrl ?? '');
-    setDocsUrl(project.docsUrl ?? '');
-    setChangelogUrl(project.changelogUrl ?? '');
-    setEditModalOpen(true);
-  }
+  const accessClients = useMemo(() => getAccessClients(clients, project.id), [clients, project.id]);
 
   return (
     <div className="border border-gray-800 rounded-lg overflow-hidden">
@@ -203,7 +109,7 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
 
       {/* Body */}
       <div className="grid grid-cols-2 divide-x divide-gray-800">
-        {/* Accès (read-only) */}
+        {/* Accès */}
         <div className="p-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs text-gray-500 uppercase tracking-wide">
@@ -243,7 +149,7 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
                 <li key={d.id} className="flex items-center justify-between group">
                   <div className="flex items-center gap-2 min-w-0">
                     <button
-                      onClick={() => downloadFile(d.url, d.name)}
+                      onClick={() => void downloadFile(d.url, d.name)}
                       className="text-sm text-white hover:text-indigo-400 truncate transition-colors text-left"
                     >
                       {d.name}
@@ -264,47 +170,18 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
         </div>
       </div>
 
-      {deliverableModalOpen && (
-        <Modal title="Ajouter un livrable" onClose={() => setDeliverableModalOpen(false)}>
-          <FileDropZone onFiles={handleFiles} loading={uploadDeliverable.isPending} />
-        </Modal>
-      )}
-
       {editModalOpen && (
         <Modal title={`Éditer — ${project.name}`} onClose={() => setEditModalOpen(false)}>
           <form
             onSubmit={(e) => { e.preventDefault(); updateProject.mutate(); }}
             className="flex flex-col gap-4"
           >
-            <Input
-              label="Nom"
-              value={nameDraft}
-              onChange={(e) => setNameDraft(e.target.value)}
-              placeholder="Nom du projet"
-              autoFocus
-            />
-            <Input
-              label="URL App"
-              value={appUrl}
-              onChange={(e) => setAppUrl(e.target.value)}
-              placeholder="https://app.exemple.com"
-            />
-            <Input
-              label="URL Documentation"
-              value={docsUrl}
-              onChange={(e) => setDocsUrl(e.target.value)}
-              placeholder="https://docs.exemple.com"
-            />
-            <Input
-              label="URL Changelog"
-              value={changelogUrl}
-              onChange={(e) => setChangelogUrl(e.target.value)}
-              placeholder="https://changelog.exemple.com"
-            />
+            <Input label="Nom" value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} placeholder="Nom du projet" autoFocus />
+            <Input label="URL App" value={appUrl} onChange={(e) => setAppUrl(e.target.value)} placeholder="https://app.exemple.com" />
+            <Input label="URL Documentation" value={docsUrl} onChange={(e) => setDocsUrl(e.target.value)} placeholder="https://docs.exemple.com" />
+            <Input label="URL Changelog" value={changelogUrl} onChange={(e) => setChangelogUrl(e.target.value)} placeholder="https://changelog.exemple.com" />
             <div className="flex gap-2 justify-end">
-              <Button type="button" variant="ghost" onClick={() => setEditModalOpen(false)}>
-                Annuler
-              </Button>
+              <Button type="button" variant="ghost" onClick={() => setEditModalOpen(false)}>Annuler</Button>
               <Button type="submit" disabled={updateProject.isPending}>Enregistrer</Button>
             </div>
           </form>

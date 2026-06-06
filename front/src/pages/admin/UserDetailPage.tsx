@@ -1,64 +1,17 @@
-import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { useClientBySlug, useProjectDeliverables } from '../../lib/queries';
 import { api } from '../../lib/api';
-import type { Project, Deliverable, LicenseType, LicenseStatus, License, ClientDetail, ClientCompanySection } from '../../lib/queries';
+import type { Project, Deliverable, License, ClientDetail, ClientCompanySection } from '../../lib/queries';
 import { AdminLayout } from '../../components/templates/AdminLayout';
+import { useClipboard } from '../../hooks/useClipboard';
+import { useCarousel } from '../../hooks/useCarousel';
+import { expiryDate, formatSize, downloadFile } from '../../lib/utils';
+import { TYPE_BADGE, STATUS_COLOR, STATUS_DOT, STATUS_LABEL } from '../../lib/licenseConstants';
 
-// ─── helpers ─────────────────────────────────────────────────────────────────
+const PANELS = ['Général', 'Projets', 'Machines'] as const;
 
-const TYPE_BADGE: Record<LicenseType, { label: string; className: string }> = {
-  FREE:    { label: 'Free',    className: 'bg-green-900/40 text-green-300 border-green-800' },
-  CLASSIC: { label: 'Classic', className: 'bg-blue-900/40 text-blue-300 border-blue-800' },
-  ADMIN:   { label: 'Admin',   className: 'bg-red-900/40 text-red-300 border-red-800' },
-};
-
-const STATUS_COLOR: Record<LicenseStatus, string> = {
-  ACTIVE:    'text-green-400',
-  EXPIRED:   'text-red-400',
-  CANCELLED: 'text-gray-500',
-};
-
-const STATUS_DOT: Record<LicenseStatus, string> = {
-  ACTIVE:    'bg-green-400',
-  EXPIRED:   'bg-red-400',
-  CANCELLED: 'bg-gray-500',
-};
-
-const STATUS_LABEL: Record<LicenseStatus, string> = {
-  ACTIVE:    'Actif',
-  EXPIRED:   'Expiré',
-  CANCELLED: 'Annulé',
-};
-
-function expiryDate(license: License): string | null {
-  if (license.type === 'ADMIN') return null;
-  const raw = license.type === 'CLASSIC' ? license.currentPeriodEnd : license.validUntil;
-  if (!raw) return null;
-  return new Date(raw).toLocaleDateString('fr-FR');
-}
-
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} o`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} Ko`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
-}
-
-async function downloadFile(url: string, filename: string) {
-  const res = await fetch(url);
-  const blob = await res.blob();
-  const objectUrl = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = objectUrl;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(objectUrl);
-}
-
-// ─── License card panels ──────────────────────────────────────────────────────
+// ─── Panel 0 ──────────────────────────────────────────────────────────────────
 
 function PanelOverview({ license }: { license: License }) {
   const badge = TYPE_BADGE[license.type];
@@ -67,7 +20,7 @@ function PanelOverview({ license }: { license: License }) {
     <div className="flex flex-col gap-2.5">
       <div className="flex items-center justify-between">
         <span className="text-xs text-gray-500">Licence</span>
-        <span className={`text-xs font-medium px-2 py-0.5 rounded border ${badge.className}`}>{badge.label}</span>
+        <span className={`text-xs font-medium px-2 py-0.5 rounded ${badge.className}`}>{badge.label}</span>
       </div>
       <div className="flex items-center justify-between">
         <span className="text-xs text-gray-500">Statut</span>
@@ -103,6 +56,8 @@ function PanelOverview({ license }: { license: License }) {
   );
 }
 
+// ─── Panel 1 ──────────────────────────────────────────────────────────────────
+
 function PanelProjects({ license, projects }: { license: License; projects: Project[] }) {
   if (license.type === 'ADMIN') {
     return (
@@ -137,6 +92,8 @@ function PanelProjects({ license, projects }: { license: License; projects: Proj
   );
 }
 
+// ─── Panel 2 ──────────────────────────────────────────────────────────────────
+
 function PanelMachines({ license }: { license: License }) {
   if (!license.machineLock) {
     return (
@@ -163,8 +120,6 @@ function PanelMachines({ license }: { license: License }) {
   );
 }
 
-const PANELS = ['Général', 'Projets', 'Machines'] as const;
-
 // ─── License card ─────────────────────────────────────────────────────────────
 
 function LicenseCard({ license, projects, client }: {
@@ -172,9 +127,7 @@ function LicenseCard({ license, projects, client }: {
   projects: Project[];
   client: ClientDetail;
 }) {
-  const [panel, setPanel] = useState(0);
-  const prev = () => setPanel((p) => (p - 1 + PANELS.length) % PANELS.length);
-  const next = () => setPanel((p) => (p + 1) % PANELS.length);
+  const { panel, setPanel, prev, next } = useCarousel(PANELS.length);
 
   const billingPortal = useMutation({
     mutationFn: () =>
@@ -186,7 +139,6 @@ function LicenseCard({ license, projects, client }: {
 
   return (
     <div className="flex flex-col bg-gray-900 border border-gray-700 rounded-xl overflow-hidden shadow-md w-56">
-      {/* Header */}
       <div className="bg-indigo-900/40 border-b border-indigo-800/40 px-3 py-3 flex items-center gap-2.5 shrink-0">
         <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
           {initials}
@@ -204,29 +156,27 @@ function LicenseCard({ license, projects, client }: {
         </div>
       ) : (
         <>
-          {/* Carousel */}
           <div className="h-44 flex flex-col min-h-0">
             <div className="flex items-center justify-between px-3 pt-3 pb-1 shrink-0">
-          <button onClick={prev} className="text-gray-600 hover:text-gray-300 transition-colors cursor-pointer text-xs px-1">‹</button>
-          <div className="flex gap-1">
-            {PANELS.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setPanel(i)}
-                className={`w-1.5 h-1.5 rounded-full transition-colors cursor-pointer ${i === panel ? 'bg-indigo-400' : 'bg-gray-700'}`}
-              />
-            ))}
-          </div>
-          <button onClick={next} className="text-gray-600 hover:text-gray-300 transition-colors cursor-pointer text-xs px-1">›</button>
+              <button onClick={prev} className="text-gray-600 hover:text-gray-300 transition-colors cursor-pointer text-xs px-1">‹</button>
+              <div className="flex gap-1">
+                {PANELS.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPanel(i)}
+                    className={`w-1.5 h-1.5 rounded-full transition-colors cursor-pointer ${i === panel ? 'bg-indigo-400' : 'bg-gray-700'}`}
+                  />
+                ))}
+              </div>
+              <button onClick={next} className="text-gray-600 hover:text-gray-300 transition-colors cursor-pointer text-xs px-1">›</button>
             </div>
-                <div className="flex-1 px-3 pt-2 pb-3 overflow-y-auto">
+            <div className="flex-1 px-3 pt-2 pb-3 overflow-y-auto">
               {panel === 0 && <PanelOverview license={license} />}
               {panel === 1 && <PanelProjects license={license} projects={projects} />}
               {panel === 2 && <PanelMachines license={license} />}
             </div>
           </div>
 
-          {/* Footer */}
           {client.stripeCustomerId && (
             <div className="border-t border-gray-800 px-3 py-2 shrink-0">
               <button
@@ -308,7 +258,7 @@ function ProjectRow({ project, client, license }: { project: Project; client: Cl
               </div>
               <span className="text-xs text-gray-300 truncate flex-1">{client.firstName} {client.lastName}</span>
               {license && (
-                <span className={`shrink-0 text-xs font-medium px-1.5 py-0.5 rounded border ${TYPE_BADGE[license.type].className}`}>
+                <span className={`shrink-0 text-xs font-medium px-1.5 py-0.5 rounded ${TYPE_BADGE[license.type].className}`}>
                   {TYPE_BADGE[license.type].label}
                 </span>
               )}
@@ -363,11 +313,7 @@ function CompanySection({ section, client }: { section: ClientCompanySection; cl
 
       <div className="mb-6">
         <h3 className="text-xs text-gray-500 uppercase tracking-widest mb-3">Licence</h3>
-        <LicenseCard
-          license={section.license}
-          projects={section.projects}
-          client={client}
-        />
+        <LicenseCard license={section.license} projects={section.projects} client={client} />
       </div>
 
       <div>
@@ -391,15 +337,7 @@ function CompanySection({ section, client }: { section: ClientCompanySection; cl
 export function UserDetailPage() {
   const { userSlug } = useParams<{ userSlug: string }>();
   const { data: client, isLoading } = useClientBySlug(userSlug!);
-  const [copied, setCopied] = useState(false);
-
-  function copyEmail() {
-    if (!client) return;
-    void navigator.clipboard.writeText(client.email).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    });
-  }
+  const { copied, copy } = useClipboard();
 
   if (isLoading) {
     return <AdminLayout><p className="text-gray-500">Chargement...</p></AdminLayout>;
@@ -421,13 +359,13 @@ export function UserDetailPage() {
         <h1 className="text-2xl font-bold mb-1">{client.firstName} {client.lastName}</h1>
         <div className="flex items-center gap-2 group/email">
           <button
-            onClick={copyEmail}
+            onClick={() => copy(client.email)}
             className="text-gray-500 hover:text-gray-300 text-sm transition-colors cursor-pointer"
           >
             {client.email}
           </button>
           <button
-            onClick={copyEmail}
+            onClick={() => copy(client.email)}
             className="opacity-0 group-hover/email:opacity-100 transition-opacity cursor-pointer text-gray-600 hover:text-gray-300"
             title="Copier l'email"
           >

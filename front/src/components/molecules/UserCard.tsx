@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import type { Client, License, LicenseType, LicenseStatus, Project } from '../../lib/queries';
+import type { Client, License, Project } from '../../lib/queries';
 import { LicenseModal } from './LicenseModal';
 import { Modal } from './Modal';
 import { Input } from '../atoms/Input';
 import { Button } from '../atoms/Button';
-import { api } from '../../lib/api';
+import { useUserCardActions } from '../../hooks/useUserCardActions';
+import { useClipboard } from '../../hooks/useClipboard';
+import { useCarousel } from '../../hooks/useCarousel';
+import { initials, expiryDate } from '../../lib/utils';
+import { TYPE_BADGE, STATUS_COLOR, STATUS_DOT, STATUS_LABEL } from '../../lib/licenseConstants';
 
 interface Props {
   client: Client;
@@ -17,40 +20,7 @@ interface Props {
   onDelete: (client: Client) => void;
 }
 
-function initials(firstName: string, lastName: string) {
-  return (firstName[0] ?? '').toUpperCase() + (lastName[0] ?? '').toUpperCase();
-}
-
-const TYPE_BADGE: Record<LicenseType, { label: string; className: string }> = {
-  FREE:    { label: 'Free',    className: 'bg-green-900/40 text-green-300 border-green-800' },
-  CLASSIC: { label: 'Classic', className: 'bg-blue-900/40 text-blue-300 border-blue-800' },
-  ADMIN:   { label: 'Admin',   className: 'bg-red-900/40 text-red-300 border-red-800' },
-};
-
-const STATUS_COLOR: Record<LicenseStatus, string> = {
-  ACTIVE:    'text-green-400',
-  EXPIRED:   'text-red-400',
-  CANCELLED: 'text-gray-500',
-};
-
-const STATUS_DOT: Record<LicenseStatus, string> = {
-  ACTIVE:    'bg-green-400',
-  EXPIRED:   'bg-red-400',
-  CANCELLED: 'bg-gray-500',
-};
-
-const STATUS_LABEL: Record<LicenseStatus, string> = {
-  ACTIVE:    'Actif',
-  EXPIRED:   'Expiré',
-  CANCELLED: 'Annulé',
-};
-
-function expiryDate(license: License): string | null {
-  if (license.type === 'ADMIN') return null;
-  const raw = license.type === 'CLASSIC' ? license.currentPeriodEnd : license.validUntil;
-  if (!raw) return null;
-  return new Date(raw).toLocaleDateString('fr-FR');
-}
+const PANELS = ['Général', 'Projets', 'Machines'] as const;
 
 // ─── Panel 0 : vue générale ───────────────────────────────────────────────────
 function PanelOverview({ license }: { license: License | null }) {
@@ -68,7 +38,7 @@ function PanelOverview({ license }: { license: License | null }) {
     <div className="flex flex-col gap-2.5">
       <div className="flex items-center justify-between">
         <span className="text-xs text-gray-500">Licence</span>
-        <span className={`text-xs font-medium px-2 py-0.5 rounded border ${badge.className}`}>
+        <span className={`text-xs font-medium px-2 py-0.5 rounded ${badge.className}`}>
           {badge.label}
         </span>
       </div>
@@ -177,16 +147,15 @@ function PanelMachines({ license }: { license: License | null }) {
       </div>
     );
   }
-  const machines = license.machines;
   return (
     <div className="flex flex-col gap-1.5">
       <p className="text-xs text-gray-500 mb-1">
-        Machines ({machines.length} / {license.maxMachines})
+        Machines ({license.machines.length} / {license.maxMachines})
       </p>
-      {machines.length === 0 && (
+      {license.machines.length === 0 && (
         <p className="text-xs text-gray-600">Aucune machine enregistrée</p>
       )}
-      {machines.map((m) => (
+      {license.machines.map((m) => (
         <div key={m.id} className="bg-gray-800/60 rounded px-2 py-1.5">
           <p className="text-xs font-mono text-gray-300 truncate">{m.machineId}</p>
           <p className="text-xs text-gray-600 truncate">
@@ -201,42 +170,14 @@ function PanelMachines({ license }: { license: License | null }) {
   );
 }
 
-const PANELS = ['Général', 'Projets', 'Machines'] as const;
-
 // ─── UserCard ─────────────────────────────────────────────────────────────────
 export function UserCard({ client, license, projects, companySlug, companyId, onDelete }: Props) {
-  const qc = useQueryClient();
   const navigate = useNavigate();
-  const [panel, setPanel] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [firstNameDraft, setFirstNameDraft] = useState(client.firstName);
-  const [lastNameDraft, setLastNameDraft] = useState(client.lastName);
-  const [copied, setCopied] = useState(false);
-
-  const updateClient = useMutation({
-    mutationFn: () => api.patch(`/clients/${client.id}`, { firstName: firstNameDraft.trim(), lastName: lastNameDraft.trim() }),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'clients'] });
-      setEditModalOpen(false);
-    },
-  });
-
-  function openEditModal() {
-    setFirstNameDraft(client.firstName);
-    setLastNameDraft(client.lastName);
-    setEditModalOpen(true);
-  }
-
-  function copyEmail() {
-    void navigator.clipboard.writeText(client.email).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    });
-  }
-
-  const prev = () => setPanel((p) => (p - 1 + PANELS.length) % PANELS.length);
-  const next = () => setPanel((p) => (p + 1) % PANELS.length);
+  const { firstNameDraft, setFirstNameDraft, lastNameDraft, setLastNameDraft, editModalOpen, setEditModalOpen, updateClient, openEditModal } =
+    useUserCardActions(client, companySlug);
+  const { copied, copy } = useClipboard();
+  const { panel, setPanel, prev, next } = useCarousel(PANELS.length);
 
   return (
     <>
@@ -261,7 +202,9 @@ export function UserCard({ client, license, projects, companySlug, companyId, on
               className="group/name flex items-center gap-1.5 cursor-pointer text-left"
               title="Modifier"
             >
-              <p className="text-white font-semibold text-sm truncate leading-tight group-hover/name:text-indigo-300 transition-colors">{client.firstName} {client.lastName}</p>
+              <p className="text-white font-semibold text-sm truncate leading-tight group-hover/name:text-indigo-300 transition-colors">
+                {client.firstName} {client.lastName}
+              </p>
               <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 shrink-0 text-gray-600 group-hover/name:text-indigo-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -269,13 +212,13 @@ export function UserCard({ client, license, projects, companySlug, companyId, on
             </button>
             <div className="flex items-center gap-1 group/email">
               <button
-                onClick={copyEmail}
+                onClick={() => copy(client.email)}
                 className="text-indigo-300 text-xs truncate hover:text-indigo-100 transition-colors cursor-pointer text-left"
               >
                 {client.email}
               </button>
               <button
-                onClick={copyEmail}
+                onClick={() => copy(client.email)}
                 className="shrink-0 opacity-0 group-hover/email:opacity-100 transition-opacity cursor-pointer text-indigo-400 hover:text-white"
                 title="Copier l'email"
               >
@@ -296,14 +239,8 @@ export function UserCard({ client, license, projects, companySlug, companyId, on
 
         {/* Carousel */}
         <div className="flex-1 flex flex-col min-h-0">
-          {/* Navigation */}
           <div className="flex items-center justify-between px-3 pt-2 pb-1 shrink-0">
-            <button
-              onClick={prev}
-              className="text-gray-600 hover:text-gray-300 transition-colors cursor-pointer text-xs px-1"
-            >
-              ‹
-            </button>
+            <button onClick={prev} className="text-gray-600 hover:text-gray-300 transition-colors cursor-pointer text-xs px-1">‹</button>
             <div className="flex gap-1">
               {PANELS.map((_, i) => (
                 <button
@@ -315,15 +252,9 @@ export function UserCard({ client, license, projects, companySlug, companyId, on
                 />
               ))}
             </div>
-            <button
-              onClick={next}
-              className="text-gray-600 hover:text-gray-300 transition-colors cursor-pointer text-xs px-1"
-            >
-              ›
-            </button>
+            <button onClick={next} className="text-gray-600 hover:text-gray-300 transition-colors cursor-pointer text-xs px-1">›</button>
           </div>
 
-          {/* Panel content */}
           <div className="flex-1 px-3 pt-2 pb-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
             {panel === 0 && <PanelOverview license={license} />}
             {panel === 1 && <PanelProjects license={license} projects={projects} />}
@@ -370,9 +301,7 @@ export function UserCard({ client, license, projects, companySlug, companyId, on
               />
             </div>
             <div className="flex gap-2 justify-end">
-              <Button type="button" variant="ghost" onClick={() => setEditModalOpen(false)}>
-                Annuler
-              </Button>
+              <Button type="button" variant="ghost" onClick={() => setEditModalOpen(false)}>Annuler</Button>
               <Button type="submit" disabled={!firstNameDraft.trim() || !lastNameDraft.trim() || updateClient.isPending}>
                 Enregistrer
               </Button>

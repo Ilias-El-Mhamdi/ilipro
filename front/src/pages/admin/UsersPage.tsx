@@ -1,48 +1,25 @@
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { useClients } from '../../lib/queries';
-import type { Client } from '../../lib/queries';
-import { api } from '../../lib/api';
 import { AdminLayout } from '../../components/templates/AdminLayout';
 import { Button } from '../../components/atoms/Button';
 import { Input } from '../../components/atoms/Input';
 import { Modal } from '../../components/molecules/Modal';
 import { ConfirmDialog } from '../../components/molecules/ConfirmDialog';
-
-function initials(firstName: string, lastName: string) {
-  return (firstName[0] ?? '').toUpperCase() + (lastName[0] ?? '').toUpperCase();
-}
+import { useUserCrud } from '../../hooks/useUserCrud';
+import { initials } from '../../lib/utils';
+import { TYPE_BADGE } from '../../lib/licenseConstants';
 
 export function UsersPage() {
-  const qc = useQueryClient();
-  const navigate = useNavigate();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [confirmClient, setConfirmClient] = useState<Client | null>(null);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-
-  const { data: clients = [], isLoading } = useClients();
-
-  const create = useMutation({
-    mutationFn: () => api.post('/clients', { firstName, lastName, email }),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['clients'] });
-      setModalOpen(false);
-      setFirstName('');
-      setLastName('');
-      setEmail('');
-    },
-  });
-
-  const remove = useMutation({
-    mutationFn: (id: string) => api.delete(`/clients/${id}`),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['clients'] });
-      setConfirmClient(null);
-    },
-  });
+  const {
+    clients,
+    isLoading,
+    navigate,
+    modalOpen, setModalOpen,
+    confirmClient, setConfirmClient,
+    firstName, setFirstName,
+    lastName, setLastName,
+    email, setEmail,
+    create,
+    remove,
+  } = useUserCrud();
 
   return (
     <AdminLayout>
@@ -85,14 +62,8 @@ export function UsersPage() {
                   <td className="px-4 py-3 text-gray-400">{c.email}</td>
                   <td className="px-4 py-3">
                     {c.license ? (
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded border ${
-                        c.license.type === 'FREE'
-                          ? 'bg-green-900/40 text-green-300 border-green-800'
-                          : c.license.type === 'CLASSIC'
-                          ? 'bg-blue-900/40 text-blue-300 border-blue-800'
-                          : 'bg-red-900/40 text-red-300 border-red-800'
-                      }`}>
-                        {c.license.type}
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded ${TYPE_BADGE[c.license.type].className}`}>
+                        {TYPE_BADGE[c.license.type].label}
                       </span>
                     ) : (
                       <span className="text-gray-600 text-xs">—</span>
@@ -125,31 +96,12 @@ export function UsersPage() {
             className="flex flex-col gap-4"
           >
             <div className="flex gap-3">
-              <Input
-                label="Prénom"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="Prénom"
-                autoFocus
-              />
-              <Input
-                label="Nom"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Nom"
-              />
+              <Input label="Prénom" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Prénom" autoFocus />
+              <Input label="Nom" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Nom" />
             </div>
-            <Input
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@exemple.com"
-            />
+            <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@exemple.com" />
             <div className="flex gap-2 justify-end">
-              <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>
-                Annuler
-              </Button>
+              <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>Annuler</Button>
               <Button
                 type="submit"
                 disabled={!firstName.trim() || !lastName.trim() || !email.trim() || create.isPending}

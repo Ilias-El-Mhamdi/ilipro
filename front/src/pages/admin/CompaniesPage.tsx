@@ -1,66 +1,26 @@
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { useCompanies } from '../../lib/queries';
-import type { Company } from '../../lib/queries';
-import { api } from '../../lib/api';
 import { AdminLayout } from '../../components/templates/AdminLayout';
 import { Button } from '../../components/atoms/Button';
 import { Input } from '../../components/atoms/Input';
 import { Modal } from '../../components/molecules/Modal';
 import { ConfirmDialog } from '../../components/molecules/ConfirmDialog';
+import { useCompanyCrud } from '../../hooks/useCompanyCrud';
 
 export function CompaniesPage() {
-  const qc = useQueryClient();
-  const navigate = useNavigate();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<Company | null>(null);
-  const [confirmId, setConfirmId] = useState<string | null>(null);
-  const [name, setName] = useState('');
-
-  const { data: companies = [], isLoading } = useCompanies();
-
-  const create = useMutation({
-    mutationFn: (name: string) => api.post('/companies', { name }),
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['companies'] }); closeModal(); },
-  });
-
-  const update = useMutation({
-    mutationFn: ({ slug, name }: { slug: string; name: string }) => api.put(`/companies/${slug}`, { name }),
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['companies'] }); closeModal(); },
-  });
-
-  const remove = useMutation({
-    mutationFn: (slug: string) => api.delete(`/companies/${slug}`),
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['companies'] }); setConfirmId(null); },
-  });
-
-  function openCreate() {
-    setEditing(null);
-    setName('');
-    setModalOpen(true);
-  }
-
-  function openEdit(e: React.MouseEvent, company: Company) {
-    e.stopPropagation();
-    setEditing(company);
-    setName(company.name);
-    setModalOpen(true);
-  }
-
-  function closeModal() {
-    setModalOpen(false);
-    setName('');
-    setEditing(null);
-  }
-
-  function submit() {
-    if (!name.trim()) return;
-    if (editing) update.mutate({ slug: editing.slug, name });
-    else create.mutate(name);
-  }
-
-  const confirmCompany = companies.find((c) => c.id === confirmId);
+  const {
+    companies,
+    isLoading,
+    navigate,
+    modalOpen,
+    editing,
+    confirmId, setConfirmId,
+    name, setName,
+    remove,
+    openCreate,
+    openEdit,
+    closeModal,
+    submit,
+    confirmCompany,
+  } = useCompanyCrud();
 
   return (
     <AdminLayout>
