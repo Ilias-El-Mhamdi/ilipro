@@ -1,6 +1,6 @@
 import type { UserModel } from '../../../users/domain/user.model';
 
-export abstract class IClientCompanyRepository {
+export abstract class IUserCompanyRepository {
   abstract findUsersByCompanyId(companyId: string): Promise<UserModel[]>;
 
   abstract link(userId: string, companyId: string): Promise<void>;
