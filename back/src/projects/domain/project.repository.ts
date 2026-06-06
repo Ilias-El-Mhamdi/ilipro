@@ -1,11 +1,14 @@
-import type { Project } from './project.entity';
+import type { ProjectModel } from './project.model';
 
 export abstract class ProjectRepository {
-  abstract findAll(): Promise<Project[]>;
-  abstract findByCompanyId(companyId: string): Promise<Project[]>;
-  abstract findBySlug(companyId: string, slug: string): Promise<Project | null>;
-  abstract findById(id: string): Promise<Project | null>;
-  abstract create(name: string, slug: string, companyId: string, appUrl?: string | null, docsUrl?: string | null, changelogUrl?: string | null): Promise<Project>;
-  abstract update(id: string, data: { name?: string; appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null }): Promise<Project>;
+  abstract findAll(): Promise<ProjectModel[]>;
+  abstract findByCompanyId(companyId: string): Promise<ProjectModel[]>;
+  abstract findBySlug(companyId: string, slug: string): Promise<ProjectModel | null>;
+  abstract findById(id: string): Promise<ProjectModel | null>;
+  abstract create(data: Omit<ProjectModel, 'id' | 'createdAt' | 'updatedAt'>): Promise<ProjectModel>;
+  abstract update(
+    id: string,
+    data: Partial<Pick<ProjectModel, 'name' | 'appUrl' | 'docsUrl' | 'changelogUrl'>>,
+  ): Promise<ProjectModel>;
   abstract delete(id: string): Promise<void>;
 }

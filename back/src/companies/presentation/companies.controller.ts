@@ -1,13 +1,17 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { CompaniesService } from '../application/companies.service';
+import { CompanyRepository } from '../domain/company.repository';
 
 @Controller('companies')
 export class CompaniesController {
-  constructor(private readonly service: CompaniesService) {}
+  constructor(
+    private readonly service: CompaniesService,
+    private readonly repo: CompanyRepository,
+  ) {}
 
   @Get()
   findAll() {
-    return this.service.findAll();
+    return this.repo.findAll();
   }
 
   @Get(':slug')

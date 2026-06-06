@@ -1,25 +1,25 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { useClients } from '../lib/queries';
-import type { Client } from '../lib/queries';
+import { useUsers } from '../lib/queries';
+import type { User } from '../lib/queries';
 import { api } from '../lib/api';
 
 export function useUserCrud() {
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const { data: clients = [], isLoading } = useClients();
+  const { data: users = [], isLoading } = useUsers();
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [confirmClient, setConfirmClient] = useState<Client | null>(null);
+  const [confirmUser, setConfirmUser] = useState<User | null>(null);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
 
   const create = useMutation({
-    mutationFn: () => api.post('/clients', { firstName, lastName, email }),
+    mutationFn: () => api.post('/users', { firstName, lastName, email }),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['clients'] });
+      void qc.invalidateQueries({ queryKey: ['users'] });
       setModalOpen(false);
       setFirstName('');
       setLastName('');
@@ -28,19 +28,19 @@ export function useUserCrud() {
   });
 
   const remove = useMutation({
-    mutationFn: (id: string) => api.delete(`/clients/${id}`),
+    mutationFn: (id: string) => api.delete(`/users/${id}`),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['clients'] });
-      setConfirmClient(null);
+      void qc.invalidateQueries({ queryKey: ['users'] });
+      setConfirmUser(null);
     },
   });
 
   return {
-    clients,
+    users,
     isLoading,
     navigate,
     modalOpen, setModalOpen,
-    confirmClient, setConfirmClient,
+    confirmUser, setConfirmUser,
     firstName, setFirstName,
     lastName, setLastName,
     email, setEmail,

@@ -1,5 +1,5 @@
 import {useMutation} from '@tanstack/react-query';
-import type {License, Project, ClientDetail} from '../../../../../lib/queries.ts';
+import type {License, Project, UserDetail} from '../../../../../lib/queries.ts';
 import {api} from '../../../../../lib/api.ts';
 import {useCarousel} from '../../../../../hooks/useCarousel.ts';
 import {PanelOverview, PanelProjects, PanelMachines} from '../../../../../components/molecules/licensePanel';
@@ -9,24 +9,24 @@ const PANELS = ['Général', 'Projets', 'Machines'] as const;
 interface Props {
     license: License | null;
     projects: Project[];
-    client: ClientDetail;
+    user: UserDetail;
 }
 
 
-export function LicenseCard({license, projects, client}: Props) {
+export function LicenseCard({license, projects, user}: Props) {
     const {panel, setPanel, prev, next} = useCarousel(PANELS.length);
 
     const billingPortal = useMutation({
         mutationFn: () =>
-            api.post('/stripe/billing-portal', {clientId: client.id}).then((r) => r.data as { url: string }),
+            api.post('/stripe/billing-portal', {userId: user.id}).then((r) => r.data as { url: string }),
         onSuccess: ({url}) => window.open(url, '_blank'),
     });
 
-    const initials = (client.firstName[0] ?? '').toUpperCase() + (client.lastName[0] ?? '').toUpperCase();
+    const initials = (user.firstName[0] ?? '').toUpperCase() + (user.lastName[0] ?? '').toUpperCase();
 
     return (
         <div className="flex flex-col bg-gray-900 border border-gray-700 rounded-xl overflow-hidden shadow-md w-56">
-            <CardHeader client={client} initials={initials}/>
+            <CardHeader user={user} initials={initials}/>
 
             {!license ? (
                 <EmptyLicense/>
@@ -41,7 +41,7 @@ export function LicenseCard({license, projects, client}: Props) {
                         </div>
                     </div>
 
-                    {client.stripeCustomerId && (
+                    {user.stripeCustomerId && (
                         <BillingButton onOpen={() => billingPortal.mutate()} isPending={billingPortal.isPending}/>
                     )}
                 </>
@@ -50,7 +50,7 @@ export function LicenseCard({license, projects, client}: Props) {
     );
 }
 
-function CardHeader({client, initials}: { client: ClientDetail; initials: string }) {
+function CardHeader({user, initials}: { user: UserDetail; initials: string }) {
     return (
         <div className="bg-indigo-900/40 border-b border-indigo-800/40 px-3 py-3 flex items-center gap-2.5 shrink-0">
             <div
@@ -58,8 +58,8 @@ function CardHeader({client, initials}: { client: ClientDetail; initials: string
                 {initials}
             </div>
             <div className="min-w-0 flex-1">
-                <p className="text-white font-semibold text-sm truncate leading-tight">{client.firstName} {client.lastName}</p>
-                <p className="text-indigo-300 text-xs truncate">{client.email}</p>
+                <p className="text-white font-semibold text-sm truncate leading-tight">{user.firstName} {user.lastName}</p>
+                <p className="text-indigo-300 text-xs truncate">{user.email}</p>
             </div>
         </div>
     );

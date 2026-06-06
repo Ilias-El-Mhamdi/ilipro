@@ -9,9 +9,9 @@ import { CreateUserModal } from './CreateUserModal';
 
 export function UsersPage() {
   const {
-    clients, isLoading, navigate,
+    users, isLoading, navigate,
     modalOpen, setModalOpen,
-    confirmClient, setConfirmClient,
+    confirmUser, setConfirmUser,
     firstName, setFirstName,
     lastName, setLastName,
     email, setEmail,
@@ -27,13 +27,13 @@ export function UsersPage() {
 
       {isLoading ? (
         <LoadingText />
-      ) : clients.length === 0 ? (
+      ) : users.length === 0 ? (
         <EmptyText message="Aucun utilisateur." />
       ) : (
         <UsersTable
-          clients={clients}
+          users={users}
           onNavigate={(slug) => navigate(`/admin/users/${slug}`)}
-          onDelete={(e, client) => { e.stopPropagation(); setConfirmClient(client); }}
+          onDelete={(e, user) => { e.stopPropagation(); setConfirmUser(user); }}
         />
       )}
 
@@ -47,11 +47,11 @@ export function UsersPage() {
           isPending={create.isPending}
         />
       )}
-      {confirmClient && (
+      {confirmUser && (
         <ConfirmDialog
-          message={`Supprimer l'utilisateur « ${confirmClient.firstName} ${confirmClient.lastName} » ? Cette action est irréversible.`}
-          onConfirm={() => remove.mutate(confirmClient.id)}
-          onCancel={() => setConfirmClient(null)}
+          message={`Supprimer l'utilisateur « ${confirmUser.firstName} ${confirmUser.lastName} » ? Cette action est irréversible.`}
+          onConfirm={() => remove.mutate(confirmUser.id)}
+          onCancel={() => setConfirmUser(null)}
         />
       )}
     </AdminLayout>

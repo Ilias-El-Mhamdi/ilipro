@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Client, License, LicenseType, LicenseStatus } from '../lib/queries';
+import type { User, License, LicenseType, LicenseStatus } from '../lib/queries';
 import { api } from '../lib/api';
 
 interface Props {
-  client: Client;
+  user: User;
   license: License | null;
   companySlug: string;
   companyId: string;
   onClose: () => void;
 }
 
-export function useLicenseForm({ client, license, companySlug, companyId, onClose }: Props) {
+export function useLicenseForm({ user, license, companySlug, companyId, onClose }: Props) {
   const qc = useQueryClient();
 
   const [type, setType] = useState<LicenseType>(license?.type ?? 'FREE');
@@ -27,8 +27,8 @@ export function useLicenseForm({ client, license, companySlug, companyId, onClos
   const [priceLabel, setPriceLabel] = useState(license?.priceLabel ?? '');
 
   function invalidate() {
-    void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'clients'] });
-    void qc.invalidateQueries({ queryKey: ['clients', client.id, 'license'] });
+    void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'users'] });
+    void qc.invalidateQueries({ queryKey: ['users', user.id, 'license'] });
   }
 
   const saveMutation = useMutation({
@@ -43,7 +43,7 @@ export function useLicenseForm({ client, license, companySlug, companyId, onClos
         priceLabel: type === 'CLASSIC' && priceLabel ? priceLabel : null,
       };
       if (license) return api.patch(`/licenses/${license.id}`, payload);
-      return api.post('/licenses', { ...payload, clientId: client.id, companyId });
+      return api.post('/licenses', { ...payload, userId: user.id, companyId });
     },
     onSuccess: () => { invalidate(); onClose(); },
   });
@@ -55,20 +55,20 @@ export function useLicenseForm({ client, license, companySlug, companyId, onClos
 
   const removeMachineMutation = useMutation({
     mutationFn: (machineId: string) => api.delete(`/licenses/${license!.id}/machines/${machineId}`),
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['clients', client.id, 'license'] }); },
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['users', user.id, 'license'] }); },
   });
 
   const billingPortalMutation = useMutation({
     mutationFn: () =>
-      api.post('/stripe/billing-portal', { clientId: client.id }).then((r) => r.data as { url: string }),
+      api.post('/stripe/billing-portal', { userId: user.id }).then((r) => r.data as { url: string }),
     onSuccess: ({ url }) => window.open(url, '_blank'),
   });
 
   const simulateMutation = useMutation({
     mutationFn: () =>
       api.post('/stripe/dev/simulate', {
-        email: client.email,
-        name: `${client.firstName} ${client.lastName}`,
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`,
         companyId,
       }),
     onSuccess: () => { invalidate(); onClose(); },

@@ -13,6 +13,6 @@ import { StorageModule } from '../storage/storage.module';
     DeliverablesService,
     { provide: DeliverableRepository, useClass: PrismaDeliverableRepository },
   ],
-  exports: [DeliverablesService],
+  exports: [DeliverablesService, DeliverableRepository],
 })
 export class DeliverablesModule {}

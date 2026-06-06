@@ -8,14 +8,18 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DeliverablesService } from '../../deliverables/application/deliverables.service';
+import { DeliverableRepository } from '../../deliverables/domain/deliverable.repository';
 
 @Controller('projects/:projectId/deliverables')
 export class ProjectDeliverablesController {
-  constructor(private readonly service: DeliverablesService) {}
+  constructor(
+    private readonly service: DeliverablesService,
+    private readonly repo: DeliverableRepository,
+  ) {}
 
   @Get()
   findByProject(@Param('projectId') projectId: string) {
-    return this.service.findByProjectId(projectId);
+    return this.repo.findByProjectId(projectId);
   }
 
   @Post()

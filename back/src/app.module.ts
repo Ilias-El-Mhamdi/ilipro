@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { CompaniesModule } from './companies/companies.module';
 import { ProjectsModule } from './projects/projects.module';
-import { ClientsModule } from './clients/clients.module';
+import { UsersModule } from './users/users.module';
 import { DeliverablesModule } from './deliverables/deliverables.module';
 import { StorageModule } from './storage/storage.module';
 import { LicensesModule } from './licenses/licenses.module';
@@ -15,7 +15,7 @@ import { StripeModule } from './stripe/stripe.module';
     PrismaModule,
     CompaniesModule,
     ProjectsModule,
-    ClientsModule,
+    UsersModule,
     DeliverablesModule,
     StorageModule,
     LicensesModule,

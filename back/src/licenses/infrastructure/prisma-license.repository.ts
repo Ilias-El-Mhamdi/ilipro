@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LicenseRepository, CreateLicenseInput, UpdateLicenseInput } from '../domain/license.repository';
-import type { License, LicenseMachine } from '../domain/license.entity';
+import { LicenseEntity, LicenseMachineEntity } from '../domain/license.entity';
+import type { LicenseModel, LicenseMachineModel } from '../domain/license.model';
 
 const licenseInclude = {
   projectAccess: true,
@@ -12,30 +13,38 @@ const licenseInclude = {
 export class PrismaLicenseRepository implements LicenseRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findByClientId(clientId: string): Promise<License | null> {
-    return this.prisma.license.findFirst({
-      where: { clientId },
-      include: licenseInclude,
-    }) as Promise<License | null>;
+  private toModel(row: any): LicenseModel {
+    return Object.assign(new LicenseEntity(), {
+      ...row,
+      projectAccess: row.projectAccess ?? [],
+      machines: row.machines ?? [],
+    }).toModel();
   }
 
-  findByClientAndCompany(clientId: string, companyId: string): Promise<License | null> {
-    return this.prisma.license.findUnique({
-      where: { clientId_companyId: { clientId, companyId } },
-      include: licenseInclude,
-    }) as Promise<License | null>;
+  findByClientId(clientId: string): Promise<LicenseModel | null> {
+    return this.prisma.license
+      .findFirst({ where: { clientId }, include: licenseInclude })
+      .then((r) => (r ? this.toModel(r) : null));
   }
 
-  findByStripeSubscriptionId(subscriptionId: string): Promise<License | null> {
-    return this.prisma.license.findFirst({
-      where: { stripeSubscriptionId: subscriptionId },
-      include: licenseInclude,
-    }) as Promise<License | null>;
+  findByClientAndCompany(clientId: string, companyId: string): Promise<LicenseModel | null> {
+    return this.prisma.license
+      .findUnique({
+        where: { clientId_companyId: { clientId, companyId } },
+        include: licenseInclude,
+      })
+      .then((r) => (r ? this.toModel(r) : null));
   }
 
-  async create(input: CreateLicenseInput): Promise<License> {
+  findByStripeSubscriptionId(subscriptionId: string): Promise<LicenseModel | null> {
+    return this.prisma.license
+      .findFirst({ where: { stripeSubscriptionId: subscriptionId }, include: licenseInclude })
+      .then((r) => (r ? this.toModel(r) : null));
+  }
+
+  async create(input: CreateLicenseInput): Promise<LicenseModel> {
     const { projectIds, ...data } = input;
-    return this.prisma.license.create({
+    const created = await this.prisma.license.create({
       data: {
         ...data,
         machineLock: data.machineLock ?? false,
@@ -45,17 +54,18 @@ export class PrismaLicenseRepository implements LicenseRepository {
           : undefined,
       },
       include: licenseInclude,
-    }) as unknown as Promise<License>;
+    });
+    return this.toModel(created);
   }
 
-  async update(id: string, input: UpdateLicenseInput): Promise<License> {
+  async update(id: string, input: UpdateLicenseInput): Promise<LicenseModel> {
     const { projectIds, ...data } = input;
 
     if (projectIds !== undefined) {
       await this.prisma.licenseProject.deleteMany({ where: { licenseId: id } });
     }
 
-    return this.prisma.license.update({
+    const updated = await this.prisma.license.update({
       where: { id },
       data: {
         ...data,
@@ -64,17 +74,19 @@ export class PrismaLicenseRepository implements LicenseRepository {
           : undefined,
       },
       include: licenseInclude,
-    }) as unknown as Promise<License>;
+    });
+    return this.toModel(updated);
   }
 
   async delete(id: string): Promise<void> {
     await this.prisma.license.delete({ where: { id } });
   }
 
-  async addMachine(licenseId: string, machineId: string, label?: string): Promise<LicenseMachine> {
-    return this.prisma.licenseMachine.create({
+  async addMachine(licenseId: string, machineId: string, label?: string): Promise<LicenseMachineModel> {
+    const row = await this.prisma.licenseMachine.create({
       data: { licenseId, machineId, label },
     });
+    return Object.assign(new LicenseMachineEntity(), row).toModel();
   }
 
   async removeMachine(licenseId: string, machineId: string): Promise<void> {
@@ -94,9 +106,9 @@ export class PrismaLicenseRepository implements LicenseRepository {
     return this.prisma.licenseMachine.count({ where: { licenseId } });
   }
 
-  findMachine(licenseId: string, machineId: string): Promise<LicenseMachine | null> {
-    return this.prisma.licenseMachine.findUnique({
-      where: { licenseId_machineId: { licenseId, machineId } },
-    });
+  findMachine(licenseId: string, machineId: string): Promise<LicenseMachineModel | null> {
+    return this.prisma.licenseMachine
+      .findUnique({ where: { licenseId_machineId: { licenseId, machineId } } })
+      .then((r) => (r ? Object.assign(new LicenseMachineEntity(), r).toModel() : null));
   }
 }

@@ -1,71 +1,32 @@
-import { Link } from 'react-router-dom';
-import { AdminLayout } from '../../../components/templates/AdminLayout';
-import { ConfirmDialog } from '../../../components/molecules/ConfirmDialog';
-import { useCompanyDetail } from '../../../hooks/useCompanyDetail';
-import { CompanyHeader } from './CompanyHeader';
-import { ClientsSection } from './ClientsSection';
-import { ProjectsSection } from './ProjectsSection';
-import { AddProjectModal } from './AddProjectModal';
-import { AddClientModal } from './AddClientModal';
-import { LinkClientModal } from './LinkClientModal';
+import {useEffect} from 'react';
+import {useParams, useLocation} from 'react-router-dom';
+import {useCompanies, useCompanyProjects} from '../../../lib/queries';
+import {AdminLayout} from '../../../components/templates/AdminLayout';
+import {BackLink} from '../../../components/atoms/BackLink';
+import {CompanyHeader} from './CompanyHeader';
+import {UsersSection} from './users/UsersSection.tsx';
+import {ProjectsSection} from './project/ProjectsSection.tsx';
 
 export function CompanyDetailPage() {
-  const {
-    companySlug, company,
-    projects, projectsLoading,
-    clients, clientsLoading,
-    rename,
-    manageProjects,
-    manageClients,
-    linkClient,
-  } = useCompanyDetail();
+    const {companySlug} = useParams<{ companySlug: string }>();
+    const {hash} = useLocation();
+    const {data: companies = []} = useCompanies();
+    const {data: projects = [], isLoading: projectsLoading} = useCompanyProjects(companySlug!);
 
-  return (
-    <AdminLayout>
-      <div className="mb-2">
-        <Link to="/admin/companies" className="text-gray-500 hover:text-gray-300 text-sm">← Entreprises</Link>
-      </div>
+    const company = companies.find((c) => c.slug === companySlug);
 
-      <CompanyHeader company={company} rename={rename} />
+    useEffect(() => {
+        if (!hash || projectsLoading) return;
+        const el = document.getElementById(hash.slice(1));
+        if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
+    }, [hash, projectsLoading, projects]);
 
-      <ClientsSection
-        clients={clients}
-        isLoading={clientsLoading}
-        projects={projects}
-        companySlug={companySlug}
-        companyId={company?.id ?? ''}
-        onDelete={manageClients.setConfirm}
-        onAdd={() => manageClients.setModalOpen(true)}
-        onLink={() => { linkClient.setModalOpen(true); linkClient.setSearch(''); linkClient.setSelectedId(null); }}
-      />
-
-      <ProjectsSection
-        projects={projects}
-        isLoading={projectsLoading}
-        clients={clients}
-        companySlug={companySlug}
-        onDelete={manageProjects.setConfirm}
-        onAdd={() => manageProjects.setModalOpen(true)}
-      />
-
-      {manageProjects.modalOpen && <AddProjectModal manage={manageProjects} />}
-      {manageClients.modalOpen && <AddClientModal manage={manageClients} />}
-      {linkClient.modalOpen && <LinkClientModal link={linkClient} />}
-
-      {manageProjects.confirm && (
-        <ConfirmDialog
-          message={`Supprimer le projet « ${manageProjects.confirm.name} » ? Cette action est irréversible.`}
-          onConfirm={() => manageProjects.remove.mutate(manageProjects.confirm!.id)}
-          onCancel={() => manageProjects.setConfirm(null)}
-        />
-      )}
-      {manageClients.confirm && (
-        <ConfirmDialog
-          message={`Retirer « ${manageClients.confirm.firstName} ${manageClients.confirm.lastName} » de cette entreprise ?`}
-          onConfirm={() => manageClients.remove.mutate(manageClients.confirm!.id)}
-          onCancel={() => manageClients.setConfirm(null)}
-        />
-      )}
-    </AdminLayout>
-  );
+    return (
+        <AdminLayout>
+            <BackLink to="/admin/companies" label="Entreprises"/>
+            <CompanyHeader companySlug={companySlug!}/>
+            <UsersSection companySlug={companySlug!} companyId={company?.id ?? ''}/>
+            <ProjectsSection companySlug={companySlug!}/>
+        </AdminLayout>
+    );
 }

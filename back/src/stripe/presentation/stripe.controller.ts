@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Headers, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
 import Stripe = require('stripe');
-import { ClientsService } from '../../clients/application/clients.service';
+import { UsersService } from '../../users/application/users.service';
 import { LicensesService } from '../../licenses/application/licenses.service';
 
 interface StripeSubscription {
@@ -29,7 +29,7 @@ interface StripeWebhookEvent {
 }
 
 interface SimulateSubscriptionDto {
-  /** Email du client (match existant ou création) */
+  /** Email de l'utilisateur (match existant ou création) */
   email: string;
   name?: string;
   companyId: string;
@@ -44,7 +44,7 @@ export class StripeController {
   private _stripe: InstanceType<typeof Stripe> | null = null;
 
   constructor(
-    private readonly clientsService: ClientsService,
+    private readonly usersService: UsersService,
     private readonly licensesService: LicensesService,
   ) {}
 
@@ -76,18 +76,18 @@ export class StripeController {
   }
 
   @Post('billing-portal')
-  async createBillingPortal(@Body('clientId') clientId: string) {
-    const client = await this.clientsService.findById(clientId);
-    if (!client.stripeCustomerId) {
-      throw new BadRequestException('Client has no Stripe customer ID');
+  async createBillingPortal(@Body('userId') userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user.stripeCustomerId) {
+      throw new BadRequestException('User has no Stripe customer ID');
     }
 
     if (!process.env.STRIPE_SECRET_KEY) {
-      return { url: `https://billing.stripe.com/dev-placeholder?customer=${client.stripeCustomerId}` };
+      return { url: `https://billing.stripe.com/dev-placeholder?customer=${user.stripeCustomerId}` };
     }
 
     const session = await this.stripe.billingPortal.sessions.create({
-      customer: client.stripeCustomerId,
+      customer: user.stripeCustomerId,
     });
 
     return { url: session.url };
@@ -105,19 +105,19 @@ export class StripeController {
       ? new Date(dto.currentPeriodEnd)
       : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
-    let client = await this.clientsService.findByEmail(dto.email);
-    if (!client) {
+    let user = await this.usersService.findByEmail(dto.email);
+    if (!user) {
       if (dto.companyId) {
-        client = await this.clientsService.createOrLink(dto.name ?? dto.email, '', dto.email, dto.companyId);
+        user = await this.usersService.createOrLink(dto.name ?? dto.email, '', dto.email, dto.companyId);
       } else {
-        client = await this.clientsService.create(dto.name ?? dto.email, '', dto.email);
+        user = await this.usersService.create(dto.name ?? dto.email, '', dto.email);
       }
     }
 
-    await this.clientsService.setStripeCustomerId(client.id, fakeCustomerId);
+    await this.usersService.setStripeCustomerId(user.id, fakeCustomerId);
 
     const existing = dto.companyId
-      ? await this.licensesService.findByClientAndCompany(client.id, dto.companyId)
+      ? await this.licensesService.findByClientAndCompany(user.id, dto.companyId)
       : null;
     let license;
 
@@ -130,7 +130,7 @@ export class StripeController {
       });
     } else {
       license = await this.licensesService.create({
-        clientId: client.id,
+        clientId: user.id,
         companyId: dto.companyId,
         type: 'CLASSIC',
         status: 'ACTIVE',
@@ -140,7 +140,7 @@ export class StripeController {
       });
     }
 
-    return { client, license, simulated: true };
+    return { user, license, simulated: true };
   }
 
   private async processEvent(event: StripeWebhookEvent) {
@@ -166,11 +166,11 @@ export class StripeController {
     const raw = await this.stripe.customers.retrieve(customerId);
     const customer = raw as unknown as StripeCustomer;
 
-    let client = await this.clientsService.findByEmail(customer.email ?? '');
-    if (!client) {
+    let user = await this.usersService.findByEmail(customer.email ?? '');
+    if (!user) {
       const companyId = subscription.metadata?.companyId;
       if (!companyId) return;
-      client = await this.clientsService.createOrLink(
+      user = await this.usersService.createOrLink(
         customer.name ?? customer.email ?? 'Unknown',
         '',
         customer.email ?? '',
@@ -178,13 +178,13 @@ export class StripeController {
       );
     }
 
-    await this.clientsService.setStripeCustomerId(client.id, customerId);
+    await this.usersService.setStripeCustomerId(user.id, customerId);
 
     const companyId = subscription.metadata?.companyId;
     if (!companyId) return;
 
     const item = subscription.items.data[0];
-    const existing = await this.licensesService.findByClientAndCompany(client.id, companyId);
+    const existing = await this.licensesService.findByClientAndCompany(user.id, companyId);
 
     if (existing) {
       await this.licensesService.update(existing.id, {
@@ -195,7 +195,7 @@ export class StripeController {
       });
     } else {
       await this.licensesService.create({
-        clientId: client.id,
+        clientId: user.id,
         companyId,
         type: 'CLASSIC',
         status: 'ACTIVE',

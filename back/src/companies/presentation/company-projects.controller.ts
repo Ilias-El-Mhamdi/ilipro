@@ -1,18 +1,20 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ProjectsService } from '../../projects/application/projects.service';
+import { ProjectRepository } from '../../projects/domain/project.repository';
 import { CompaniesService } from '../application/companies.service';
 
 @Controller('companies/:companySlug/projects')
 export class CompanyProjectsController {
   constructor(
     private readonly projectsService: ProjectsService,
+    private readonly projectRepo: ProjectRepository,
     private readonly companiesService: CompaniesService,
   ) {}
 
   @Get()
   async findByCompany(@Param('companySlug') companySlug: string) {
     const company = await this.companiesService.findBySlug(companySlug);
-    return this.projectsService.findByCompanyId(company.id);
+    return this.projectRepo.findByCompanyId(company.id);
   }
 
   @Post()

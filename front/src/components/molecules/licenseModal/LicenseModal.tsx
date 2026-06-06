@@ -1,4 +1,4 @@
-import type { Client, License, Project } from '../../../lib/queries';
+import type { User, License, Project } from '../../../lib/queries';
 import { Modal } from '../Modal';
 import { useLicenseForm } from '../../../hooks/useLicenseForm';
 import { LicenseTypeSelector } from './LicenseTypeSelector';
@@ -11,7 +11,7 @@ import { LicenseSimulate } from './LicenseSimulate';
 import { LicenseActions } from './LicenseActions';
 
 interface Props {
-  client: Client;
+  user: User;
   license: License | null;
   projects: Project[];
   companySlug: string;
@@ -19,11 +19,11 @@ interface Props {
   onClose: () => void;
 }
 
-export function LicenseModal({ client, license, projects, companySlug, companyId, onClose }: Props) {
-  const form = useLicenseForm({ client, license, companySlug, companyId, onClose });
+export function LicenseModal({ user, license, projects, companySlug, companyId, onClose }: Props) {
+  const form = useLicenseForm({ user, license, companySlug, companyId, onClose });
 
   return (
-    <Modal title={`Licence — ${client.firstName} ${client.lastName}`} onClose={onClose}>
+    <Modal title={`Licence — ${user.firstName} ${user.lastName}`} onClose={onClose}>
       <div className="flex flex-col gap-5">
         <LicenseTypeSelector value={form.type} onChange={form.setType} />
         <LicenseStatusSelector value={form.status} onChange={form.setStatus} />
@@ -44,7 +44,7 @@ export function LicenseModal({ client, license, projects, companySlug, companyId
         <LicenseSimulate onSimulate={form.simulateMutation.mutate} isPending={form.simulateMutation.isPending} />
         <LicenseActions
           license={license}
-          client={client}
+          user={user}
           onRevoke={form.revokeMutation.mutate}
           revokePending={form.revokeMutation.isPending}
           onBillingPortal={form.billingPortalMutation.mutate}

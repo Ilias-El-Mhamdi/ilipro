@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { useProjectDeliverables } from '../../../lib/queries';
-import type { Project, Client } from '../../../lib/queries';
+import type { Project, User } from '../../../lib/queries';
 import { ConfirmDialog } from '../../molecules/ConfirmDialog';
 import { useProjectCardActions } from '../../../hooks/useProjectCardActions';
-import { getAccessClients } from '../../../lib/utils';
+import { getAccessUsers } from '../../../lib/utils';
 import { ProjectCardHeader } from './ProjectCardHeader';
 import { ProjectAccessSection } from './ProjectAccessSection';
 import { ProjectDeliverablesSection } from './ProjectDeliverablesSection';
@@ -12,14 +12,14 @@ import { ProjectEditModal } from './ProjectEditModal';
 interface Props {
   project: Project;
   companySlug: string;
-  clients: Client[];
+  users: User[];
   onDeleteProject: (project: Project) => void;
 }
 
-export function ProjectCard({ project, companySlug, clients, onDeleteProject }: Props) {
+export function ProjectCard({ project, companySlug, users, onDeleteProject }: Props) {
   const { data: deliverables = [] } = useProjectDeliverables(project.id);
   const { clipboard, copyProjectId, deliverables: deliv, edit } = useProjectCardActions(project, companySlug);
-  const accessClients = useMemo(() => getAccessClients(clients, project.id), [clients, project.id]);
+  const accessUsers = useMemo(() => getAccessUsers(users, project.id), [users, project.id]);
 
   return (
     <div className="border border-gray-800 rounded-lg overflow-hidden">
@@ -31,7 +31,7 @@ export function ProjectCard({ project, companySlug, clients, onDeleteProject }: 
         onDelete={() => onDeleteProject(project)}
       />
       <div className="grid grid-cols-2 divide-x divide-gray-800">
-        <ProjectAccessSection clients={accessClients} />
+        <ProjectAccessSection users={accessUsers} />
         <ProjectDeliverablesSection
           deliverables={deliverables}
           onDeleteClick={deliv.setConfirm}

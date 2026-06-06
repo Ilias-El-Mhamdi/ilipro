@@ -1,10 +1,20 @@
-import type { Company } from './company.entity';
+import type { CompanyModel } from './company.model';
 
 export abstract class CompanyRepository {
-  abstract findAll(): Promise<Company[]>;
-  abstract findBySlug(slug: string): Promise<Company | null>;
-  abstract findById(id: string): Promise<Company | null>;
-  abstract create(name: string, slug: string): Promise<Company>;
-  abstract update(id: string, name: string, slug: string): Promise<Company>;
+  abstract findAll(): Promise<CompanyModel[]>;
+
+  abstract findBySlug(slug: string): Promise<CompanyModel | null>;
+
+  abstract findById(id: string): Promise<CompanyModel | null>;
+
+  abstract create(
+    data: Pick<CompanyModel, 'name' | 'slug'>,
+  ): Promise<CompanyModel>;
+
+  abstract update(
+    id: string,
+    data: Pick<CompanyModel, 'name' | 'slug'>,
+  ): Promise<CompanyModel>;
+
   abstract delete(id: string): Promise<void>;
 }

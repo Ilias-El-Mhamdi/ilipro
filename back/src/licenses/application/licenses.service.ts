@@ -11,10 +11,6 @@ export class LicensesService {
     return license;
   }
 
-  findByClientIdOrNull(clientId: string) {
-    return this.repo.findByClientId(clientId);
-  }
-
   findByClientAndCompany(clientId: string, companyId: string) {
     return this.repo.findByClientAndCompany(clientId, companyId);
   }
@@ -29,15 +25,15 @@ export class LicensesService {
     return this.repo.create(input);
   }
 
-  async update(id: string, input: UpdateLicenseInput) {
+  update(id: string, input: UpdateLicenseInput) {
     return this.repo.update(id, input);
   }
 
-  async delete(id: string) {
+  delete(id: string) {
     return this.repo.delete(id);
   }
 
-  async removeMachine(licenseId: string, machineId: string) {
+  removeMachine(licenseId: string, machineId: string) {
     return this.repo.removeMachine(licenseId, machineId);
   }
 

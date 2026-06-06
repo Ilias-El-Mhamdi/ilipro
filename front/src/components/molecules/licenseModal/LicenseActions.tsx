@@ -1,9 +1,9 @@
-import type { Client, License } from '../../../lib/queries';
+import type { User, License } from '../../../lib/queries';
 import { Button } from '../../atoms/Button';
 
 interface Props {
   license: License | null;
-  client: Client;
+  user: User;
   onRevoke: () => void;
   revokePending: boolean;
   onBillingPortal: () => void;
@@ -13,14 +13,14 @@ interface Props {
   savePending: boolean;
 }
 
-export function LicenseActions({ license, client, onRevoke, revokePending, onBillingPortal, billingPending, onCancel, onSave, savePending }: Props) {
+export function LicenseActions({ license, user, onRevoke, revokePending, onBillingPortal, billingPending, onCancel, onSave, savePending }: Props) {
   return (
     <div className="flex items-center justify-between border-t border-gray-800 pt-4">
       <div className="flex gap-2">
         {license && (
           <>
             <Button variant="danger" onClick={onRevoke} disabled={revokePending}>Révoquer</Button>
-            {client.stripeCustomerId && (
+            {user.stripeCustomerId && (
               <Button variant="ghost" onClick={onBillingPortal} disabled={billingPending}>Stripe billing</Button>
             )}
           </>

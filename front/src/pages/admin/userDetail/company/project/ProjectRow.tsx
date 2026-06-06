@@ -1,4 +1,4 @@
-import type {Project, ClientDetail, License} from '../../../../../lib/queries.ts';
+import type {Project, UserDetail, License} from '../../../../../lib/queries.ts';
 import {useProjectDeliverables} from '../../../../../lib/queries.ts';
 import {LicenseBadge} from '../../../../../components/atoms/LicenseBadge.tsx';
 import {EmptyText} from '../../../../../components/atoms/EmptyText.tsx';
@@ -6,12 +6,12 @@ import {DeliverableRow} from './DeliverableRow.tsx';
 
 interface Props {
     project: Project;
-    client: ClientDetail;
+    user: UserDetail;
     license: License | null;
 }
 
 
-export function ProjectRow({project, client, license}: Props) {
+export function ProjectRow({project, user, license}: Props) {
     const hasAccess = !license ? false : license.type === 'ADMIN'
         ? true : license.projectAccess.some((a) => a.projectId === project.id);
 
@@ -22,7 +22,7 @@ export function ProjectRow({project, client, license}: Props) {
                 <ProjectLinks project={project}/>
             </div>
             <div className="grid grid-cols-2 divide-x divide-gray-800">
-                <AccessCell client={client} license={license} hasAccess={hasAccess}/>
+                <AccessCell user={user} license={license} hasAccess={hasAccess}/>
                 <DeliverablesCell projectId={project.id}/>
             </div>
         </div>
@@ -54,12 +54,12 @@ function ProjectLinks({project}: { project: Project }) {
     );
 }
 
-function AccessCell({client, license, hasAccess}: {
-    client: ClientDetail;
+function AccessCell({user, license, hasAccess}: {
+    user: UserDetail;
     license: License | null;
     hasAccess: boolean
 }) {
-    const initials = (client.firstName[0] ?? '').toUpperCase() + (client.lastName[0] ?? '').toUpperCase();
+    const initials = (user.firstName[0] ?? '').toUpperCase() + (user.lastName[0] ?? '').toUpperCase();
 
     return (
         <div className="px-4 py-3">
@@ -70,7 +70,7 @@ function AccessCell({client, license, hasAccess}: {
                         className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
                         {initials}
                     </div>
-                    <span className="text-xs text-gray-300 truncate flex-1">{client.firstName} {client.lastName}</span>
+                    <span className="text-xs text-gray-300 truncate flex-1">{user.firstName} {user.lastName}</span>
                     {license && <LicenseBadge type={license.type} className="shrink-0 px-1.5 py-0.5"/>}
                 </div>
             ) : (
@@ -79,7 +79,7 @@ function AccessCell({client, license, hasAccess}: {
                         className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-gray-500 text-xs font-bold shrink-0">
                         {initials}
                     </div>
-                    <span className="text-xs text-gray-600 truncate flex-1">{client.firstName} {client.lastName}</span>
+                    <span className="text-xs text-gray-600 truncate flex-1">{user.firstName} {user.lastName}</span>
                     <span
                         className="shrink-0 text-xs text-red-400 border border-red-900/50 bg-red-900/20 rounded px-1.5 py-0.5">
             Non autorisé

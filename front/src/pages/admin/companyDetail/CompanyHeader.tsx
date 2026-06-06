@@ -1,12 +1,15 @@
-import type { Company } from '../../../lib/queries';
-import type { useRenameCompany } from '../../../hooks/companyDetail/useRenameCompany';
+import { useCompanies } from '../../../lib/queries';
+import { useRenameCompany } from './useRenameCompany';
 
 interface Props {
-  company: Company | undefined;
-  rename: ReturnType<typeof useRenameCompany>;
+  companySlug: string;
 }
 
-export function CompanyHeader({ company, rename }: Props) {
+export function CompanyHeader({ companySlug }: Props) {
+  const { data: companies = [] } = useCompanies();
+  const company = companies.find((c) => c.slug === companySlug);
+  const rename = useRenameCompany(companySlug);
+
   return (
     <div className="flex items-center justify-between mb-8">
       {rename.editing ? (

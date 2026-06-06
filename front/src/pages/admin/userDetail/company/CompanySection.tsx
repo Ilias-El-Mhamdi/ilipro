@@ -1,5 +1,5 @@
 import {Link} from 'react-router-dom';
-import type {ClientCompanySection, ClientDetail} from '../../../../lib/queries.ts';
+import type {UserCompanySection, UserDetail} from '../../../../lib/queries.ts';
 import {LicenseCard} from './license/LicenseCard.tsx';
 import {ProjectRow} from './project/ProjectRow.tsx';
 import {EmptyText} from '../../../../components/atoms/EmptyText.tsx';
@@ -8,16 +8,16 @@ import {EmptyText} from '../../../../components/atoms/EmptyText.tsx';
 // ─── CompanySection ───────────────────────────────────────────────────────────
 
 interface Props {
-    section: ClientCompanySection;
-    client: ClientDetail;
+    section: UserCompanySection;
+    user: UserDetail;
 }
 
-export function CompanySection({section, client}: Props) {
+export function CompanySection({section, user}: Props) {
     return (
         <div className="mb-10">
             <CompanySectionHeader slug={section.slug} name={section.name}/>
-            <LicenseSection section={section} client={client}/>
-            <ProjectsSubSection section={section} client={client}/>
+            <LicenseSection section={section} user={user}/>
+            <ProjectsSubSection section={section} user={user}/>
         </div>
     );
 }
@@ -45,18 +45,18 @@ function CompanySectionHeader({slug, name}: { slug: string; name: string }) {
 
 // ─── License sub-section ──────────────────────────────────────────────────────
 
-function LicenseSection({section, client}: { section: ClientCompanySection; client: ClientDetail }) {
+function LicenseSection({section, user}: { section: UserCompanySection; user: UserDetail }) {
     return (
         <div className="mb-6">
             <h3 className="text-xs text-gray-500 uppercase tracking-widest mb-3">Licence</h3>
-            <LicenseCard license={section.license} projects={section.projects} client={client}/>
+            <LicenseCard license={section.license} projects={section.projects} user={user}/>
         </div>
     );
 }
 
 // ─── Projects sub-section ─────────────────────────────────────────────────────
 
-function ProjectsSubSection({section, client}: { section: ClientCompanySection; client: ClientDetail }) {
+function ProjectsSubSection({section, user}: { section: UserCompanySection; user: UserDetail }) {
     return (
         <div>
             <h3 className="text-xs text-gray-500 uppercase tracking-widest mb-3">Projets</h3>
@@ -65,7 +65,7 @@ function ProjectsSubSection({section, client}: { section: ClientCompanySection; 
             ) : (
                 <div className="flex flex-col gap-4">
                     {section.projects.map((project) => (
-                        <ProjectRow key={project.id} project={project} client={client} license={section.license}/>
+                        <ProjectRow key={project.id} project={project} user={user} license={section.license}/>
                     ))}
                 </div>
             )}

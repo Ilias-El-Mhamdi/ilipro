@@ -8,7 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { LicensesService } from '../application/licenses.service';
-import type { LicenseType, LicenseStatus } from '../domain/license.entity';
+import type { LicenseType, LicenseStatus } from '../domain/license.model';
 
 interface CreateLicenseDto {
   clientId: string;

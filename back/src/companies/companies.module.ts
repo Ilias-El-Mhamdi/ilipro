@@ -12,6 +12,6 @@ import { ProjectsModule } from '../projects/projects.module';
     CompaniesService,
     { provide: CompanyRepository, useClass: PrismaCompanyRepository },
   ],
-  exports: [CompaniesService],
+  exports: [CompaniesService, CompanyRepository],
 })
 export class CompaniesModule {}

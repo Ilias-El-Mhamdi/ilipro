@@ -10,14 +10,6 @@ export class ProjectsService {
     private readonly companiesService: CompaniesService,
   ) {}
 
-  findAll() {
-    return this.repo.findAll();
-  }
-
-  findByCompanyId(companyId: string) {
-    return this.repo.findByCompanyId(companyId);
-  }
-
   async findBySlug(companySlug: string, projectSlug: string) {
     const company = await this.companiesService.findBySlug(companySlug);
     const project = await this.repo.findBySlug(company.id, projectSlug);
@@ -31,14 +23,28 @@ export class ProjectsService {
     return project;
   }
 
-  async create(name: string, companyId: string, appUrl?: string | null, docsUrl?: string | null, changelogUrl?: string | null) {
+  async create(
+    name: string,
+    companyId: string,
+    appUrl?: string | null,
+    docsUrl?: string | null,
+    changelogUrl?: string | null,
+  ) {
     const slug = await uniqueSlug(name, (s) =>
       this.repo.findBySlug(companyId, s).then((p) => p !== null),
     );
-    return this.repo.create(name, slug, companyId, appUrl, docsUrl, changelogUrl);
+    return this.repo.create({ name, slug, companyId, appUrl: appUrl ?? null, docsUrl: docsUrl ?? null, changelogUrl: changelogUrl ?? null });
   }
 
-  async updateProject(id: string, data: { name?: string; appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null }) {
+  async updateProject(
+    id: string,
+    data: {
+      name?: string;
+      appUrl?: string | null;
+      docsUrl?: string | null;
+      changelogUrl?: string | null;
+    },
+  ) {
     await this.findById(id);
     return this.repo.update(id, data);
   }

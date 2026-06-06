@@ -9,24 +9,13 @@ export class DeliverablesService {
     private readonly storage: StorageService,
   ) {}
 
-  findAll() {
-    return this.repo.findAll();
-  }
-
-  findByProjectId(projectId: string) {
-    return this.repo.findByProjectId(projectId);
-  }
-
   async findById(id: string) {
     const deliverable = await this.repo.findById(id);
     if (!deliverable) throw new NotFoundException(`Deliverable ${id} not found`);
     return deliverable;
   }
 
-  async upload(
-    projectId: string,
-    file: Express.Multer.File,
-  ) {
+  async upload(projectId: string, file: Express.Multer.File) {
     const { url, storageKey } = await this.storage.upload(
       file.buffer,
       file.originalname,

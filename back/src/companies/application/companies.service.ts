@@ -6,10 +6,6 @@ import { uniqueSlug } from '../../common/slug.helper';
 export class CompaniesService {
   constructor(private readonly repo: CompanyRepository) {}
 
-  findAll() {
-    return this.repo.findAll();
-  }
-
   async findBySlug(slug: string) {
     const company = await this.repo.findBySlug(slug);
     if (!company) throw new NotFoundException(`Company "${slug}" not found`);
@@ -26,7 +22,7 @@ export class CompaniesService {
     const slug = await uniqueSlug(name, (s) =>
       this.repo.findBySlug(s).then((c) => c !== null),
     );
-    return this.repo.create(name, slug);
+    return this.repo.create({ name, slug });
   }
 
   async update(slug: string, name: string) {
@@ -36,12 +32,12 @@ export class CompaniesService {
         ? this.repo.findBySlug(s).then((c) => c !== null)
         : Promise.resolve(false),
     );
-    return this.repo.update(company.id, name, newSlug);
+    return this.repo.update(company.id, { name, slug: newSlug });
   }
 
   async updateName(slug: string, name: string) {
     const company = await this.findBySlug(slug);
-    return this.repo.update(company.id, name, company.slug);
+    return this.repo.update(company.id, { name, slug: company.slug });
   }
 
   async delete(slug: string) {
