@@ -1,4 +1,5 @@
 import { AdminLayout } from '../../../components/templates/AdminLayout';
+import { usePageTitle } from '../../../hooks/usePageTitle';
 import { Button } from '../../../components/atoms/Button';
 import { ConfirmDialog } from '../../../components/molecules/ConfirmDialog';
 import { useUserCrud } from '../../../hooks/useUserCrud';
@@ -8,6 +9,7 @@ import { UsersTable } from './UsersTable';
 import { CreateUserModal } from './CreateUserModal';
 
 export function UsersPage() {
+  usePageTitle('Utilisateurs');
   const {
     users, isLoading, navigate,
     modalOpen, setModalOpen,

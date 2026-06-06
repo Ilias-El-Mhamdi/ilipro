@@ -5,10 +5,12 @@ import { LoadingText } from '../../components/atoms/LoadingText';
 import { EmptyText } from '../../components/atoms/EmptyText';
 import { CompanySection } from '../admin/userDetail/company/CompanySection';
 import { UserHeader } from '../admin/userDetail/UserHeader';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 export function UserDetailPage() {
   const { userSlug } = useParams<{ userSlug: string }>();
   const { data: user, isLoading } = useUserBySlug(userSlug!);
+  usePageTitle(user ? `${user.firstName} ${user.lastName}` : '');
 
   if (isLoading) {
     return <UserLayout><LoadingText /></UserLayout>;

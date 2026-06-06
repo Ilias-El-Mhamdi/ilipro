@@ -4,14 +4,44 @@ interface UserHeaderProps {
   firstName: string;
   lastName: string;
   email: string;
+  slug?: string;
 }
 
-export function UserHeader({ firstName, lastName, email }: UserHeaderProps) {
+export function UserHeader({ firstName, lastName, email, slug }: UserHeaderProps) {
   const { copied, copy } = useClipboard();
 
   return (
-    <div className="mb-8">
-      <h1 className="text-2xl font-bold mb-1">{firstName} {lastName}</h1>
+    <div>
+      <div className="flex items-center gap-2 group/name mb-1">
+        {slug ? (
+          <a
+            href={`/user/${slug}`}
+            target="_blank"
+            rel="noreferrer"
+            title="Voir la vue utilisateur"
+            className="text-2xl font-bold hover:text-indigo-300 transition-colors"
+          >
+            {firstName} {lastName}
+          </a>
+        ) : (
+          <h1 className="text-2xl font-bold">{firstName} {lastName}</h1>
+        )}
+        {slug && (
+          <a
+            href={`/user/${slug}`}
+            target="_blank"
+            rel="noreferrer"
+            title="Voir la vue utilisateur"
+            className="opacity-0 group-hover/name:opacity-100 transition-opacity text-gray-600 hover:text-indigo-400"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </a>
+        )}
+      </div>
       <div className="flex items-center gap-2 group/email">
         <button
           onClick={() => copy(email)}

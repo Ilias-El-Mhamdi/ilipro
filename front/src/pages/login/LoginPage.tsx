@@ -2,8 +2,10 @@ import { useLogin } from './useLogin';
 import { EmailStep } from './EmailStep';
 import { OtpStep } from './otpStep/OtpStep';
 import { VersionBadge } from '../../components/atoms/VersionBadge';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 export function LoginPage() {
+  usePageTitle('Connexion');
   const { step, email, setEmail, otp, setOtp, loading, cooldown, otpInvalidated, sendOtp, verifyOtp, backToEmail } = useLogin();
 
   return (

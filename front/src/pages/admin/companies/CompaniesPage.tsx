@@ -6,8 +6,10 @@ import { LoadingText } from '../../../components/atoms/LoadingText';
 import { EmptyText } from '../../../components/atoms/EmptyText';
 import { CompanyTable } from './CompanyTable';
 import { CompanyFormModal } from './CompanyFormModal';
+import { usePageTitle } from '../../../hooks/usePageTitle';
 
 export function CompaniesPage() {
+  usePageTitle('Entreprises');
   const {
     companies, isLoading, navigate,
     modalOpen, editing, confirmId, setConfirmId,

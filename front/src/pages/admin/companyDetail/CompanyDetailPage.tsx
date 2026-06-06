@@ -6,6 +6,7 @@ import {BackLink} from '../../../components/atoms/BackLink';
 import {CompanyHeader} from './CompanyHeader';
 import {UsersSection} from './users/UsersSection.tsx';
 import {ProjectsSection} from './project/ProjectsSection.tsx';
+import {usePageTitle} from '../../../hooks/usePageTitle';
 
 export function CompanyDetailPage() {
     const {companySlug} = useParams<{ companySlug: string }>();
@@ -14,6 +15,7 @@ export function CompanyDetailPage() {
     const {data: projects = [], isLoading: projectsLoading} = useCompanyProjects(companySlug!);
 
     const company = companies.find((c) => c.slug === companySlug);
+    usePageTitle(company?.name ?? '');
 
     useEffect(() => {
         if (!hash || projectsLoading) return;
