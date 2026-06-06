@@ -4,11 +4,7 @@ export interface UploadResult {
 }
 
 export abstract class StorageService {
-  abstract upload(
-    buffer: Buffer,
-    filename: string,
-    mimeType: string,
-  ): Promise<UploadResult>;
+  abstract upload(buffer: Buffer, filename: string, mimeType: string): Promise<UploadResult>;
 
   abstract delete(storageKey: string): Promise<void>;
 }

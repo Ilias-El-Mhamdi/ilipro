@@ -1,13 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
-import { ProjectsUc } from '../useCase/projects.uc';
-import { IProjectRepository } from '../domain/project.repository';
+import { IProjectRepository } from '../domain/project.abstract-repository';
 
 @Controller('projects')
 export class ProjectsController {
-  constructor(
-    private readonly uc: ProjectsUc,
-    private readonly repo: IProjectRepository,
-  ) {}
+  constructor(private readonly repo: IProjectRepository) {}
 
   @Get()
   findAll() {
@@ -16,7 +12,7 @@ export class ProjectsController {
 
   @Get(':id')
   findById(@Param('id') id: string) {
-    return this.uc.findById(id);
+    return this.repo.findById(id);
   }
 
   @Patch(':id')
@@ -24,11 +20,11 @@ export class ProjectsController {
     @Param('id') id: string,
     @Body() body: { name?: string; appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null },
   ) {
-    return this.uc.updateProject(id, body);
+    return this.repo.updateProject(id, body);
   }
 
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return this.uc.delete(id);
+    return this.repo.delete(id);
   }
 }

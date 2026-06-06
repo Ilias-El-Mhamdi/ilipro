@@ -1,60 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-  ManyToOne,
-  JoinColumn,
-  Unique,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, Unique } from 'typeorm';
+import { LicenseMachineModel } from './license-machine.model';
+import { LicenseProjectModel } from './license-project.model';
 
 export type LicenseType = 'CLASSIC' | 'FREE' | 'ADMIN';
 export type LicenseStatus = 'ACTIVE' | 'EXPIRED' | 'CANCELLED';
-
-@Entity('LicenseMachine')
-@Unique(['licenseId', 'machineId'])
-export class LicenseMachineModel {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column()
-  licenseId: string;
-
-  @Column()
-  machineId: string;
-
-  @Column({ nullable: true })
-  label: string | null;
-
-  @CreateDateColumn()
-  activatedAt: Date;
-
-  @Column({ nullable: true, type: 'timestamptz' })
-  lastSeenAt: Date | null;
-
-  @ManyToOne(() => LicenseModel, (l) => l.machines, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'licenseId' })
-  license: LicenseModel;
-}
-
-@Entity('LicenseProject')
-@Unique(['licenseId', 'projectId'])
-export class LicenseProjectModel {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column()
-  licenseId: string;
-
-  @Column()
-  projectId: string;
-
-  @ManyToOne(() => LicenseModel, (l) => l.projectAccess, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'licenseId' })
-  license: LicenseModel;
-}
 
 @Entity('License')
 @Unique(['clientId', 'companyId'])

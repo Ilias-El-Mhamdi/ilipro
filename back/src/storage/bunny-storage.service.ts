@@ -22,17 +22,14 @@ export class BunnyStorageService extends StorageService {
     const ext = extname(filename);
     const storageKey = `${randomUUID()}${ext}`;
 
-    const res = await fetch(
-      `https://storage.bunnycdn.com/${this.zone}/${storageKey}`,
-      {
-        method: 'PUT',
-        headers: {
-          AccessKey: this.apiKey,
-          'Content-Type': mimeType,
-        },
-        body: buffer as unknown as BodyInit,
+    const res = await fetch(`https://storage.bunnycdn.com/${this.zone}/${storageKey}`, {
+      method: 'PUT',
+      headers: {
+        AccessKey: this.apiKey,
+        'Content-Type': mimeType,
       },
-    );
+      body: buffer as unknown as BodyInit,
+    });
 
     if (!res.ok) {
       throw new Error(`Bunny upload failed: ${res.status} ${await res.text()}`);

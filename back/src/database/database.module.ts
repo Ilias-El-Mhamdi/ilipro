@@ -4,7 +4,9 @@ import { CompanyModel } from '../companies/domain/company.model';
 import { ProjectModel } from '../projects/domain/project.model';
 import { UserModel } from '../users/domain/user.model';
 import { ClientCompanyEntity } from '../liens/lienUserCompany/domain/client-company.entity';
-import { LicenseModel, LicenseProjectModel, LicenseMachineModel } from '../licenses/domain/license.model';
+import { LicenseModel } from '../licenses/domain/license.model';
+import { LicenseMachineModel } from '../licenses/domain/license-machine.model';
+import { LicenseProjectModel } from '../licenses/domain/license-project.model';
 import { DeliverableModel } from '../deliverables/domain/deliverable.model';
 import { RenameClientToUser1749200000000 } from './migrations/1749200000000-RenameClientToUser';
 

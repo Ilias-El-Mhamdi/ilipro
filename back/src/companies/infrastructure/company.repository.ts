@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import type { ICompanyRepository } from '../domain/company.abstract-repository';
 import { CompanyModel } from '../domain/company.model';
+import { uniqueSlug } from '../../common/slug.helper';
 
 @Injectable()
 export class CompanyRepository implements ICompanyRepository {
@@ -15,26 +16,44 @@ export class CompanyRepository implements ICompanyRepository {
     return this.repo.find({ order: { createdAt: 'DESC' } });
   }
 
-  findBySlug(slug: string): Promise<CompanyModel | null> {
-    return this.repo.findOne({ where: { slug } });
+  async findBySlug(slug: string): Promise<CompanyModel> {
+    const company = await this.repo.findOne({ where: { slug } });
+    if (!company) throw new NotFoundException(`Company "${slug}" not found`);
+    return company;
   }
 
-  findById(id: string): Promise<CompanyModel | null> {
-    return this.repo.findOne({ where: { id } });
+  async findById(id: string): Promise<CompanyModel> {
+    const company = await this.repo.findOne({ where: { id } });
+    if (!company) throw new NotFoundException(`Company ${id} not found`);
+    return company;
   }
 
-  create(data: Pick<CompanyModel, 'name' | 'slug'>): Promise<CompanyModel> {
-    return this.repo.save(this.repo.create(data));
+  async create(name: string): Promise<CompanyModel> {
+    const slug = await uniqueSlug(name, (s) =>
+      this.repo.findOne({ where: { slug: s } }).then(Boolean),
+    );
+    return this.repo.save(this.repo.create({ name, slug }));
   }
 
-  async update(id: string, data: Pick<CompanyModel, 'name' | 'slug'>): Promise<CompanyModel> {
-    await this.repo.update(id, data);
-    const updated = await this.repo.findOne({ where: { id } });
-    if (!updated) throw new NotFoundException(`Company ${id} not found`);
-    return updated;
+  async update(slug: string, name: string): Promise<CompanyModel> {
+    const company = await this.findBySlug(slug);
+    const newSlug = await uniqueSlug(name, (s) =>
+      s !== slug
+        ? this.repo.findOne({ where: { slug: s } }).then(Boolean)
+        : Promise.resolve(false),
+    );
+    await this.repo.update(company.id, { name, slug: newSlug });
+    return this.findById(company.id);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.repo.delete(id);
+  async updateName(slug: string, name: string): Promise<CompanyModel> {
+    const company = await this.findBySlug(slug);
+    await this.repo.update(company.id, { name });
+    return this.findById(company.id);
+  }
+
+  async delete(slug: string): Promise<void> {
+    const company = await this.findBySlug(slug);
+    await this.repo.delete(company.id);
   }
 }

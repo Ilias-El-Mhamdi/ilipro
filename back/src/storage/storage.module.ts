@@ -7,11 +7,7 @@ import { BunnyStorageService } from './bunny-storage.service';
 const activeStorage = MinioStorageService;
 
 @Module({
-  providers: [
-    MinioStorageService,
-    BunnyStorageService,
-    { provide: StorageService, useClass: activeStorage },
-  ],
+  providers: [MinioStorageService, BunnyStorageService, { provide: StorageService, useClass: activeStorage }],
   exports: [StorageService],
 })
 export class StorageModule {}

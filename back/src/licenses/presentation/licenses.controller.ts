@@ -1,13 +1,5 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-} from '@nestjs/common';
-import { LicensesUc } from '../useCase/licenses.uc';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { ILicenseRepository } from '../domain/license.abstract-repository';
 import type { LicenseType, LicenseStatus } from '../domain/license.model';
 
 interface CreateLicenseDto {
@@ -43,51 +35,43 @@ interface ActivateDto {
 
 @Controller('licenses')
 export class LicensesController {
-  constructor(private readonly uc: LicensesUc) {}
+  constructor(private readonly repo: ILicenseRepository) {}
 
   @Get('client/:clientId')
   findByClient(@Param('clientId') clientId: string) {
-    return this.uc.findByClientId(clientId);
+    return this.repo.findByClientId(clientId);
   }
 
   @Post()
   create(@Body() dto: CreateLicenseDto) {
-    return this.uc.create({
+    return this.repo.create({
       ...dto,
       status: dto.status ?? 'ACTIVE',
       validUntil: dto.validUntil ? new Date(dto.validUntil) : undefined,
-      priceLabel: dto.priceLabel,
     });
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateLicenseDto) {
-    return this.uc.update(id, {
+    return this.repo.update(id, {
       ...dto,
-      validUntil: dto.validUntil !== undefined
-        ? dto.validUntil ? new Date(dto.validUntil) : null
-        : undefined,
-      currentPeriodEnd: dto.currentPeriodEnd !== undefined
-        ? dto.currentPeriodEnd ? new Date(dto.currentPeriodEnd) : null
-        : undefined,
+      validUntil: dto.validUntil !== undefined ? (dto.validUntil ? new Date(dto.validUntil) : null) : undefined,
+      currentPeriodEnd: dto.currentPeriodEnd !== undefined ? (dto.currentPeriodEnd ? new Date(dto.currentPeriodEnd) : null) : undefined,
     });
   }
 
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return this.uc.delete(id);
+    return this.repo.delete(id);
   }
 
   @Delete(':id/machines/:machineId')
-  removeMachine(
-    @Param('id') id: string,
-    @Param('machineId') machineId: string,
-  ) {
-    return this.uc.removeMachine(id, machineId);
+  removeMachine(@Param('id') id: string, @Param('machineId') machineId: string) {
+    return this.repo.removeMachine(id, machineId);
   }
 
   @Post('activate')
   activate(@Body() dto: ActivateDto) {
-    return this.uc.activate(dto.licenseKey, dto.machineId, dto.label);
+    return this.repo.activate(dto.licenseKey, dto.machineId, dto.label);
   }
 }

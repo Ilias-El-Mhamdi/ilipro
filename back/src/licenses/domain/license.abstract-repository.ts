@@ -1,4 +1,4 @@
-import type { LicenseModel, LicenseMachineModel, LicenseType, LicenseStatus } from './license.model';
+import type { LicenseModel, LicenseType, LicenseStatus } from './license.model';
 
 export interface CreateLicenseInput {
   clientId: string;
@@ -29,15 +29,19 @@ export interface UpdateLicenseInput {
 }
 
 export abstract class ILicenseRepository {
-  abstract findByClientId(clientId: string): Promise<LicenseModel | null>;
+  abstract findByClientId(clientId: string): Promise<LicenseModel>;
+
   abstract findByClientAndCompany(clientId: string, companyId: string): Promise<LicenseModel | null>;
+
   abstract findByStripeSubscriptionId(subscriptionId: string): Promise<LicenseModel | null>;
+
   abstract create(input: CreateLicenseInput): Promise<LicenseModel>;
+
   abstract update(id: string, input: UpdateLicenseInput): Promise<LicenseModel>;
+
   abstract delete(id: string): Promise<void>;
-  abstract addMachine(licenseId: string, machineId: string, label?: string): Promise<LicenseMachineModel>;
+
   abstract removeMachine(licenseId: string, machineId: string): Promise<void>;
-  abstract updateMachineLastSeen(licenseId: string, machineId: string): Promise<void>;
-  abstract countMachines(licenseId: string): Promise<number>;
-  abstract findMachine(licenseId: string, machineId: string): Promise<LicenseMachineModel | null>;
+
+  abstract activate(licenseKey: string, machineId: string, label?: string): Promise<{ valid: true }>;
 }

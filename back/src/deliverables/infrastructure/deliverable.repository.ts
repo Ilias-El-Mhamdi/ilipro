@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import type { IDeliverableRepository } from '../domain/deliverable.repository';
+import type { IDeliverableRepository } from '../domain/deliverable.abstract-repository';
 import { DeliverableModel } from '../domain/deliverable.model';
 
 @Injectable()
-export class TypeOrmDeliverableRepository implements IDeliverableRepository {
+export class DeliverableRepository implements IDeliverableRepository {
   constructor(
     @InjectRepository(DeliverableModel)
     private readonly repo: Repository<DeliverableModel>,
@@ -19,8 +19,10 @@ export class TypeOrmDeliverableRepository implements IDeliverableRepository {
     return this.repo.find({ where: { projectId }, order: { createdAt: 'DESC' } });
   }
 
-  findById(id: string): Promise<DeliverableModel | null> {
-    return this.repo.findOne({ where: { id } });
+  async findById(id: string): Promise<DeliverableModel> {
+    const deliverable = await this.repo.findOne({ where: { id } });
+    if (!deliverable) throw new NotFoundException(`Deliverable ${id} not found`);
+    return deliverable;
   }
 
   create(data: Omit<DeliverableModel, 'id' | 'createdAt' | 'updatedAt'>): Promise<DeliverableModel> {

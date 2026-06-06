@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { DeliverablesUc } from '../../deliverables/useCase/deliverables.uc';
-import { IDeliverableRepository } from '../../deliverables/domain/deliverable.repository';
+import { DeliverablesUc } from '../useCase/deliverables.uc';
+import { IDeliverableRepository } from '../domain/deliverable.abstract-repository';
 
 @Controller('projects/:projectId/deliverables')
 export class ProjectDeliverablesController {
@@ -17,10 +17,7 @@ export class ProjectDeliverablesController {
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
-  upload(
-    @Param('projectId') projectId: string,
-    @UploadedFile() file: Express.Multer.File,
-  ) {
+  upload(@Param('projectId') projectId: string, @UploadedFile() file: Express.Multer.File) {
     return this.uc.upload(projectId, file);
   }
 }

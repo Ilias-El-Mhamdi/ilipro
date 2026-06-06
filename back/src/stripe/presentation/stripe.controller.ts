@@ -4,7 +4,7 @@ import Stripe = require('stripe');
 import { LinkUserUc } from '../../liens/lienUserCompany/useCase/linkUser.uc';
 import { UserRepository } from '../../users/infrastructure/user.repository';
 import { UserModel } from '../../users/domain/user.model';
-import { LicensesUc } from '../../licenses/useCase/licenses.uc';
+import { ILicenseRepository } from '../../licenses/domain/license.abstract-repository';
 
 interface StripeSubscription {
   id: string;
@@ -46,9 +46,9 @@ export class StripeController {
   private _stripe: InstanceType<typeof Stripe> | null = null;
 
   constructor(
-    private readonly usersService: LinkUserUc,
+    private readonly linkUserUc: LinkUserUc,
     private readonly userRepo: UserRepository,
-    private readonly licensesUc: LicensesUc,
+    private readonly licenseRepo: ILicenseRepository,
   ) {}
 
   private get stripe(): InstanceType<typeof Stripe> {
@@ -95,7 +95,6 @@ export class StripeController {
 
   /**
    * Dev-only — simule un webhook customer.subscription.created sans Stripe réel.
-   * Crée ou met à jour le client et génère une licence CLASSIC.
    */
   @Post('dev/simulate')
   async simulateSubscription(@Body() dto: SimulateSubscriptionDto) {
@@ -106,7 +105,7 @@ export class StripeController {
     let user = await this.userRepo.findByEmail(dto.email);
     if (!user) {
       if (dto.companyId) {
-        user = await this.usersService.createOrLink(dto.name ?? dto.email, '', dto.email, dto.companyId);
+        user = await this.linkUserUc.createOrLink(dto.name ?? dto.email, '', dto.email, dto.companyId);
       } else {
         user = await this.userRepo.create(new UserModel(dto.email, dto.name ?? dto.email));
       }
@@ -114,18 +113,18 @@ export class StripeController {
 
     await this.userRepo.setStripeCustomerId(user.id, fakeCustomerId);
 
-    const existing = dto.companyId ? await this.licensesUc.findByClientAndCompany(user.id, dto.companyId) : null;
+    const existing = dto.companyId ? await this.licenseRepo.findByClientAndCompany(user.id, dto.companyId) : null;
     let license;
 
     if (existing) {
-      license = await this.licensesUc.update(existing.id, {
+      license = await this.licenseRepo.update(existing.id, {
         status: 'ACTIVE',
         stripeSubscriptionId: fakeSubscriptionId,
         stripeProductId: dto.stripeProductId ?? 'prod_fake',
         currentPeriodEnd: periodEnd,
       });
     } else {
-      license = await this.licensesUc.create({
+      license = await this.licenseRepo.create({
         clientId: user.id,
         companyId: dto.companyId,
         type: 'CLASSIC',
@@ -158,34 +157,33 @@ export class StripeController {
   }
 
   private async handleSubscriptionCreated(subscription: StripeSubscription) {
-    const customerId = subscription.customer;
-    const raw = await this.stripe.customers.retrieve(customerId);
+    const raw = await this.stripe.customers.retrieve(subscription.customer);
     const customer = raw as unknown as StripeCustomer;
 
     let user = await this.userRepo.findByEmail(customer.email ?? '');
     if (!user) {
       const companyId = subscription.metadata?.companyId;
       if (!companyId) return;
-      user = await this.usersService.createOrLink(customer.name ?? customer.email ?? 'Unknown', '', customer.email ?? '', companyId);
+      user = await this.linkUserUc.createOrLink(customer.name ?? customer.email ?? 'Unknown', '', customer.email ?? '', companyId);
     }
 
-    await this.userRepo.setStripeCustomerId(user.id, customerId);
+    await this.userRepo.setStripeCustomerId(user.id, subscription.customer);
 
     const companyId = subscription.metadata?.companyId;
     if (!companyId) return;
 
     const item = subscription.items.data[0];
-    const existing = await this.licensesUc.findByClientAndCompany(user.id, companyId);
+    const existing = await this.licenseRepo.findByClientAndCompany(user.id, companyId);
 
     if (existing) {
-      await this.licensesUc.update(existing.id, {
+      await this.licenseRepo.update(existing.id, {
         status: 'ACTIVE',
         stripeSubscriptionId: subscription.id,
         stripeProductId: item?.price.product,
         currentPeriodEnd: new Date(subscription.current_period_end * 1000),
       });
     } else {
-      await this.licensesUc.create({
+      await this.licenseRepo.create({
         clientId: user.id,
         companyId,
         type: 'CLASSIC',
@@ -198,26 +196,24 @@ export class StripeController {
   }
 
   private async handleSubscriptionUpdated(subscription: StripeSubscription) {
-    const license = await this.licensesUc.findByStripeSubscriptionId(subscription.id);
+    const license = await this.licenseRepo.findByStripeSubscriptionId(subscription.id);
     if (!license) return;
-
-    const status = subscription.status === 'active' ? 'ACTIVE' : 'EXPIRED';
-    await this.licensesUc.update(license.id, {
-      status,
+    await this.licenseRepo.update(license.id, {
+      status: subscription.status === 'active' ? 'ACTIVE' : 'EXPIRED',
       currentPeriodEnd: new Date(subscription.current_period_end * 1000),
     });
   }
 
   private async handleSubscriptionDeleted(subscription: StripeSubscription) {
-    const license = await this.licensesUc.findByStripeSubscriptionId(subscription.id);
+    const license = await this.licenseRepo.findByStripeSubscriptionId(subscription.id);
     if (!license) return;
-    await this.licensesUc.update(license.id, { status: 'CANCELLED' });
+    await this.licenseRepo.update(license.id, { status: 'CANCELLED' });
   }
 
   private async handlePaymentFailed(invoice: StripeInvoice) {
     if (!invoice.subscription) return;
-    const license = await this.licensesUc.findByStripeSubscriptionId(invoice.subscription);
+    const license = await this.licenseRepo.findByStripeSubscriptionId(invoice.subscription);
     if (!license) return;
-    await this.licensesUc.update(license.id, { status: 'EXPIRED' });
+    await this.licenseRepo.update(license.id, { status: 'EXPIRED' });
   }
 }

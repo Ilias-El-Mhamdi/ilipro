@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import type { ILicenseRepository } from '../domain/license.repository';
-import { CreateLicenseInput, UpdateLicenseInput } from '../domain/license.repository';
-import { LicenseModel, LicenseMachineModel, LicenseProjectModel } from '../domain/license.model';
+import type { ILicenseRepository } from '../domain/license.abstract-repository';
+import { CreateLicenseInput, UpdateLicenseInput } from '../domain/license.abstract-repository';
+import { LicenseModel } from '../domain/license.model';
+import { LicenseMachineModel } from '../domain/license-machine.model';
+import { LicenseProjectModel } from '../domain/license-project.model';
 
 const relations = { projectAccess: true, machines: true };
 const machinesOrder = { machines: { activatedAt: 'ASC' as const } };
@@ -19,8 +21,10 @@ export class TypeOrmLicenseRepository implements ILicenseRepository {
     private readonly projectRepo: Repository<LicenseProjectModel>,
   ) {}
 
-  findByClientId(clientId: string): Promise<LicenseModel | null> {
-    return this.repo.findOne({ where: { clientId }, relations, order: machinesOrder });
+  async findByClientId(clientId: string): Promise<LicenseModel> {
+    const license = await this.repo.findOne({ where: { clientId }, relations, order: machinesOrder });
+    if (!license) throw new NotFoundException(`No license found for client ${clientId}`);
+    return license;
   }
 
   findByClientAndCompany(clientId: string, companyId: string): Promise<LicenseModel | null> {
@@ -28,14 +32,13 @@ export class TypeOrmLicenseRepository implements ILicenseRepository {
   }
 
   findByStripeSubscriptionId(subscriptionId: string): Promise<LicenseModel | null> {
-    return this.repo.findOne({
-      where: { stripeSubscriptionId: subscriptionId },
-      relations,
-      order: machinesOrder,
-    });
+    return this.repo.findOne({ where: { stripeSubscriptionId: subscriptionId }, relations, order: machinesOrder });
   }
 
   async create(input: CreateLicenseInput): Promise<LicenseModel> {
+    const existing = await this.findByClientAndCompany(input.clientId, input.companyId);
+    if (existing) throw new BadRequestException(`Client already has a license for this company`);
+
     const { projectIds, ...data } = input;
     const license = await this.repo.save(
       this.repo.create({
@@ -46,7 +49,12 @@ export class TypeOrmLicenseRepository implements ILicenseRepository {
     );
     if (projectIds?.length) {
       await this.projectRepo.save(
-        projectIds.map((projectId) => this.projectRepo.create({ licenseId: license.id, projectId })),
+        projectIds.map((projectId) =>
+          this.projectRepo.create({
+            licenseId: license.id,
+            projectId,
+          }),
+        ),
       );
     }
     return this.repo.findOneOrFail({ where: { id: license.id }, relations, order: machinesOrder });
@@ -58,12 +66,17 @@ export class TypeOrmLicenseRepository implements ILicenseRepository {
       await this.projectRepo.delete({ licenseId: id });
       if (projectIds.length) {
         await this.projectRepo.save(
-          projectIds.map((projectId) => this.projectRepo.create({ licenseId: id, projectId })),
+          projectIds.map((projectId) =>
+            this.projectRepo.create({
+              licenseId: id,
+              projectId,
+            }),
+          ),
         );
       }
     }
     if (Object.keys(data).length) {
-      await this.repo.update(id, data as any);
+      await this.repo.update(id, data);
     }
     return this.repo.findOneOrFail({ where: { id }, relations, order: machinesOrder });
   }
@@ -72,23 +85,37 @@ export class TypeOrmLicenseRepository implements ILicenseRepository {
     await this.repo.delete(id);
   }
 
-  async addMachine(licenseId: string, machineId: string, label?: string): Promise<LicenseMachineModel> {
-    return this.machineRepo.save(this.machineRepo.create({ licenseId, machineId, label }));
-  }
-
   async removeMachine(licenseId: string, machineId: string): Promise<void> {
     await this.machineRepo.delete({ licenseId, machineId });
   }
 
-  async updateMachineLastSeen(licenseId: string, machineId: string): Promise<void> {
-    await this.machineRepo.update({ licenseId, machineId }, { lastSeenAt: new Date() });
-  }
+  async activate(licenseKey: string, machineId: string, label?: string): Promise<{ valid: true }> {
+    const license = await this.findByClientId(licenseKey);
 
-  countMachines(licenseId: string): Promise<number> {
-    return this.machineRepo.count({ where: { licenseId } });
-  }
+    if (license.status !== 'ACTIVE') {
+      throw new ForbiddenException(`License is ${license.status.toLowerCase()}`);
+    }
 
-  findMachine(licenseId: string, machineId: string): Promise<LicenseMachineModel | null> {
-    return this.machineRepo.findOne({ where: { licenseId, machineId } });
+    if (!license.machineLock) {
+      const r = await this.machineRepo.update({ licenseId: license.id, machineId }, { lastSeenAt: new Date() });
+      if (r.affected === 0) {
+        await this.machineRepo.save(this.machineRepo.create({ licenseId: license.id, machineId, label }));
+      }
+      return { valid: true };
+    }
+
+    const existing = await this.machineRepo.findOne({ where: { licenseId: license.id, machineId } });
+    if (existing) {
+      await this.machineRepo.update({ licenseId: license.id, machineId }, { lastSeenAt: new Date() });
+      return { valid: true };
+    }
+
+    const count = await this.machineRepo.count({ where: { licenseId: license.id } });
+    if (count >= license.maxMachines) {
+      throw new ForbiddenException(`Machine limit reached (${license.maxMachines}). Deactivate an existing machine first.`);
+    }
+
+    await this.machineRepo.save(this.machineRepo.create({ licenseId: license.id, machineId, label }));
+    return { valid: true };
   }
 }
