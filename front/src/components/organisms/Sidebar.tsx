@@ -71,7 +71,9 @@ export function Sidebar() {
   }
 
   const activeCompanySlug = location.pathname.match(/\/admin\/companies\/([^/]+)/)?.[1];
+  const activeProjectHash = location.hash;
   const isUsersActive = location.pathname.startsWith('/admin/users');
+  const isCompaniesActive = location.pathname.startsWith('/admin/companies');
 
   return (
     <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col h-full">
@@ -196,7 +198,9 @@ export function Sidebar() {
         {/* Entreprises section */}
         <Link
           to="/admin/companies"
-          className="text-gray-500 hover:text-gray-300 text-xs uppercase tracking-wide px-2 mb-2 block transition-colors"
+          className={`text-xs uppercase tracking-wide px-2 mb-2 block transition-colors ${
+            isCompaniesActive ? 'text-indigo-400' : 'text-gray-500 hover:text-gray-300'
+          }`}
         >
           Entreprises
         </Link>
@@ -228,17 +232,20 @@ export function Sidebar() {
                 </button>
               </div>
 
-              {isOpen && companyProjects.map((project) => (
-                <button
-                  key={project.id}
-                  onClick={() => {
-                    navigate(`/admin/companies/${company.slug}#project-${project.slug}`);
-                  }}
-                  className="ml-6 w-full text-left py-1 px-2 text-sm text-gray-400 hover:text-white transition-colors truncate block cursor-pointer"
-                >
-                  {project.name}
-                </button>
-              ))}
+              {isOpen && companyProjects.map((project) => {
+                const isProjectActive = isActive && activeProjectHash === `#project-${project.slug}`;
+                return (
+                  <button
+                    key={project.id}
+                    onClick={() => navigate(`/admin/companies/${company.slug}#project-${project.slug}`)}
+                    className={`ml-6 w-full text-left py-1 px-2 text-sm transition-colors truncate block cursor-pointer ${
+                      isProjectActive ? 'text-indigo-400' : 'text-gray-500 hover:text-gray-300'
+                    }`}
+                  >
+                    {project.name}
+                  </button>
+                );
+              })}
             </div>
           );
         })}
