@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useParams } from 'react-router-dom';
 import { useUserBySlug } from '../lib/queries';
 
 export function useUserSidebar() {
-  const { user } = useAuth();
-  const { data: userDetail } = useUserBySlug(user?.slug ?? '');
+  const { userSlug } = useParams<{ userSlug: string }>();
+  const { data: userDetail } = useUserBySlug(userSlug ?? '');
   const [openCompanies, setOpenCompanies] = useState<Set<string>>(new Set());
 
   const companies = userDetail?.companies ?? [];
