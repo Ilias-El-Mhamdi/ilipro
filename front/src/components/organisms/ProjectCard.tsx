@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useProjectDeliverables } from '../../lib/queries';
-import type { Project, Client, LicenseType } from '../../lib/queries';
+import type { Project, Client } from '../../lib/queries';
 import { Button } from '../atoms/Button';
 import { Input } from '../atoms/Input';
 import { Modal } from '../molecules/Modal';
@@ -8,21 +8,13 @@ import { ConfirmDialog } from '../molecules/ConfirmDialog';
 import { FileDropZone } from '../molecules/FileDropZone';
 import { useProjectCardActions } from '../../hooks/useProjectCardActions';
 import { initials, formatSize, downloadFile, scrollAndHighlight, getAccessClients } from '../../lib/utils';
-import { TYPE_BADGE } from '../../lib/licenseConstants';
+import { LicenseBadge } from '../atoms/LicenseBadge';
 
 interface Props {
   project: Project;
   companySlug: string;
   clients: Client[];
   onDeleteProject: (project: Project) => void;
-}
-
-function LicenseBadge({ type }: { type: LicenseType }) {
-  return (
-    <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded ${TYPE_BADGE[type].className}`}>
-      {TYPE_BADGE[type].label}
-    </span>
-  );
 }
 
 const LINK_BUTTON_STYLE = {
