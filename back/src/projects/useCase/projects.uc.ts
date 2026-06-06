@@ -1,17 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { IProjectRepository } from '../domain/project.repository';
-import { CompaniesService } from '../../companies/application/companies.service';
+import { CompaniesUc } from '../../companies/useCase/companies.uc';
 import { uniqueSlug } from '../../common/slug.helper';
 
 @Injectable()
-export class ProjectsService {
+export class ProjectsUc {
   constructor(
     private readonly repo: IProjectRepository,
-    private readonly companiesService: CompaniesService,
+    private readonly companiesUc: CompaniesUc,
   ) {}
 
   async findBySlug(companySlug: string, projectSlug: string) {
-    const company = await this.companiesService.findBySlug(companySlug);
+    const company = await this.companiesUc.findBySlug(companySlug);
     const project = await this.repo.findBySlug(company.id, projectSlug);
     if (!project) throw new NotFoundException(`Project "${projectSlug}" not found`);
     return project;

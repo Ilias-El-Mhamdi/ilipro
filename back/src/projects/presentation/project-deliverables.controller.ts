@@ -1,12 +1,12 @@
 import { Controller, Get, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { DeliverablesService } from '../../deliverables/application/deliverables.service';
+import { DeliverablesUc } from '../../deliverables/useCase/deliverables.uc';
 import { IDeliverableRepository } from '../../deliverables/domain/deliverable.repository';
 
 @Controller('projects/:projectId/deliverables')
 export class ProjectDeliverablesController {
   constructor(
-    private readonly service: DeliverablesService,
+    private readonly uc: DeliverablesUc,
     private readonly repo: IDeliverableRepository,
   ) {}
 
@@ -21,6 +21,6 @@ export class ProjectDeliverablesController {
     @Param('projectId') projectId: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.service.upload(projectId, file);
+    return this.uc.upload(projectId, file);
   }
 }

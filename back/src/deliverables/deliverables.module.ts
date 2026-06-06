@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeliverablesController } from './presentation/deliverables.controller';
-import { DeliverablesService } from './application/deliverables.service';
+import { DeliverablesUc } from './useCase/deliverables.uc';
 import { IDeliverableRepository } from './domain/deliverable.repository';
 import { TypeOrmDeliverableRepository } from './infrastructure/typeorm-deliverable.repository';
 import { DeliverableModel } from './domain/deliverable.model';
@@ -12,9 +12,9 @@ import { StorageModule } from '../storage/storage.module';
   imports: [TypeOrmModule.forFeature([DeliverableModel]), StorageModule],
   controllers: [DeliverablesController, ProjectDeliverablesController],
   providers: [
-    DeliverablesService,
+    DeliverablesUc,
     { provide: IDeliverableRepository, useClass: TypeOrmDeliverableRepository },
   ],
-  exports: [DeliverablesService, IDeliverableRepository],
+  exports: [DeliverablesUc, IDeliverableRepository],
 })
 export class DeliverablesModule {}

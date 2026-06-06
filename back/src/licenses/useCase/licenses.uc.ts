@@ -2,7 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { ILicenseRepository, CreateLicenseInput, UpdateLicenseInput } from '../domain/license.repository';
 
 @Injectable()
-export class LicensesService {
+export class LicensesUc {
   constructor(private readonly repo: ILicenseRepository) {}
 
   async findByClientId(clientId: string) {

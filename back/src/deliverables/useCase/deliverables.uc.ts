@@ -3,7 +3,7 @@ import { IDeliverableRepository } from '../domain/deliverable.repository';
 import { StorageService } from '../../storage/storage.service';
 
 @Injectable()
-export class DeliverablesService {
+export class DeliverablesUc {
   constructor(
     private readonly repo: IDeliverableRepository,
     private readonly storage: StorageService,

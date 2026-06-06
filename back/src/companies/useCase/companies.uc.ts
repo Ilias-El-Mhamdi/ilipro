@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ICompanyRepository } from '../domain/company.repository';
+import { ICompanyRepository } from '../domain/company.abstract-repository';
 import { uniqueSlug } from '../../common/slug.helper';
 
 @Injectable()
-export class CompaniesService {
+export class CompaniesUc {
   constructor(private readonly repo: ICompanyRepository) {}
 
   async findBySlug(slug: string) {
@@ -19,19 +19,13 @@ export class CompaniesService {
   }
 
   async create(name: string) {
-    const slug = await uniqueSlug(name, (s) =>
-      this.repo.findBySlug(s).then((c) => c !== null),
-    );
+    const slug = await uniqueSlug(name, (s) => this.repo.findBySlug(s).then((c) => c !== null));
     return this.repo.create({ name, slug });
   }
 
   async update(slug: string, name: string) {
     const company = await this.findBySlug(slug);
-    const newSlug = await uniqueSlug(name, (s) =>
-      s !== slug
-        ? this.repo.findBySlug(s).then((c) => c !== null)
-        : Promise.resolve(false),
-    );
+    const newSlug = await uniqueSlug(name, (s) => (s !== slug ? this.repo.findBySlug(s).then((c) => c !== null) : Promise.resolve(false)));
     return this.repo.update(company.id, { name, slug: newSlug });
   }
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { IUserRepository } from '../../users/domain/user.abtract-repository';
-import { IClientCompanyRepository } from '../lienUserCompany/client-company.repository';
-import { UserModel } from '../../users/domain/user.model';
+import { IUserRepository } from '../../../users/domain/user.abtract-repository';
+import { IClientCompanyRepository } from '../domain/client-company.abstract-repository';
+import { UserModel } from '../../../users/domain/user.model';
 
 @Injectable()
 export class LinkUserUc {

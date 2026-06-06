@@ -1,19 +1,19 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { ProjectsService } from '../../projects/application/projects.service';
+import { ProjectsUc } from '../../projects/useCase/projects.uc';
 import { IProjectRepository } from '../../projects/domain/project.repository';
-import { CompaniesService } from '../application/companies.service';
+import { CompaniesUc } from '../useCase/companies.uc';
 
 @Controller('companies/:companySlug/projects')
 export class CompanyProjectsController {
   constructor(
-    private readonly projectsService: ProjectsService,
+    private readonly projectsUc: ProjectsUc,
     private readonly projectRepo: IProjectRepository,
-    private readonly companiesService: CompaniesService,
+    private readonly companiesUc: CompaniesUc,
   ) {}
 
   @Get()
   async findByCompany(@Param('companySlug') companySlug: string) {
-    const company = await this.companiesService.findBySlug(companySlug);
+    const company = await this.companiesUc.findBySlug(companySlug);
     return this.projectRepo.findByCompanyId(company.id);
   }
 
@@ -25,7 +25,7 @@ export class CompanyProjectsController {
     @Body('docsUrl') docsUrl?: string,
     @Body('changelogUrl') changelogUrl?: string,
   ) {
-    const company = await this.companiesService.findBySlug(companySlug);
-    return this.projectsService.create(name, company.id, appUrl, docsUrl, changelogUrl);
+    const company = await this.companiesUc.findBySlug(companySlug);
+    return this.projectsUc.create(name, company.id, appUrl, docsUrl, changelogUrl);
   }
 }

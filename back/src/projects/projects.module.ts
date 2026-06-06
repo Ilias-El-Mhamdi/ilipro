@@ -1,7 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProjectsController } from './presentation/projects.controller';
-import { ProjectsService } from './application/projects.service';
+import { ProjectsUc } from './useCase/projects.uc';
 import { IProjectRepository } from './domain/project.repository';
 import { TypeOrmProjectRepository } from './infrastructure/typeorm-project.repository';
 import { ProjectModel } from './domain/project.model';
@@ -12,9 +12,9 @@ import { CompaniesModule } from '../companies/companies.module';
   imports: [TypeOrmModule.forFeature([ProjectModel]), forwardRef(() => CompaniesModule)],
   controllers: [ProjectsController, CompanyProjectsController],
   providers: [
-    ProjectsService,
+    ProjectsUc,
     { provide: IProjectRepository, useClass: TypeOrmProjectRepository },
   ],
-  exports: [ProjectsService, IProjectRepository],
+  exports: [ProjectsUc, IProjectRepository],
 })
 export class ProjectsModule {}

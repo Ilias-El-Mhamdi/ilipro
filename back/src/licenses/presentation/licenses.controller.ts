@@ -7,7 +7,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { LicensesService } from '../application/licenses.service';
+import { LicensesUc } from '../useCase/licenses.uc';
 import type { LicenseType, LicenseStatus } from '../domain/license.model';
 
 interface CreateLicenseDto {
@@ -43,16 +43,16 @@ interface ActivateDto {
 
 @Controller('licenses')
 export class LicensesController {
-  constructor(private readonly service: LicensesService) {}
+  constructor(private readonly uc: LicensesUc) {}
 
   @Get('client/:clientId')
   findByClient(@Param('clientId') clientId: string) {
-    return this.service.findByClientId(clientId);
+    return this.uc.findByClientId(clientId);
   }
 
   @Post()
   create(@Body() dto: CreateLicenseDto) {
-    return this.service.create({
+    return this.uc.create({
       ...dto,
       status: dto.status ?? 'ACTIVE',
       validUntil: dto.validUntil ? new Date(dto.validUntil) : undefined,
@@ -62,7 +62,7 @@ export class LicensesController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateLicenseDto) {
-    return this.service.update(id, {
+    return this.uc.update(id, {
       ...dto,
       validUntil: dto.validUntil !== undefined
         ? dto.validUntil ? new Date(dto.validUntil) : null
@@ -75,7 +75,7 @@ export class LicensesController {
 
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return this.service.delete(id);
+    return this.uc.delete(id);
   }
 
   @Delete(':id/machines/:machineId')
@@ -83,11 +83,11 @@ export class LicensesController {
     @Param('id') id: string,
     @Param('machineId') machineId: string,
   ) {
-    return this.service.removeMachine(id, machineId);
+    return this.uc.removeMachine(id, machineId);
   }
 
   @Post('activate')
   activate(@Body() dto: ActivateDto) {
-    return this.service.activate(dto.licenseKey, dto.machineId, dto.label);
+    return this.uc.activate(dto.licenseKey, dto.machineId, dto.label);
   }
 }

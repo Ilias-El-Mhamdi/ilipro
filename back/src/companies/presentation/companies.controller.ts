@@ -1,11 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
-import { CompaniesService } from '../application/companies.service';
-import { ICompanyRepository } from '../domain/company.repository';
+import { CompaniesUc } from '../useCase/companies.uc';
+import { ICompanyRepository } from '../domain/company.abstract-repository';
 
 @Controller('companies')
 export class CompaniesController {
   constructor(
-    private readonly service: CompaniesService,
+    private readonly uc: CompaniesUc,
     private readonly repo: ICompanyRepository,
   ) {}
 
@@ -16,26 +16,26 @@ export class CompaniesController {
 
   @Get(':slug')
   findBySlug(@Param('slug') slug: string) {
-    return this.service.findBySlug(slug);
+    return this.uc.findBySlug(slug);
   }
 
   @Post()
   create(@Body('name') name: string) {
-    return this.service.create(name);
+    return this.uc.create(name);
   }
 
   @Put(':slug')
   update(@Param('slug') slug: string, @Body('name') name: string) {
-    return this.service.update(slug, name);
+    return this.uc.update(slug, name);
   }
 
   @Patch(':slug/name')
   updateName(@Param('slug') slug: string, @Body('name') name: string) {
-    return this.service.updateName(slug, name);
+    return this.uc.updateName(slug, name);
   }
 
   @Delete(':slug')
   delete(@Param('slug') slug: string) {
-    return this.service.delete(slug);
+    return this.uc.delete(slug);
   }
 }

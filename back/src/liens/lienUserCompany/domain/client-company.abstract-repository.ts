@@ -1,4 +1,4 @@
-import type { UserModel } from '../../users/domain/user.model';
+import type { UserModel } from '../../../users/domain/user.model';
 
 export abstract class IClientCompanyRepository {
   abstract findUsersByCompanyId(companyId: string): Promise<UserModel[]>;

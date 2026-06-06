@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import type { IClientCompanyRepository } from './client-company.repository';
-import { ClientCompanyEntity } from './client-company.entity';
-import { UserModel } from '../../users/domain/user.model';
+import type { IClientCompanyRepository } from '../domain/client-company.abstract-repository';
+import { ClientCompanyEntity } from '../domain/client-company.entity';
+import { UserModel } from '../../../users/domain/user.model';
 
 @Injectable()
-export class TypeOrmClientCompanyRepository implements IClientCompanyRepository {
+export class ClientCompanyRepository implements IClientCompanyRepository {
   constructor(
     @InjectRepository(ClientCompanyEntity)
     private readonly repo: Repository<ClientCompanyEntity>,

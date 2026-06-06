@@ -1,10 +1,10 @@
 import { BadRequestException, Body, Controller, Headers, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
 import Stripe = require('stripe');
-import { LinkUserUc } from '../../liens/useCase/linkUser.uc';
+import { LinkUserUc } from '../../liens/lienUserCompany/useCase/linkUser.uc';
 import { UserRepository } from '../../users/infrastructure/user.repository';
 import { UserModel } from '../../users/domain/user.model';
-import { LicensesService } from '../../licenses/application/licenses.service';
+import { LicensesUc } from '../../licenses/useCase/licenses.uc';
 
 interface StripeSubscription {
   id: string;
@@ -48,7 +48,7 @@ export class StripeController {
   constructor(
     private readonly usersService: LinkUserUc,
     private readonly userRepo: UserRepository,
-    private readonly licensesService: LicensesService,
+    private readonly licensesUc: LicensesUc,
   ) {}
 
   private get stripe(): InstanceType<typeof Stripe> {
@@ -114,18 +114,18 @@ export class StripeController {
 
     await this.userRepo.setStripeCustomerId(user.id, fakeCustomerId);
 
-    const existing = dto.companyId ? await this.licensesService.findByClientAndCompany(user.id, dto.companyId) : null;
+    const existing = dto.companyId ? await this.licensesUc.findByClientAndCompany(user.id, dto.companyId) : null;
     let license;
 
     if (existing) {
-      license = await this.licensesService.update(existing.id, {
+      license = await this.licensesUc.update(existing.id, {
         status: 'ACTIVE',
         stripeSubscriptionId: fakeSubscriptionId,
         stripeProductId: dto.stripeProductId ?? 'prod_fake',
         currentPeriodEnd: periodEnd,
       });
     } else {
-      license = await this.licensesService.create({
+      license = await this.licensesUc.create({
         clientId: user.id,
         companyId: dto.companyId,
         type: 'CLASSIC',
@@ -175,17 +175,17 @@ export class StripeController {
     if (!companyId) return;
 
     const item = subscription.items.data[0];
-    const existing = await this.licensesService.findByClientAndCompany(user.id, companyId);
+    const existing = await this.licensesUc.findByClientAndCompany(user.id, companyId);
 
     if (existing) {
-      await this.licensesService.update(existing.id, {
+      await this.licensesUc.update(existing.id, {
         status: 'ACTIVE',
         stripeSubscriptionId: subscription.id,
         stripeProductId: item?.price.product,
         currentPeriodEnd: new Date(subscription.current_period_end * 1000),
       });
     } else {
-      await this.licensesService.create({
+      await this.licensesUc.create({
         clientId: user.id,
         companyId,
         type: 'CLASSIC',
@@ -198,26 +198,26 @@ export class StripeController {
   }
 
   private async handleSubscriptionUpdated(subscription: StripeSubscription) {
-    const license = await this.licensesService.findByStripeSubscriptionId(subscription.id);
+    const license = await this.licensesUc.findByStripeSubscriptionId(subscription.id);
     if (!license) return;
 
     const status = subscription.status === 'active' ? 'ACTIVE' : 'EXPIRED';
-    await this.licensesService.update(license.id, {
+    await this.licensesUc.update(license.id, {
       status,
       currentPeriodEnd: new Date(subscription.current_period_end * 1000),
     });
   }
 
   private async handleSubscriptionDeleted(subscription: StripeSubscription) {
-    const license = await this.licensesService.findByStripeSubscriptionId(subscription.id);
+    const license = await this.licensesUc.findByStripeSubscriptionId(subscription.id);
     if (!license) return;
-    await this.licensesService.update(license.id, { status: 'CANCELLED' });
+    await this.licensesUc.update(license.id, { status: 'CANCELLED' });
   }
 
   private async handlePaymentFailed(invoice: StripeInvoice) {
     if (!invoice.subscription) return;
-    const license = await this.licensesService.findByStripeSubscriptionId(invoice.subscription);
+    const license = await this.licensesUc.findByStripeSubscriptionId(invoice.subscription);
     if (!license) return;
-    await this.licensesService.update(license.id, { status: 'EXPIRED' });
+    await this.licensesUc.update(license.id, { status: 'EXPIRED' });
   }
 }

@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import type { ICompanyRepository } from '../domain/company.repository';
+import type { ICompanyRepository } from '../domain/company.abstract-repository';
 import { CompanyModel } from '../domain/company.model';
 
 @Injectable()
-export class TypeOrmCompanyRepository implements ICompanyRepository {
+export class CompanyRepository implements ICompanyRepository {
   constructor(
     @InjectRepository(CompanyModel)
     private readonly repo: Repository<CompanyModel>,

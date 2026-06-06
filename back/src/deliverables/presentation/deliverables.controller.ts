@@ -1,17 +1,17 @@
 import { Controller, Delete, Get, Param } from '@nestjs/common';
-import { DeliverablesService } from '../application/deliverables.service';
+import { DeliverablesUc } from '../useCase/deliverables.uc';
 
 @Controller('deliverables')
 export class DeliverablesController {
-  constructor(private readonly service: DeliverablesService) {}
+  constructor(private readonly uc: DeliverablesUc) {}
 
   @Get(':id')
   findById(@Param('id') id: string) {
-    return this.service.findById(id);
+    return this.uc.findById(id);
   }
 
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return this.service.delete(id);
+    return this.uc.delete(id);
   }
 }

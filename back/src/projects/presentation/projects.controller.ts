@@ -1,11 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
-import { ProjectsService } from '../application/projects.service';
+import { ProjectsUc } from '../useCase/projects.uc';
 import { IProjectRepository } from '../domain/project.repository';
 
 @Controller('projects')
 export class ProjectsController {
   constructor(
-    private readonly service: ProjectsService,
+    private readonly uc: ProjectsUc,
     private readonly repo: IProjectRepository,
   ) {}
 
@@ -16,7 +16,7 @@ export class ProjectsController {
 
   @Get(':id')
   findById(@Param('id') id: string) {
-    return this.service.findById(id);
+    return this.uc.findById(id);
   }
 
   @Patch(':id')
@@ -24,11 +24,11 @@ export class ProjectsController {
     @Param('id') id: string,
     @Body() body: { name?: string; appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null },
   ) {
-    return this.service.updateProject(id, body);
+    return this.uc.updateProject(id, body);
   }
 
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return this.service.delete(id);
+    return this.uc.delete(id);
   }
 }

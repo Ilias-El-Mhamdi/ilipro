@@ -1,21 +1,21 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Patch } from '@nestjs/common';
-import { LinkUserUc } from '../../liens/useCase/linkUser.uc';
+import { LinkUserUc } from '../../liens/lienUserCompany/useCase/linkUser.uc';
 import { IUserRepository } from '../../users/domain/user.abtract-repository';
-import { IClientCompanyRepository } from '../../liens/lienUserCompany/client-company.repository';
-import { CompaniesService } from '../application/companies.service';
+import { IClientCompanyRepository } from '../../liens/lienUserCompany/domain/client-company.abstract-repository';
+import { CompaniesUc } from '../useCase/companies.uc';
 
 @Controller('companies/:companySlug/users')
 export class CompanyUsersController {
   constructor(
-    private readonly usersService: LinkUserUc,
+    private readonly linkUserUc: LinkUserUc,
     private readonly userRepo: IUserRepository,
     private readonly clientCompanyRepo: IClientCompanyRepository,
-    private readonly companiesService: CompaniesService,
+    private readonly companiesUc: CompaniesUc,
   ) {}
 
   @Get()
   async findByCompany(@Param('companySlug') companySlug: string) {
-    const company = await this.companiesService.findBySlug(companySlug);
+    const company = await this.companiesUc.findBySlug(companySlug);
     return this.clientCompanyRepo.findUsersByCompanyId(company.id);
   }
 
@@ -26,8 +26,8 @@ export class CompanyUsersController {
     @Body('lastName') lastName: string,
     @Body('email') email: string,
   ) {
-    const company = await this.companiesService.findBySlug(companySlug);
-    return this.usersService.createOrLink(firstName, lastName, email, company.id);
+    const company = await this.companiesUc.findBySlug(companySlug);
+    return this.linkUserUc.createOrLink(firstName, lastName, email, company.id);
   }
 
   @Put(':userId')
@@ -37,13 +37,13 @@ export class CompanyUsersController {
 
   @Patch(':userId/link')
   async linkExisting(@Param('companySlug') companySlug: string, @Param('userId') userId: string) {
-    const company = await this.companiesService.findBySlug(companySlug);
-    return this.usersService.linkToCompany(userId, company.id);
+    const company = await this.companiesUc.findBySlug(companySlug);
+    return this.linkUserUc.linkToCompany(userId, company.id);
   }
 
   @Delete(':userId')
   async unlink(@Param('companySlug') companySlug: string, @Param('userId') userId: string) {
-    const company = await this.companiesService.findBySlug(companySlug);
+    const company = await this.companiesUc.findBySlug(companySlug);
     return this.clientCompanyRepo.unlink(userId, company.id);
   }
 }
