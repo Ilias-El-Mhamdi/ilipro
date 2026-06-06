@@ -1,6 +1,6 @@
 import type { ProjectModel } from './project.model';
 
-export abstract class ProjectRepository {
+export abstract class IProjectRepository {
   abstract findAll(): Promise<ProjectModel[]>;
   abstract findByCompanyId(companyId: string): Promise<ProjectModel[]>;
   abstract findBySlug(companyId: string, slug: string): Promise<ProjectModel | null>;

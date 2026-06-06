@@ -1,17 +1,19 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { CompaniesController } from './presentation/companies.controller';
 import { CompaniesService } from './application/companies.service';
-import { CompanyRepository } from './domain/company.repository';
-import { PrismaCompanyRepository } from './infrastructure/prisma-company.repository';
+import { ICompanyRepository } from './domain/company.repository';
+import { TypeOrmCompanyRepository } from './infrastructure/typeorm-company.repository';
+import { CompanyModel } from './domain/company.model';
 import { ProjectsModule } from '../projects/projects.module';
 
 @Module({
-  imports: [forwardRef(() => ProjectsModule)],
+  imports: [TypeOrmModule.forFeature([CompanyModel]), forwardRef(() => ProjectsModule)],
   controllers: [CompaniesController],
   providers: [
     CompaniesService,
-    { provide: CompanyRepository, useClass: PrismaCompanyRepository },
+    { provide: ICompanyRepository, useClass: TypeOrmCompanyRepository },
   ],
-  exports: [CompaniesService, CompanyRepository],
+  exports: [CompaniesService, ICompanyRepository],
 })
 export class CompaniesModule {}

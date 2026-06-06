@@ -1,7 +1,9 @@
 import { BadRequestException, Body, Controller, Headers, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
 import Stripe = require('stripe');
-import { UsersService } from '../../users/application/users.service';
+import { LinkUserUc } from '../../liens/useCase/linkUser.uc';
+import { UserRepository } from '../../users/infrastructure/user.repository';
+import { UserModel } from '../../users/domain/user.model';
 import { LicensesService } from '../../licenses/application/licenses.service';
 
 interface StripeSubscription {
@@ -44,7 +46,8 @@ export class StripeController {
   private _stripe: InstanceType<typeof Stripe> | null = null;
 
   constructor(
-    private readonly usersService: UsersService,
+    private readonly usersService: LinkUserUc,
+    private readonly userRepo: UserRepository,
     private readonly licensesService: LicensesService,
   ) {}
 
@@ -58,15 +61,12 @@ export class StripeController {
   }
 
   @Post('webhook')
-  async handleWebhook(
-    @Req() req: Request & { rawBody?: Buffer },
-    @Headers('stripe-signature') sig: string,
-  ) {
+  async handleWebhook(@Req() req: Request & { rawBody?: Buffer }, @Headers('stripe-signature') sig: string) {
     const secret = process.env.STRIPE_WEBHOOK_SECRET ?? '';
     let event: StripeWebhookEvent;
 
     try {
-      event = this.stripe.webhooks.constructEvent(req.rawBody!, sig, secret) as StripeWebhookEvent;
+      event = this.stripe.webhooks.constructEvent(req.rawBody!, sig, secret);
     } catch {
       throw new BadRequestException('Invalid Stripe webhook signature');
     }
@@ -77,7 +77,7 @@ export class StripeController {
 
   @Post('billing-portal')
   async createBillingPortal(@Body('userId') userId: string) {
-    const user = await this.usersService.findById(userId);
+    const user = await this.userRepo.findById(userId);
     if (!user.stripeCustomerId) {
       throw new BadRequestException('User has no Stripe customer ID');
     }
@@ -101,24 +101,20 @@ export class StripeController {
   async simulateSubscription(@Body() dto: SimulateSubscriptionDto) {
     const fakeSubscriptionId = `sub_fake_${Date.now()}`;
     const fakeCustomerId = `cus_fake_${Date.now()}`;
-    const periodEnd = dto.currentPeriodEnd
-      ? new Date(dto.currentPeriodEnd)
-      : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+    const periodEnd = dto.currentPeriodEnd ? new Date(dto.currentPeriodEnd) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
-    let user = await this.usersService.findByEmail(dto.email);
+    let user = await this.userRepo.findByEmail(dto.email);
     if (!user) {
       if (dto.companyId) {
         user = await this.usersService.createOrLink(dto.name ?? dto.email, '', dto.email, dto.companyId);
       } else {
-        user = await this.usersService.create(dto.name ?? dto.email, '', dto.email);
+        user = await this.userRepo.create(new UserModel(dto.email, dto.name ?? dto.email));
       }
     }
 
-    await this.usersService.setStripeCustomerId(user.id, fakeCustomerId);
+    await this.userRepo.setStripeCustomerId(user.id, fakeCustomerId);
 
-    const existing = dto.companyId
-      ? await this.licensesService.findByClientAndCompany(user.id, dto.companyId)
-      : null;
+    const existing = dto.companyId ? await this.licensesService.findByClientAndCompany(user.id, dto.companyId) : null;
     let license;
 
     if (existing) {
@@ -166,19 +162,14 @@ export class StripeController {
     const raw = await this.stripe.customers.retrieve(customerId);
     const customer = raw as unknown as StripeCustomer;
 
-    let user = await this.usersService.findByEmail(customer.email ?? '');
+    let user = await this.userRepo.findByEmail(customer.email ?? '');
     if (!user) {
       const companyId = subscription.metadata?.companyId;
       if (!companyId) return;
-      user = await this.usersService.createOrLink(
-        customer.name ?? customer.email ?? 'Unknown',
-        '',
-        customer.email ?? '',
-        companyId,
-      );
+      user = await this.usersService.createOrLink(customer.name ?? customer.email ?? 'Unknown', '', customer.email ?? '', companyId);
     }
 
-    await this.usersService.setStripeCustomerId(user.id, customerId);
+    await this.userRepo.setStripeCustomerId(user.id, customerId);
 
     const companyId = subscription.metadata?.companyId;
     if (!companyId) return;

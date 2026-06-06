@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CompanyRepository } from '../domain/company.repository';
+import { ICompanyRepository } from '../domain/company.repository';
 import { uniqueSlug } from '../../common/slug.helper';
 
 @Injectable()
 export class CompaniesService {
-  constructor(private readonly repo: CompanyRepository) {}
+  constructor(private readonly repo: ICompanyRepository) {}
 
   async findBySlug(slug: string) {
     const company = await this.repo.findBySlug(slug);

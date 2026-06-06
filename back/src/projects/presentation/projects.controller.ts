@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import { ProjectsService } from '../application/projects.service';
-import { ProjectRepository } from '../domain/project.repository';
+import { IProjectRepository } from '../domain/project.repository';
 
 @Controller('projects')
 export class ProjectsController {
   constructor(
     private readonly service: ProjectsService,
-    private readonly repo: ProjectRepository,
+    private readonly repo: IProjectRepository,
   ) {}
 
   @Get()
@@ -22,13 +22,7 @@ export class ProjectsController {
   @Patch(':id')
   updateProject(
     @Param('id') id: string,
-    @Body()
-    body: {
-      name?: string;
-      appUrl?: string | null;
-      docsUrl?: string | null;
-      changelogUrl?: string | null;
-    },
+    @Body() body: { name?: string; appUrl?: string | null; docsUrl?: string | null; changelogUrl?: string | null },
   ) {
     return this.service.updateProject(id, body);
   }

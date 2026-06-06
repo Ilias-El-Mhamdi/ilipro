@@ -1,20 +1,13 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Post,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Get, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DeliverablesService } from '../../deliverables/application/deliverables.service';
-import { DeliverableRepository } from '../../deliverables/domain/deliverable.repository';
+import { IDeliverableRepository } from '../../deliverables/domain/deliverable.repository';
 
 @Controller('projects/:projectId/deliverables')
 export class ProjectDeliverablesController {
   constructor(
     private readonly service: DeliverablesService,
-    private readonly repo: DeliverableRepository,
+    private readonly repo: IDeliverableRepository,
   ) {}
 
   @Get()

@@ -1,13 +1,13 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ProjectsService } from '../../projects/application/projects.service';
-import { ProjectRepository } from '../../projects/domain/project.repository';
+import { IProjectRepository } from '../../projects/domain/project.repository';
 import { CompaniesService } from '../application/companies.service';
 
 @Controller('companies/:companySlug/projects')
 export class CompanyProjectsController {
   constructor(
     private readonly projectsService: ProjectsService,
-    private readonly projectRepo: ProjectRepository,
+    private readonly projectRepo: IProjectRepository,
     private readonly companiesService: CompaniesService,
   ) {}
 

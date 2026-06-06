@@ -1,0 +1,11 @@
+import type { UserModel } from '../../users/domain/user.model';
+
+export abstract class IClientCompanyRepository {
+  abstract findUsersByCompanyId(companyId: string): Promise<UserModel[]>;
+
+  abstract link(userId: string, companyId: string): Promise<void>;
+
+  abstract unlink(userId: string, companyId: string): Promise<void>;
+
+  abstract isLinked(userId: string, companyId: string): Promise<boolean>;
+}

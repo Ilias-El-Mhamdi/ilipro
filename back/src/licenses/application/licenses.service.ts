@@ -1,9 +1,9 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { LicenseRepository, CreateLicenseInput, UpdateLicenseInput } from '../domain/license.repository';
+import { ILicenseRepository, CreateLicenseInput, UpdateLicenseInput } from '../domain/license.repository';
 
 @Injectable()
 export class LicensesService {
-  constructor(private readonly repo: LicenseRepository) {}
+  constructor(private readonly repo: ILicenseRepository) {}
 
   async findByClientId(clientId: string) {
     const license = await this.repo.findByClientId(clientId);

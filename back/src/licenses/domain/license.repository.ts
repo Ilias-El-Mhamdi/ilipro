@@ -28,7 +28,7 @@ export interface UpdateLicenseInput {
   currentPeriodEnd?: Date | null;
 }
 
-export abstract class LicenseRepository {
+export abstract class ILicenseRepository {
   abstract findByClientId(clientId: string): Promise<LicenseModel | null>;
   abstract findByClientAndCompany(clientId: string, companyId: string): Promise<LicenseModel | null>;
   abstract findByStripeSubscriptionId(subscriptionId: string): Promise<LicenseModel | null>;

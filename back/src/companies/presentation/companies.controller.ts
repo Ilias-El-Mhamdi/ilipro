@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { CompaniesService } from '../application/companies.service';
-import { CompanyRepository } from '../domain/company.repository';
+import { ICompanyRepository } from '../domain/company.repository';
 
 @Controller('companies')
 export class CompaniesController {
   constructor(
     private readonly service: CompaniesService,
-    private readonly repo: CompanyRepository,
+    private readonly repo: ICompanyRepository,
   ) {}
 
   @Get()

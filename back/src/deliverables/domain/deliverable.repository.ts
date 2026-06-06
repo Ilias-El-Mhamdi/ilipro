@@ -1,6 +1,6 @@
 import type { DeliverableModel } from './deliverable.model';
 
-export abstract class DeliverableRepository {
+export abstract class IDeliverableRepository {
   abstract findAll(): Promise<DeliverableModel[]>;
   abstract findByProjectId(projectId: string): Promise<DeliverableModel[]>;
   abstract findById(id: string): Promise<DeliverableModel | null>;

@@ -1,18 +1,24 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersController } from './presentation/users.controller';
-import { UsersService } from './application/users.service';
-import { UserRepository } from './domain/user.repository';
-import { PrismaUserRepository } from './infrastructure/prisma-user.repository';
+import { LinkUserUc } from '../liens/useCase/linkUser.uc';
+import { IUserRepository } from './domain/user.abtract-repository';
+import { IClientCompanyRepository } from '../liens/lienUserCompany/client-company.repository';
+import { UserRepository } from './infrastructure/user.repository';
+import { TypeOrmClientCompanyRepository } from '../liens/lienUserCompany/typeorm-client-company.repository';
+import { UserModel } from './domain/user.model';
+import { ClientCompanyEntity } from '../liens/lienUserCompany/client-company.entity';
 import { CompanyUsersController } from '../companies/presentation/company-users.controller';
 import { CompaniesModule } from '../companies/companies.module';
 
 @Module({
-  imports: [CompaniesModule],
+  imports: [TypeOrmModule.forFeature([UserModel, ClientCompanyEntity]), CompaniesModule],
   controllers: [UsersController, CompanyUsersController],
   providers: [
-    UsersService,
-    { provide: UserRepository, useClass: PrismaUserRepository },
+    LinkUserUc,
+    { provide: IUserRepository, useClass: UserRepository },
+    { provide: IClientCompanyRepository, useClass: TypeOrmClientCompanyRepository },
   ],
-  exports: [UsersService, UserRepository],
+  exports: [LinkUserUc, IUserRepository, IClientCompanyRepository],
 })
 export class UsersModule {}
