@@ -6,8 +6,6 @@ import {DeliverableRow} from './DeliverableRow.tsx';
 
 interface Props {
     project: Project;
-    user: UserDetail;
-    license: License | null;
     members?: CompanyMember[];
 }
 
@@ -17,7 +15,7 @@ function memberHasAccess(member: CompanyMember, projectId: string): boolean {
     return member.license.projectAccess.some((a) => a.projectId === projectId);
 }
 
-export function ProjectRow({project, user, license, members = []}: Props) {
+export function ProjectRow({project, members = []}: Props) {
     const accessMembers = members.filter((m) => memberHasAccess(m, project.id));
 
     return (
