@@ -65,12 +65,20 @@ export interface User {
     createdAt: string;
 }
 
+export interface CompanyMember {
+    id: string;
+    firstName: string;
+    lastName: string;
+    license: License | null;
+}
+
 export interface UserCompanySection {
     id: string;
     name: string;
     slug: string;
     license: License | null;
     projects: Project[];
+    members: CompanyMember[];
 }
 
 export interface UserDetail {

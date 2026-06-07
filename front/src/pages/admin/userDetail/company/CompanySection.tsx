@@ -56,7 +56,9 @@ function LicenseSection({section, user}: { section: UserCompanySection; user: Us
     return (
         <div className="mb-6">
             <h3 className="text-xs text-gray-500 uppercase tracking-widest mb-3">Licence</h3>
-            <LicenseCard license={section.license} projects={section.projects} user={user}/>
+            <div className="w-1/4">
+                <LicenseCard license={section.license} projects={section.projects} user={user}/>
+            </div>
         </div>
     );
 }
@@ -72,7 +74,7 @@ function ProjectsSubSection({section, user}: { section: UserCompanySection; user
             ) : (
                 <div className="flex flex-col gap-4">
                     {section.projects.map((project) => (
-                        <ProjectRow key={project.id} project={project} user={user} license={section.license}/>
+                        <ProjectRow key={project.id} project={project} user={user} license={section.license} members={section.members}/>
                     ))}
                 </div>
             )}

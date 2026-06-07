@@ -1,4 +1,4 @@
-import type {Project, UserDetail, License} from '../../../../../lib/queries.ts';
+import type {Project, CompanyMember} from '../../../../../lib/queries.ts';
 import {useProjectDeliverables} from '../../../../../lib/queries.ts';
 import {LicenseBadge} from '../../../../../components/atoms/LicenseBadge.tsx';
 import {EmptyText} from '../../../../../components/atoms/EmptyText.tsx';
@@ -8,12 +8,17 @@ interface Props {
     project: Project;
     user: UserDetail;
     license: License | null;
+    members?: CompanyMember[];
 }
 
+function memberHasAccess(member: CompanyMember, projectId: string): boolean {
+    if (!member.license) return false;
+    if (member.license.type === 'ADMIN') return true;
+    return member.license.projectAccess.some((a) => a.projectId === projectId);
+}
 
-export function ProjectRow({project, user, license}: Props) {
-    const hasAccess = !license ? false : license.type === 'ADMIN'
-        ? true : license.projectAccess.some((a) => a.projectId === project.id);
+export function ProjectRow({project, user, license, members = []}: Props) {
+    const accessMembers = members.filter((m) => memberHasAccess(m, project.id));
 
     return (
         <div id={`project-${project.id}`} className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
@@ -22,7 +27,7 @@ export function ProjectRow({project, user, license}: Props) {
                 <ProjectLinks project={project}/>
             </div>
             <div className="grid grid-cols-2 divide-x divide-gray-800">
-                <AccessCell user={user} license={license} hasAccess={hasAccess}/>
+                <AccessCell members={accessMembers}/>
                 <DeliverablesCell projectId={project.id}/>
             </div>
         </div>
@@ -54,36 +59,26 @@ function ProjectLinks({project}: { project: Project }) {
     );
 }
 
-function AccessCell({user, license, hasAccess}: {
-    user: UserDetail;
-    license: License | null;
-    hasAccess: boolean
-}) {
-    const initials = (user.firstName[0] ?? '').toUpperCase() + (user.lastName[0] ?? '').toUpperCase();
-
+function AccessCell({members}: { members: CompanyMember[] }) {
     return (
         <div className="px-4 py-3">
             <p className="text-xs text-gray-500 uppercase tracking-widest mb-2">Accès</p>
-            {hasAccess ? (
-                <div className="flex items-center gap-2">
-                    <div
-                        className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                        {initials}
-                    </div>
-                    <span className="text-xs text-gray-300 truncate flex-1">{user.firstName} {user.lastName}</span>
-                    {license && <LicenseBadge type={license.type} className="shrink-0 px-1.5 py-0.5"/>}
-                </div>
+            {members.length === 0 ? (
+                <p className="text-xs text-gray-600">Aucun accès</p>
             ) : (
-                <div className="flex items-center gap-2">
-                    <div
-                        className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-gray-500 text-xs font-bold shrink-0">
-                        {initials}
-                    </div>
-                    <span className="text-xs text-gray-600 truncate flex-1">{user.firstName} {user.lastName}</span>
-                    <span
-                        className="shrink-0 text-xs text-red-400 border border-red-900/50 bg-red-900/20 rounded px-1.5 py-0.5">
-            Non autorisé
-          </span>
+                <div className="flex flex-col gap-1.5">
+                    {members.map((m) => {
+                        const initials = ((m.firstName?.[0] ?? '') + (m.lastName?.[0] ?? '')).toUpperCase();
+                        return (
+                            <div key={m.id} className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                    {initials}
+                                </div>
+                                <span className="text-xs text-gray-300 truncate flex-1">{m.firstName} {m.lastName}</span>
+                                {m.license && <LicenseBadge type={m.license.type} className="shrink-0 px-1.5 py-0.5"/>}
+                            </div>
+                        );
+                    })}
                 </div>
             )}
         </div>

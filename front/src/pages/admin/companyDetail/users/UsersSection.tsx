@@ -47,7 +47,7 @@ export function UsersSection({companySlug, companyId}: Props) {
             ) : users.length === 0 ? (
 <EmptyText message="Aucun utilisateur pour cette entreprise." className="text-gray-600 text-sm"/>
             ) : (
-                <div className="grid grid-cols-6 gap-3">
+                <div className="grid grid-cols-4 gap-3">
                     {users.map((user) => (
                         <div key={user.id} id={`user-${user.id}`}
                              className="rounded-xl transition-shadow duration-300">

@@ -35,12 +35,19 @@ export class UsersController {
 
     const companies = await Promise.all(
       companyIds.map(async (companyId) => {
-        const [company, projects, license] = await Promise.all([
+        const [company, projects, license, companyUsers] = await Promise.all([
           this.companyRepo.findById(companyId),
           this.projectRepo.findByCompanyId(companyId),
           this.licenseRepo.findByUserAndCompany(user.id, companyId),
+          this.userCompanyRepo.findUsersByCompanyId(companyId),
         ]);
-        return { id: company.id, name: company.name, slug: company.slug, projects, license: license ?? null };
+        const members = await Promise.all(
+          companyUsers.map(async (u) => {
+            const memberLicense = await this.licenseRepo.findByUserAndCompany(u.id, companyId);
+            return { id: u.id, firstName: u.firstName, lastName: u.lastName, license: memberLicense ?? null };
+          }),
+        );
+        return { id: company.id, name: company.name, slug: company.slug, projects, license: license ?? null, members };
       }),
     );
 

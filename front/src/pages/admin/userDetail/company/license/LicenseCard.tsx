@@ -25,7 +25,7 @@ export function LicenseCard({license, projects, user}: Props) {
     const initials = (user.firstName[0] ?? '').toUpperCase() + (user.lastName[0] ?? '').toUpperCase();
 
     return (
-        <div className="flex flex-col bg-gray-900 border border-gray-700 rounded-xl overflow-hidden shadow-md w-56">
+        <div className="flex flex-col bg-gray-900 border border-gray-700 rounded-xl overflow-hidden shadow-md w-full">
             <CardHeader user={user} initials={initials}/>
 
             {!license ? (
