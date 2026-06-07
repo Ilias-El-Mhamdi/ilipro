@@ -30,11 +30,11 @@ export class AuthController {
     const user = await this.otpUc.verify(email, otp);
     const { token, payload } = await this.jwtUc.create(user);
 
-    const isProd = process.env.NODE_ENV === 'production';
+    const isDEV = process.env.NODE_ENV === 'dev';
     res.cookie(COOKIE_NAME, token, {
       httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'lax',
+      secure: !isDEV,
+      sameSite: !isDEV ? 'none' : 'lax',
       maxAge: COOKIE_TTL_MS,
     });
 
