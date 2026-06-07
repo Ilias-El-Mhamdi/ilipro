@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react'
 import './index.css'
 
-// commit to trigger pipeline - 1
+// commit to trigger pipeline - 2
 
 function App() {
     const [message, setMessage] = useState<string>('')
