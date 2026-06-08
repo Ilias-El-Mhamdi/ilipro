@@ -2,7 +2,7 @@ import {useMutation} from '@tanstack/react-query';
 import type {License, Project, UserDetail} from '../../../../../lib/queries.ts';
 import {api} from '../../../../../lib/api.ts';
 import {useCarousel} from '../../../../../hooks/useCarousel.ts';
-import {PanelOverview, PanelProjects, PanelMachines} from '../../../../../components/molecules/licensePanel';
+import {PanelOverview, PanelProjects, PanelMachines} from '../../../../../components/licensePanel';
 
 const PANELS = ['Général', 'Projets', 'Machines'] as const;
 

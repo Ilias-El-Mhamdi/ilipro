@@ -1,9 +1,9 @@
 import {useCompanyProjects, useCompanyUsers} from '../../../../lib/queries.ts';
 import {useManageProjects} from './useManageProjects';
-import {ProjectCard} from '../../../../components/organisms/ProjectCard.tsx';
-import {LoadingText} from '../../../../components/atoms/LoadingText.tsx';
-import {EmptyText} from '../../../../components/atoms/EmptyText.tsx';
-import {ConfirmDialog} from '../../../../components/molecules/ConfirmDialog.tsx';
+import {ProjectCard} from '../../../../components/projectCard/ProjectCard';
+import {LoadingText} from '../../../../components/ui/LoadingText';
+import {EmptyText} from '../../../../components/ui/EmptyText';
+import {ConfirmDialog} from '../../../../components/ui/ConfirmDialog';
 import {AddProjectModal} from './AddProjectModal.tsx';
 
 interface Props {

@@ -1,8 +1,8 @@
 import { useParams, Navigate } from 'react-router-dom';
 import { useUserBySlug } from '../../lib/queries';
-import { UserLayout } from '../../components/templates/UserLayout';
-import { LoadingText } from '../../components/atoms/LoadingText';
-import { EmptyText } from '../../components/atoms/EmptyText';
+import { UserLayout } from '../../components/layouts/UserLayout';
+import { LoadingText } from '../../components/ui/LoadingText';
+import { EmptyText } from '../../components/ui/EmptyText';
 import { CompanySection } from '../admin/userDetail/company/CompanySection';
 import { UserHeader } from '../admin/userDetail/UserHeader';
 import { usePageTitle } from '../../hooks/usePageTitle';

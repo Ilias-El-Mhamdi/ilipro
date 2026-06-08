@@ -2,9 +2,9 @@ import {useCompanyUsers, useCompanyProjects, useUsers} from '../../../../lib/que
 import {useManageUsers} from './useManageUsers';
 import {useLinkUser} from './useLinkUser';
 import {UserCard} from './userCard/UserCard';
-import {LoadingText} from '../../../../components/atoms/LoadingText.tsx';
-import {EmptyText} from '../../../../components/atoms/EmptyText.tsx';
-import {ConfirmDialog} from '../../../../components/molecules/ConfirmDialog.tsx';
+import {LoadingText} from '../../../../components/ui/LoadingText';
+import {EmptyText} from '../../../../components/ui/EmptyText';
+import {ConfirmDialog} from '../../../../components/ui/ConfirmDialog';
 import {AddUserModal} from './AddUserModal.tsx';
 import {LinkUserModal} from './LinkUserModal.tsx';
 

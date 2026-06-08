@@ -1,7 +1,7 @@
 import type {Project, CompanyMember} from '../../../../../lib/queries.ts';
 import {useProjectDeliverables} from '../../../../../lib/queries.ts';
-import {LicenseBadge} from '../../../../../components/atoms/LicenseBadge.tsx';
-import {EmptyText} from '../../../../../components/atoms/EmptyText.tsx';
+import {LicenseBadge} from '../../../../../components/LicenseBadge';
+import {EmptyText} from '../../../../../components/ui/EmptyText';
 import {DeliverableRow} from './DeliverableRow.tsx';
 
 interface Props {

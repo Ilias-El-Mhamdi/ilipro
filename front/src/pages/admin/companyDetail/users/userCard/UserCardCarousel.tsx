@@ -1,5 +1,5 @@
 import type { License, Project } from '../../../../../lib/queries';
-import { PanelOverview, PanelProjects, PanelMachines } from '../../../../../components/molecules/licensePanel';
+import { PanelOverview, PanelProjects, PanelMachines } from '../../../../../components/licensePanel';
 
 const PANELS = ['Général', 'Projets', 'Machines'] as const;
 

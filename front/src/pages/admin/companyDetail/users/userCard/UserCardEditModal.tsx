@@ -1,7 +1,7 @@
 import type {User} from '../../../../../lib/queries';
-import {Modal} from '../../../../../components/molecules/Modal';
-import {Input} from '../../../../../components/atoms/Input';
-import {Button} from '../../../../../components/atoms/Button';
+import {Modal} from '../../../../../components/ui/Modal';
+import {Input} from '../../../../../components/ui/Input';
+import {Button} from '../../../../../components/ui/Button';
 
 interface Props {
     user: User;

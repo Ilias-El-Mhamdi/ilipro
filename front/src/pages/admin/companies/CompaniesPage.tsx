@@ -1,9 +1,9 @@
-import { AdminLayout } from '../../../components/templates/AdminLayout';
-import { Button } from '../../../components/atoms/Button';
-import { ConfirmDialog } from '../../../components/molecules/ConfirmDialog';
+import { AdminLayout } from '../../../components/layouts/AdminLayout';
+import { Button } from '../../../components/ui/Button';
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { useCompanyCrud } from '../../../hooks/useCompanyCrud';
-import { LoadingText } from '../../../components/atoms/LoadingText';
-import { EmptyText } from '../../../components/atoms/EmptyText';
+import { LoadingText } from '../../../components/ui/LoadingText';
+import { EmptyText } from '../../../components/ui/EmptyText';
 import { CompanyTable } from './CompanyTable';
 import { CompanyFormModal } from './CompanyFormModal';
 import { usePageTitle } from '../../../hooks/usePageTitle';

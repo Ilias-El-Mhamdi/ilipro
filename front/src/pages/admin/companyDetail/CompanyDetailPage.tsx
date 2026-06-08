@@ -1,8 +1,8 @@
 import {useEffect} from 'react';
 import {useParams, useLocation} from 'react-router-dom';
 import {useCompanies, useCompanyProjects} from '../../../lib/queries';
-import {AdminLayout} from '../../../components/templates/AdminLayout';
-import {BackLink} from '../../../components/atoms/BackLink';
+import {AdminLayout} from '../../../components/layouts/AdminLayout';
+import {BackLink} from '../../../components/ui/BackLink';
 import {CompanyHeader} from './CompanyHeader';
 import {UsersSection} from './users/UsersSection.tsx';
 import {ProjectsSection} from './project/ProjectsSection.tsx';

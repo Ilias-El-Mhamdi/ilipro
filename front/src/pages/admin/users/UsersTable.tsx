@@ -1,5 +1,5 @@
 import type { User } from '../../../lib/queries';
-import { Button } from '../../../components/atoms/Button';
+import { Button } from '../../../components/ui/Button';
 import { initials } from '../../../lib/utils';
 
 interface Props {

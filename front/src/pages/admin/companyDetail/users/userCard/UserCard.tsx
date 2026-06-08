@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import type {User, License, Project} from '../../../../../lib/queries';
-import {LicenseModal} from '../../../../../components/molecules/LicenseModal';
+import {LicenseModal} from '../../../../../components/licenseModal/LicenseModal';
 import {UserCardHeader} from './UserCardHeader';
 import {UserCardCarousel} from './UserCardCarousel';
 import {UserCardFooter} from './UserCardFooter';

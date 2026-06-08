@@ -1,7 +1,7 @@
 import { useLogin } from './useLogin';
 import { EmailStep } from './EmailStep';
 import { OtpStep } from './otpStep/OtpStep';
-import { VersionBadge } from '../../components/atoms/VersionBadge';
+import { VersionBadge } from '../../components/VersionBadge';
 import { usePageTitle } from '../../hooks/usePageTitle';
 
 export function LoginPage() {

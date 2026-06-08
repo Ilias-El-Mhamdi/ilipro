@@ -1,5 +1,5 @@
 import type { Company } from '../../../lib/queries';
-import { Button } from '../../../components/atoms/Button';
+import { Button } from '../../../components/ui/Button';
 
 interface Props {
   companies: Company[];

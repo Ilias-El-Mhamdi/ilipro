@@ -1,0 +1,29 @@
+
+
+screming architecture :
+
+contracts - partagé avec le front (models ?)
+    crudUser.ts (fromPaylod)
+    linkUser.ts
+
+databases
+    entities :
+       - user
+       - company
+       ...
+
+dashboardAdmin
+    crudUser
+   crudUser.ts (input) ->      crudUser.controller.ts -> crudUser.ts (output)
+       crudUser.abstract-repo.ts
+       crudUser.repo.ts
+    linkUser
+      linkUser.controller.ts
+      linkUser.abstract-repo.ts
+      linkUser.repo.ts
+      linkUser.uc.ts
+dashboardUtilisateur
+      readUser
+      readCompany
+payment
+    stripe.uc

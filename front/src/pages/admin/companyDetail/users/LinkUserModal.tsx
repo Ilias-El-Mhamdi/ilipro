@@ -1,7 +1,7 @@
 import type { useLinkUser } from './useLinkUser';
 import type { User } from '../../../../lib/queries';
-import { Modal } from '../../../../components/molecules/Modal.tsx';
-import { Button } from '../../../../components/atoms/Button.tsx';
+import { Modal } from '../../../../components/ui/Modal';
+import { Button } from '../../../../components/ui/Button';
 
 interface Props {
   link: ReturnType<typeof useLinkUser>;

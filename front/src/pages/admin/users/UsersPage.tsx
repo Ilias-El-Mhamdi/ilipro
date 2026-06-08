@@ -1,10 +1,10 @@
-import { AdminLayout } from '../../../components/templates/AdminLayout';
+import { AdminLayout } from '../../../components/layouts/AdminLayout';
 import { usePageTitle } from '../../../hooks/usePageTitle';
-import { Button } from '../../../components/atoms/Button';
-import { ConfirmDialog } from '../../../components/molecules/ConfirmDialog';
+import { Button } from '../../../components/ui/Button';
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { useUserCrud } from '../../../hooks/useUserCrud';
-import { LoadingText } from '../../../components/atoms/LoadingText';
-import { EmptyText } from '../../../components/atoms/EmptyText';
+import { LoadingText } from '../../../components/ui/LoadingText';
+import { EmptyText } from '../../../components/ui/EmptyText';
 import { UsersTable } from './UsersTable';
 import { CreateUserModal } from './CreateUserModal';
 

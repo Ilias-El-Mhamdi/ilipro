@@ -2,7 +2,7 @@ import {Link} from 'react-router-dom';
 import type {UserCompanySection, UserDetail} from '../../../../lib/queries.ts';
 import {LicenseCard} from './license/LicenseCard.tsx';
 import {ProjectRow} from './project/ProjectRow.tsx';
-import {EmptyText} from '../../../../components/atoms/EmptyText.tsx';
+import {EmptyText} from '../../../../components/ui/EmptyText';
 
 
 // ─── CompanySection ───────────────────────────────────────────────────────────

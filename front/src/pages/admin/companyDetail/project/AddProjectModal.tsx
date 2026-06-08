@@ -1,7 +1,7 @@
 import type {useManageProjects} from './useManageProjects';
-import {Modal} from '../../../../components/molecules/Modal.tsx';
-import {Input} from '../../../../components/atoms/Input.tsx';
-import {Button} from '../../../../components/atoms/Button.tsx';
+import {Modal} from '../../../../components/ui/Modal';
+import {Input} from '../../../../components/ui/Input';
+import {Button} from '../../../../components/ui/Button';
 
 interface Props {
     manage: ReturnType<typeof useManageProjects>;
