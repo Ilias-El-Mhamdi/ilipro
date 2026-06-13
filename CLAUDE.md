@@ -173,210 +173,120 @@ Example: `admin/userDetail` and `user/userDetail` look similar today but serve d
 
 ## Backend Architecture
 
-### Stack update
+### Stack
 
 - **Back** : NestJS + TypeScript + TypeORM + PostgreSQL
 
-### Target structure
+### Folder structure
 
 ```
 back/src/
-  contracts/          ← DTOs + responses (shareable with front)
-  auth/               ← unchanged
-  shared/             ← everything cross-cutting
-  adminDashboard/     ← admin CRUD
-  userDashboard/      ← logged-in user read operations
-  payment/            ← stripe
-  system/             ← version
+  platform/                   ← TS pur, zéro NestJS (sortira en package monorepo)
+    helpers/                  ← slug.helper.ts
+    contracts/                ← DTOs + response types partagés back/front
+
+  infra/                      ← tout ce qui est NestJS/infrastructure, zéro logique métier
+    guards/                   ← JwtAuthGuard, AdminGuard
+    interceptors/             ← LoggingInterceptor
+    database/                 ← data-source.ts, DatabaseModule, migrations/
+    repos/                    ← implémentations concrètes (@Injectable + @InjectRepository)
+      user/                   ← user.reader.repo.ts, user.writer.repo.ts
+      company/ project/ license/ userCompany/ deliverable/ otp/
+      storage/                ← r2.repo.ts
+      repo.module.ts          ← @Module wiring : lie abstractions (core/) aux implémentations
+    controllers/              ← couche HTTP pure : reçoit requête → appelle flow → retourne réponse
+      login/                  ← LoginController, LoginModule, public.decorator.ts
+      adminDashboard/         ← CRUD complet, AdminGuard
+        users/ companies/ projects/ licenses/ deliverables/
+        linkUser/             ← shell : controller seulement, logique dans core/flows/linkUser/
+      userDashboard/          ← lecture seule, contexte utilisateur connecté
+        readProfile/ readLicense/
+      system/                 ← GET /version
+
+  core/                       ← domaine pur
+    repos/                    ← entités + abstractions uniquement (zéro @InjectRepository)
+      user/                   ← user.entity.ts, user.reader.abstract-repo.ts, user.writer.abstract-repo.ts
+      company/ project/ license/ userCompany/ deliverable/ otp/
+      storage/                ← storage.abstract-repo.ts (IStorageRepo)
+    flows/                    ← orchestrations cross-features (@Injectable accepté)
+      linkUser/               ← LinkUserUc + module
+      payment/                ← StripeUc + module (⚠️ controllers Stripe ici temporairement)
+      jwt/                    ← JwtUc, OtpUc, jwt-payload
 ```
+
+### Règles de couche
+
+| Couche | Règle |
+|---|---|
+| `platform/` | Zéro NestJS — TS pur uniquement |
+| `infra/` | Couplage infrastructure : `@InjectRepository`, `@Controller`, `@UseGuards`, `@Module`. Zéro logique métier. |
+| `core/` | Domaine. Accepté : `@Entity/@Column/@Unique` + `@Injectable()`. Interdit : `@InjectRepository`, `@Controller`, décorateurs HTTP. |
+
+### Flux de dépendance
+
+```
+infra/controllers/ → core/flows/ → core/repos/ (abstractions) ← infra/repos/ (implémentations)
+```
+
+### Pattern repo (reader/writer)
+
+Chaque entité dans `core/repos/<entity>/` expose deux abstractions indépendantes :
+
+```
+user.reader.abstract-repo.ts  ← IUserReaderRepo : findById, findBySlug, findByEmail
+user.writer.abstract-repo.ts  ← IUserWriterRepo : findAll, create, update, delete…
+```
+
+**Une seule implémentation** dans `infra/repos/<entity>/` :
+```
+user.repo.ts  ← UserRepo implements IUserWriterRepo, IUserReaderRepo
+```
+
+```ts
+// repo.module.ts
+{ provide: IUserReaderRepo, useExisting: UserRepo }
+{ provide: IUserWriterRepo, useExisting: UserRepo }
+```
+
+- Reader/writer **indépendants** au niveau des abstractions (pas d'héritage entre elles)
+- **Une seule classe concrète** par entité — implémente les deux interfaces directement, zéro duplication
+- La ségrégation est au niveau du **contrat** : un consommateur qui injecte `IUserReaderRepo` ne voit que les méthodes de lecture
+- `infra/repos/repo.module.ts` agrège tous les tokens via `useExisting` et exporte les abstractions
 
 ### Where logic lives
 
 | File | Role |
 |---|---|
-| `.entity.ts` | TypeORM entity + object-level behaviors (`isExpired()`, `canActivate()`) |
-| `.abstract-repo.ts` | Abstract class (not interface — survives compilation, usable as NestJS injection token). All application code depends only on this. Enables test mocking. |
-| `.repo.ts` | Concrete implementation: basic DB operations, error handling (404, ConflictException), entity→response mapping, Cloudflare R2 access. No orchestration logic. |
-| `.uc.ts` | Orchestration only — coordinates multiple repos, rules that span entities. **No .uc.ts if logic is a single repo call.** |
-| `.model.ts` | Rich domain object when the TypeORM entity is insufficient — created only if needed. |
-| `helpers/` | Pure functions with no NestJS dependency (slug, dates, formatting). |
-
-**Dependency rule:**
-```
-controller → [uc →] abstract-repo ← repo (concrete, injected by NestJS)
-                   ↘ helpers
-                   ↘ entity (domain methods)
-```
+| `.entity.ts` | TypeORM entity — peut avoir de la logique objet (`isExpired()`, `canActivate()`) |
+| `.reader.abstract-repo.ts` | Contrat lecture seule — injection token NestJS |
+| `.writer.abstract-repo.ts` | Contrat écriture — injection token NestJS |
+| `.reader.repo.ts` | Implémentation lecture — dans `infra/repos/` |
+| `.writer.repo.ts` | Implémentation écriture, extends reader — dans `infra/repos/` |
+| `.uc.ts` | Orchestration uniquement — coordonne plusieurs repos. **Pas de .uc.ts pour un seul appel repo.** |
+| `helpers/` | Fonctions pures sans dépendance NestJS — dans `platform/helpers/` |
 
 **Injection pattern:**
 ```ts
-// abstract-repo: abstract class, not interface
-export abstract class IUserRepo {
-  abstract findById(id: string): Promise<UserEntity>;
+// abstract-repo: abstract class, not interface (survives compilation)
+export abstract class IUserReaderRepo {
+  abstract findById(id: string): Promise<UserModel>;
 }
 
-// module: binds abstract to concrete
-{ provide: IUserRepo, useClass: UserRepo }
+// repo.module.ts: useExisting pour éviter double instanciation
+{ provide: IUserReaderRepo, useExisting: UserWriterRepo }
 ```
 
 **Shared endpoints — duplicate, don't share:**
-Endpoints used by both admin and user contexts (e.g. `GET /users/slug/:slug`) are duplicated deliberately in each context. Same principle as front: incidental similarity ≠ conceptual identity.
+Endpoints communs à admin et user sont dupliqués délibérément. Incidental similarity ≠ conceptual identity.
+
+### Colocation rule
+
+> **Par défaut : au plus près du controller.**
+> Monte dans `core/` si utilisé par plusieurs controllers, ou exception documentée (repo d'entité fondamentale, réutilisation anticipée).
+> Les exceptions doivent être annotées dans le code.
 
 ---
 
-### `shared/`
+## Code style — ESLint / Prettier
 
-Everything cross-cutting. No business logic changes — pure file moves.
-
-```
-shared/
-  domain/
-    user.entity.ts
-    company.entity.ts
-    license.entity.ts
-    project.entity.ts
-  database/
-    typeorm.config.ts       ← update paths to shared/domain/
-    migrations/             ← never regenerate — DB history, unrelated to file paths
-  storage/
-    r2.service.ts
-  guards/
-    admin.guard.ts
-    jwt-auth.guard.ts
-  interceptors/
-  helpers/
-    slug.ts
-    time.ts
-```
-
-Path aliases in `back/tsconfig.json`:
-```json
-"paths": {
-  "@contracts/*": ["../contracts/*"],
-  "@shared/*":    ["./shared/*"]
-}
-```
-
----
-
-### `contracts/`
-
-New files only. DTOs with `class-validator` decorators + response classes with `fromPayload`.
-
-```
-contracts/
-  user/
-    create-user.dto.ts
-    update-user.dto.ts
-    user.response.ts          ← UserResponse.fromPayload(raw)
-  company/
-    create-company.dto.ts
-    company.response.ts
-  license/
-    upsert-license.dto.ts
-    license.response.ts
-  project/
-    create-project.dto.ts
-    project.response.ts
-  deliverable/
-    deliverable.response.ts
-```
-
----
-
-### `adminDashboard/`
-
-```
-adminDashboard/
-  adminDashboard.module.ts
-  users/
-    users.controller.ts         ← AdminGuard endpoints only
-    users.abstract-repo.ts
-    users.repo.ts
-    users.module.ts
-  companies/
-    companies.controller.ts
-    companies.abstract-repo.ts
-    companies.repo.ts
-    companies.module.ts
-  projects/
-    projects.controller.ts
-    projects.uc.ts
-    projects.abstract-repo.ts
-    projects.repo.ts
-    projects.module.ts
-  licenses/
-    licenses.controller.ts
-    licenses.uc.ts
-    licenses.abstract-repo.ts
-    licenses.repo.ts
-    licenses.module.ts
-  deliverables/
-    deliverables.controller.ts
-    deliverables.uc.ts
-    deliverables.abstract-repo.ts
-    deliverables.repo.ts
-    deliverables.module.ts
-  linkUser/                     ← was liens/lienUserCompany/
-    linkUser.controller.ts
-    linkUser.uc.ts
-    linkUser.abstract-repo.ts
-    linkUser.repo.ts
-    linkUser.module.ts
-```
-
----
-
-### `userDashboard/`
-
-```
-userDashboard/
-  userDashboard.module.ts
-  readProfile/
-    readProfile.controller.ts   ← GET /users/slug/:slug
-    readProfile.abstract-repo.ts
-    readProfile.repo.ts
-    readProfile.module.ts
-  readLicense/
-    readLicense.controller.ts   ← GET /licenses/user/:userId + POST /activate
-    readLicense.uc.ts
-    readLicense.abstract-repo.ts
-    readLicense.repo.ts
-    readLicense.module.ts
-```
-
----
-
-### `payment/`
-
-```
-payment/
-  payment.module.ts
-  stripe.controller.ts
-  stripe.uc.ts              ← orchestration: billing portal + LinkUserUc call
-```
-
----
-
-### `system/`
-
-```
-system/
-  version.controller.ts
-  system.module.ts
-```
-
----
-
-### Refactoring phases
-
-| Phase | Content | Risk |
-|---|---|---|
-| 0 — shared | Move entities, guards, helpers, storage | Low — pure moves, migrations untouched |
-| 1 — contracts | New DTOs + response classes | None — new files only |
-| 2 — adminDashboard | Move + reorganize all admin modules | Medium — verify each sub-module compiles |
-| 3 — userDashboard | Extract user endpoints from admin controllers | High — controller split |
-| 4 — payment | Extract business logic from Stripe controller | Medium |
-| 5 — cleanup | Delete liens/, common/, update app.module.ts | Low |
-
-Verify `npm run build` passes after each phase before moving to the next.
+Before writing or editing any file in `back/`, read [`back/eslint.config.mjs`](back/eslint.config.mjs) and [`back/.prettierrc`](back/.prettierrc) to know the exact rules in force. Every file must pass both without errors.

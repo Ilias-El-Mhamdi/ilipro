@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { LoggingInterceptor } from './common/logging.interceptor';
+import { LoggingInterceptor } from './infra/interceptors/logging.interceptor';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
