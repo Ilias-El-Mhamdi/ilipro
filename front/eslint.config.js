@@ -47,15 +47,15 @@ export default defineConfig([
       eqeqeq: ['error', 'always'],
 
       // ── Frontières d'architecture (cf. CLAUDE.md) ──────────────────────
-      // Importe les contrats via l'alias `contracts/...`, jamais en relatif.
+      // Importe contrats & utils partagés via l'alias `platform/...`, jamais en relatif.
       'no-restricted-imports': [
         'error',
         {
           patterns: [
             {
-              group: ['../**/contracts/*', '../**/contracts/**'],
+              group: ['../**/platform/*', '../**/platform/**'],
               message:
-                'Importe les contrats via l’alias `contracts/...`, pas en chemin relatif.',
+                'Importe le code partagé via l’alias `platform/...`, pas en chemin relatif.',
             },
           ],
         },
@@ -71,13 +71,13 @@ export default defineConfig([
             { target: './src/lib', from: './src/api', message: 'lib/ : pas de data layer (api/). Une fonction qui fetch n’est pas un utilitaire pur.' },
             { target: './src/lib', from: './src/hooks' },
             { target: './src/lib', from: './src/components' },
-            // hooks/ = génériques UI : react only (pas api/lib/contracts/components).
+            // hooks/ = génériques UI : react only (pas api/lib/platform/components).
             { target: './src/hooks', from: './src/api', message: 'hooks/ = générique UI (react only). Un hook business se colocalise.' },
             { target: './src/hooks', from: './src/components' },
-            { target: './src/hooks', from: '../contracts', message: 'hooks/ = générique UI : importe un contrat → c’est un business hook, colocalise-le.' },
+            { target: './src/hooks', from: '../platform/contracts', message: 'hooks/ = générique UI : importe un contrat → c’est un business hook, colocalise-le.' },
             // components/ui = design system : zéro métier.
             { target: './src/components/ui', from: './src/api', message: 'ui/ = design system, zéro connaissance métier.' },
-            { target: './src/components/ui', from: '../contracts', message: 'ui/ = design system, zéro type métier.' },
+            { target: './src/components/ui', from: '../platform/contracts', message: 'ui/ = design system, zéro type métier.' },
             // Data layer ne remonte jamais vers l'UI.
             { target: './src/api', from: './src/pages', message: 'api/ ne dépend pas des pages (flux UI → api, jamais l’inverse).' },
             { target: './src/api', from: './src/components' },

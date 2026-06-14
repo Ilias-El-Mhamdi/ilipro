@@ -4,8 +4,8 @@ import { Repository } from 'typeorm';
 import { ILicenseReaderRepo } from '../../../core/repos/license/license.reader.abstract-repo';
 import { ILicenseWriterRepo, CreateLicenseInput, UpdateLicenseInput } from '../../../core/repos/license/license.writer.abstract-repo';
 import { LicenseEntity } from '../../../core/repos/license/license.entity';
-import { LicenseMachineEntity } from '../../../core/repos/license/license-machine.entity';
-import { LicenseProjectEntity } from '../../../core/repos/license/license-project.entity';
+import { LicenseMachineEntity } from '../../../core/repos/license/licenseMachine.entity';
+import { LicenseProjectEntity } from '../../../core/repos/license/licenseProject.entity';
 
 const relations = { projectAccess: true, machines: true };
 const machinesOrder = { machines: { activatedAt: 'ASC' as const } };

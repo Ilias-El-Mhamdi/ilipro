@@ -1,4 +1,4 @@
-import { License } from 'contracts/shared/license';
+import { License } from 'platform/contracts/shared/license';
 import type { LicenseEntity } from '../../core/repos/license/license.entity';
 
 export class LicenseMapper {

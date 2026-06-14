@@ -1,4 +1,4 @@
-import type { Deliverable } from 'contracts/shared/deliverable';
+import type { Deliverable } from 'platform/contracts/shared/deliverable';
 import { FileDropZone } from '../ui/FileDropZone';
 import { downloadDeliverable, formatSize } from '../../lib/utils';
 

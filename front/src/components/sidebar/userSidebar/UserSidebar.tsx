@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useUserSidebar } from './useUserSidebar';
 import { VersionBadge } from '../../VersionBadge';
-import type { UserCompanySection } from 'contracts/userDashboard/readProfile/readProfile.response';
+import type { UserCompanySection } from 'platform/contracts/userDashboard/readProfile/readProfile.response';
 
 export function UserSidebar() {
   const { user, logout } = useAuth();

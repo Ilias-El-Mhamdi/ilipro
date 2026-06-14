@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { User } from 'contracts/shared/user';
+import type { User } from 'platform/contracts/shared/user';
 import { api } from '../../../../../lib/api';
 import { toastSuccess, toastError } from '../../../../../lib/toast';
-import { UpdateUserRequest } from 'contracts/adminDashboard/users/updateUser/updateUser.request';
+import { UpdateUserRequest } from 'platform/contracts/adminDashboard/users/updateUser/updateUser.request';
 
 export function useUserCardActions(user: User, companySlug: string) {
   const qc = useQueryClient();

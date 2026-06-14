@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
-import { VersionRequest } from 'contracts/system/version/version.request';
-import { VersionResponseClass } from 'contracts/system/version/version.response';
-import type { VersionResponse } from 'contracts/system/version/version.response';
+import { VersionRequest } from 'platform/contracts/system/version/version.request';
+import { VersionResponseClass } from 'platform/contracts/system/version/version.response';
+import type { VersionResponse } from 'platform/contracts/system/version/version.response';
 
 export function useBackVersion() {
   return useQuery<VersionResponse>({

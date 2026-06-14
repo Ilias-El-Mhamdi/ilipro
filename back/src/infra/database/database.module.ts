@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppDataSource } from './data-source';
+import { AppDataSource } from './dataSource';
 
 @Module({
   imports: [TypeOrmModule.forRoot(AppDataSource.options)],

@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
-import { ListCompaniesRequest } from 'contracts/adminDashboard/companies/listCompanies/listCompanies.request';
-import { ListCompanyProjectsRequest } from 'contracts/adminDashboard/companyProjects/listCompanyProjects/listCompanyProjects.request';
-import { ListCompanyUsersRequest } from 'contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.request';
-import { Company } from 'contracts/shared/company';
-import { Project } from 'contracts/shared/project';
-import { CompanyUser } from 'contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.response';
+import { ListCompaniesRequest } from 'platform/contracts/adminDashboard/companies/listCompanies/listCompanies.request';
+import { ListCompanyProjectsRequest } from 'platform/contracts/adminDashboard/companyProjects/listCompanyProjects/listCompanyProjects.request';
+import { ListCompanyUsersRequest } from 'platform/contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.request';
+import { Company } from 'platform/contracts/shared/company';
+import { Project } from 'platform/contracts/shared/project';
+import { CompanyUser } from 'platform/contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.response';
 
 export function useCompanies() {
   return useQuery<Company[]>({

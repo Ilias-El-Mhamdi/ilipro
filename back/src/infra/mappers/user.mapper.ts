@@ -1,5 +1,5 @@
-import { User } from 'contracts/shared/user';
-import { CompanyUser } from 'contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.response';
+import { User } from 'platform/contracts/shared/user';
+import { CompanyUser } from 'platform/contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.response';
 import type { UserEntity } from '../../core/repos/user/user.entity';
 import type { LicenseEntity } from '../../core/repos/license/license.entity';
 import { LicenseMapper } from './license.mapper';

@@ -8,7 +8,8 @@ export class LoggingInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const req = context.switchToHttp().getRequest<Request>();
-    const { method, url, query, body } = req;
+    const { method, url, query } = req;
+    const body = req.body as Record<string, unknown> | undefined;
     const start = Date.now();
 
     return next.handle().pipe(

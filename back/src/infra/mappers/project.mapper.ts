@@ -1,4 +1,4 @@
-import { Project } from 'contracts/shared/project';
+import { Project } from 'platform/contracts/shared/project';
 import type { ProjectEntity } from '../../core/repos/project/project.entity';
 
 export class ProjectMapper {

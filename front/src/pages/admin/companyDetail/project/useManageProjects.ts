@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Project } from 'contracts/shared/project';
+import type { Project } from 'platform/contracts/shared/project';
 import { api } from '../../../../lib/api';
 import { toastSuccess, toastError } from '../../../../lib/toast';
-import { CreateCompanyProjectRequest } from 'contracts/adminDashboard/companyProjects/createCompanyProject/createCompanyProject.request';
-import { DeleteProjectRequest } from 'contracts/adminDashboard/projects/deleteProject/deleteProject.request';
+import { CreateCompanyProjectRequest } from 'platform/contracts/adminDashboard/companyProjects/createCompanyProject/createCompanyProject.request';
+import { DeleteProjectRequest } from 'platform/contracts/adminDashboard/projects/deleteProject/deleteProject.request';
 
 export function useManageProjects(companySlug: string) {
   const qc = useQueryClient();

@@ -4,14 +4,14 @@ import { IUserWriterRepo } from '../../../../core/repos/user/user.writer.abstrac
 import { UserEntity } from '../../../../core/repos/user/user.entity';
 import { AdminGuard } from '../../../../infra/guards/admin.guard';
 import { UserMapper } from '../../../mappers/user.mapper';
-import type { CreateUserBody } from 'contracts/adminDashboard/users/createUser/createUser.body';
-import type { UpdateUserBody } from 'contracts/adminDashboard/users/updateUser/updateUser.body';
-import { User } from 'contracts/shared/user';
-import { ListUsersRequest } from 'contracts/adminDashboard/users/listUsers/listUsers.request';
-import { GetUserRequest } from 'contracts/adminDashboard/users/getUser/getUser.request';
-import { CreateUserRequest } from 'contracts/adminDashboard/users/createUser/createUser.request';
-import { UpdateUserRequest } from 'contracts/adminDashboard/users/updateUser/updateUser.request';
-import { DeleteUserRequest } from 'contracts/adminDashboard/users/deleteUser/deleteUser.request';
+import type { CreateUserBody } from 'platform/contracts/adminDashboard/users/createUser/createUser.body';
+import type { UpdateUserBody } from 'platform/contracts/adminDashboard/users/updateUser/updateUser.body';
+import { User } from 'platform/contracts/shared/user';
+import { ListUsersRequest } from 'platform/contracts/adminDashboard/users/listUsers/listUsers.request';
+import { GetUserRequest } from 'platform/contracts/adminDashboard/users/getUser/getUser.request';
+import { CreateUserRequest } from 'platform/contracts/adminDashboard/users/createUser/createUser.request';
+import { UpdateUserRequest } from 'platform/contracts/adminDashboard/users/updateUser/updateUser.request';
+import { DeleteUserRequest } from 'platform/contracts/adminDashboard/users/deleteUser/deleteUser.request';
 
 class CreateUserDto implements CreateUserBody {
   @IsString()

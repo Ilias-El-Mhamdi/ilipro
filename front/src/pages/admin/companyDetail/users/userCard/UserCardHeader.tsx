@@ -1,4 +1,4 @@
-import type { User } from 'contracts/shared/user';
+import type { User } from 'platform/contracts/shared/user';
 import { initials } from '../../../../../lib/utils';
 
 interface Props {

@@ -1,5 +1,5 @@
-import type { Project } from 'contracts/shared/project';
-import type { CompanyMember } from 'contracts/userDashboard/readProfile/readProfile.response';
+import type { Project } from 'platform/contracts/shared/project';
+import type { CompanyMember } from 'platform/contracts/userDashboard/readProfile/readProfile.response';
 import { useProjectDeliverables } from '../../../api/projects';
 import { LicenseBadge } from '../../LicenseBadge';
 import { EmptyText } from '../../ui/EmptyText';

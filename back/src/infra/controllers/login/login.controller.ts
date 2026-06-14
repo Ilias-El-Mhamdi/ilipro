@@ -4,12 +4,12 @@ import type { Request, Response } from 'express';
 import { JwtUc } from '../../../core/flows/jwt/jwt.uc';
 import { OtpUc } from '../../../core/flows/jwt/otp.uc';
 import { Public } from '../../decorators/public.decorator';
-import type { SendOtpBody } from 'contracts/login/sendOtp/sendOtp.request';
-import type { VerifyOtpBody } from 'contracts/login/verifyOtp/verifyOtp.request';
-import { SendOtpRequest } from 'contracts/login/sendOtp/sendOtp.request';
-import { VerifyOtpRequest } from 'contracts/login/verifyOtp/verifyOtp.request';
-import { LogoutRequest } from 'contracts/login/logout/logout.request';
-import { MeRequest } from 'contracts/login/me/me.request';
+import type { SendOtpBody } from 'platform/contracts/login/sendOtp/sendOtp.request';
+import type { VerifyOtpBody } from 'platform/contracts/login/verifyOtp/verifyOtp.request';
+import { SendOtpRequest } from 'platform/contracts/login/sendOtp/sendOtp.request';
+import { VerifyOtpRequest } from 'platform/contracts/login/verifyOtp/verifyOtp.request';
+import { LogoutRequest } from 'platform/contracts/login/logout/logout.request';
+import { MeRequest } from 'platform/contracts/login/me/me.request';
 
 const COOKIE_NAME = 'ilipro_session';
 const COOKIE_TTL_MS = 7 * 24 * 60 * 60 * 1000;

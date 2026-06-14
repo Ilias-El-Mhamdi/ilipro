@@ -1,5 +1,5 @@
-import type { UserCompanySection, CompanyMember } from 'contracts/userDashboard/readProfile/readProfile.response';
-import { ReadProfileResponse } from 'contracts/userDashboard/readProfile/readProfile.response';
+import type { UserCompanySection, CompanyMember } from 'platform/contracts/userDashboard/readProfile/readProfile.response';
+import { ReadProfileResponse } from 'platform/contracts/userDashboard/readProfile/readProfile.response';
 import type { UserProfile, CompanyProfile, MemberProfile } from '../../../../core/repos/readProfile/readProfile.abstract-repo';
 import { LicenseMapper } from '../../../mappers/license.mapper';
 import { ProjectMapper } from '../../../mappers/project.mapper';

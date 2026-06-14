@@ -22,8 +22,8 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "contracts/*": ["../contracts/*"]
+      "platform/*": ["../platform/*"]
     }
   },
-  "include": ["src", "../contracts"]
+  "include": ["src", "../platform"]
 }

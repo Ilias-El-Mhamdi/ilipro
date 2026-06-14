@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
-import type { License } from 'contracts/shared/license';
-import type { Project } from 'contracts/shared/project';
-import type { ReadProfileResponse } from 'contracts/userDashboard/readProfile/readProfile.response';
+import type { License } from 'platform/contracts/shared/license';
+import type { Project } from 'platform/contracts/shared/project';
+import type { ReadProfileResponse } from 'platform/contracts/userDashboard/readProfile/readProfile.response';
 import { api } from '../../../lib/api.ts';
 import { useCarousel } from '../../../hooks/useCarousel.ts';
 import {
@@ -9,7 +9,7 @@ import {
   PanelProjects,
   PanelMachines,
 } from '../../licensePanel';
-import { BillingPortalRequest } from 'contracts/payment/billingPortal/billingPortal.request';
+import { BillingPortalRequest } from 'platform/contracts/payment/billingPortal/billingPortal.request';
 
 const PANELS = ['Général', 'Projets', 'Machines'] as const;
 

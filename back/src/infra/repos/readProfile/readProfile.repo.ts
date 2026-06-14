@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IReadProfileRepo, UserProfile } from '../../../core/repos/readProfile/readProfile.abstract-repo';
 import { UserEntity } from '../../../core/repos/user/user.entity';
-import { UserCompanyEntity } from '../../../core/repos/userCompany/user-company.entity';
+import { UserCompanyEntity } from '../../../core/repos/userCompany/userCompany.entity';
 import { CompanyEntity } from '../../../core/repos/company/company.entity';
 import { ProjectEntity } from '../../../core/repos/project/project.entity';
 import { LicenseEntity } from '../../../core/repos/license/license.entity';
@@ -63,10 +63,7 @@ export class ReadProfileRepo implements IReadProfileRepo {
       }),
     );
 
-    const { otp, otpExpiry, otpAttempts, otpRequestedAt, ...safeUser } = user as UserEntity & Record<string, unknown>;
-
     return {
-      ...safeUser,
       id: user.id,
       slug: user.slug,
       firstName: user.firstName,

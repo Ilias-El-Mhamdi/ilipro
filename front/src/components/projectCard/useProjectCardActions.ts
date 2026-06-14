@@ -1,4 +1,4 @@
-import type { Project } from 'contracts/shared/project';
+import type { Project } from 'platform/contracts/shared/project';
 import { useClipboard } from '../../hooks/useClipboard';
 import { useDeliverableActions } from './useDeliverableActions';
 import { useProjectEdit } from './useProjectEdit';

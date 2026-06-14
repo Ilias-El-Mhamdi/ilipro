@@ -7,7 +7,55 @@ Admin SaaS for managing companies, projects, clients, and licenses.
 - **Front** : React + TypeScript + Vite + Tailwind + React Query + React Router
 - **Back** : NestJS + TypeScript + TypeORM + PostgreSQL
 
-Monorepo à trois packages : `front/`, `back/`, `contracts/` (partagé). `zod` est installé à la racine pour que `contracts/` résolve depuis les deux côtés.
+Monorepo à trois packages : `front/`, `back/`, `platform/` (partagé). `platform/` regroupe le code commun aux deux côtés : `platform/contracts/` (contrats front↔back) et `platform/utils/` (TS pur partagé, ex. gestion du temps). `zod` est installé à la racine pour que `platform/contracts/` résolve depuis les deux côtés.
+
+---
+
+## ⚡ À lire en premier
+
+Si tu ne lis qu'une chose, lis ces trois blocs : ils condensent les **contraintes dures** du projet. Le reste du doc explique le _pourquoi_ et les cas particuliers ; ces trois blocs disent ce qui **casse le build** ou **rate la review**.
+
+### Garde-fous outillés (enforced par ESLint)
+
+Ces règles ne sont **pas** de simples conventions : ESLint les casse. Quand tu touches du code, c'est le lint qui te corrige, pas ta mémoire. **Ne contourne pas** ces frontières (pas de `// eslint-disable`).
+
+| Règle                                                | Outil                                                          |
+| ---------------------------------------------------- | ------------------------------------------------------------- |
+| Une page n'importe pas d'un autre groupe de pages    | `import/no-restricted-paths` ([front](front/eslint.config.js)) |
+| `lib/` sans data layer · `hooks/` & `ui/` sans métier | `import/no-restricted-paths` (front)                          |
+| Code partagé via l'alias `platform/…`, jamais en relatif | `no-restricted-imports` (front)                            |
+| `core/` ne dépend jamais de `infra/`                 | `import/no-restricted-paths` ([back](back/eslint.config.mjs))  |
+| `as unknown as` interdit dans un controller          | `no-restricted-syntax` (back)                                 |
+| Imports de types en `import type`                    | `@typescript-eslint/consistent-type-imports` (front + back)   |
+| Pas de décorateurs dans `contracts/`                 | `erasableSyntaxOnly` du tsconfig front                        |
+
+### Pièges spécifiques à ilipro
+
+Les fautes que cette codebase induit le plus souvent. ❌ = à ne pas faire, → correction.
+
+- ❌ `useMutation` dans `api/<domain>` → mutation **colocalisée** près de son déclencheur ; `api/` ne contient que des queries.
+- ❌ re-exporter un type contrat depuis `api/<domain>` → le composant importe le type **directement** depuis `platform/contracts/`.
+- ❌ hook qui importe `api`/`contracts` rangé dans `hooks/` → c'est un **business hook**, il se colocalise.
+- ❌ page qui importe d'une autre page → **duplique**, ou remonte le partagé dans `components/` (enforced).
+- ❌ `findByIdAsModel` à côté de `findById` sur la même donnée → une donnée a **un seul** type de lecture (Entity *ou* Model).
+- ❌ inventer un writer vide pour un repo qui ne fait que lire (jointure / API externe) → c'est un **read repo** unique.
+- ❌ un `if` qui *calcule* du métier dans un `.uc.ts` → la décision vit dans l'entité/model ; le UC ne fait que **brancher** sur le résultat.
+- ❌ `as unknown as` dans un controller → conversion via un **mapper** (`infra/mappers/`).
+- ❌ URL hardcodée dans un hook/controller → toujours `XxxRequest.buildUrl(…)` / `BASE_URL`.
+- ❌ secret ou URL d'infra hardcodé → lire la **config** (`back/.env`, `import.meta.env` côté front).
+- ❌ modifier une `*.entity.ts` sans générer/jouer la **migration**.
+- ❌ créer un `*.spec.ts` → pas de tests en phase build (cf. § Tests) sans le signaler d'abord.
+
+### Definition of Done
+
+Avant de considérer une tâche terminée :
+
+- [ ] `npm run lint` **vert** des deux côtés touchés (front et/ou back) — y compris les frontières d'architecture.
+- [ ] Compilation OK (`tsc -b` front · `nest build` back).
+- [ ] Si une `*.entity.ts` a changé : **migration générée et jouée**.
+- [ ] Si nouvel endpoint : dossier `contracts/` créé **avant** le controller ; type de retour explicite ancré au contrat.
+- [ ] Si nouvelle page : route enregistrée dans `main.tsx` avec le bon garde (`ProtectedRoute`/`AdminRoute`).
+- [ ] Aucune frontière contournée par `eslint-disable`.
 
 ---
 
@@ -25,7 +73,7 @@ npm run build          # nest build
 npm run lint           # ESLint --fix (obligatoire avant de finir une tâche)
 npm run format         # Prettier
 
-# Migrations TypeORM (cd back) — data-source : src/infra/database/data-source.ts
+# Migrations TypeORM (cd back) — data-source : src/infra/database/dataSource.ts
 npm run migration:generate -- src/infra/database/migrations/<Name>
 npm run migration:run
 npm run migration:revert
@@ -45,16 +93,16 @@ make down      # docker-compose down
 
 Toute la config runtime (PostgreSQL, JWT, Stripe, Resend, R2/S3) vit dans `back/.env` (chargé via `@nestjs/config` + `dotenv`). Ne jamais hardcoder un secret ni une URL d'infra : lire la variable depuis la config. Le front lit ses variables via `import.meta.env` (préfixe `VITE_`).
 
-### Alias d'import `contracts/*`
+### Alias d'import `platform/*`
 
-Le préfixe `contracts/…` est un alias `tsconfig` configuré **des deux côtés** :
+Le préfixe `platform/…` est un alias `tsconfig` configuré **des deux côtés**, qui couvre tout le code partagé (`platform/contracts/` **et** `platform/utils/`) :
 
 ```jsonc
 // back/tsconfig.json ET front/tsconfig.app.json
-"paths": { "contracts/*": ["../contracts/*"] }
+"paths": { "platform/*": ["../platform/*"] }
 ```
 
-Tout import de contrat passe par cet alias (`import { Company } from 'contracts/shared/company'`) — jamais de chemin relatif `../../../contracts`. Le front inclut aussi `../contracts` dans son `include`.
+Tout import partagé passe par cet alias (`import { Company } from 'platform/contracts/shared/company'`, et — le jour où un util partagé existera — `import { addDays } from 'platform/utils/time'`, illustratif : `platform/utils/` est vide pour l'instant) — jamais de chemin relatif `../../../platform`. Côté Vite, l'alias est dupliqué dans `front/vite.config.ts` (`platform: path.resolve(__dirname, '../platform')`). Le front inclut aussi `../platform` dans son `include`.
 
 ---
 
@@ -110,7 +158,9 @@ api/
 | **Query** (lecture, cache partagé, keyé) | `api/<domain>.ts`                                                            |
 | **Mutation** (écriture)                  | **colocalisée** avec le composant/hook déclencheur (principe de colocation) |
 
-Une mutation est attachée à une action d'UI précise et porte souvent de l'état UI local (`modalOpen`, recherche, sélection…) — c'est pourquoi elle ne vit pas dans `api/`. Elle parse sa réponse via le contrat (`fromJson`) et invalide les query keys de `api/` qu'elle a rendues périmées. Exemple réel : `front/src/pages/admin/companyDetail/users/useLinkUser.ts` colocalise sa `useMutation` avec l'état de la modale de liaison.
+**Règle.** Une mutation se colocalise avec son déclencheur ; elle parse sa réponse via le contrat (`fromJson`) et invalide les query keys de `api/` qu'elle a rendues périmées.
+
+*Pourquoi.* Elle est attachée à une action d'UI précise et porte souvent de l'état UI local (`modalOpen`, recherche, sélection…) — la séparer de cet état n'a pas de sens. Exemple réel : `front/src/pages/admin/companyDetail/users/useLinkUser.ts` colocalise sa `useMutation` avec l'état de la modale de liaison.
 
 #### Query keys & invalidation
 
@@ -119,14 +169,16 @@ Une mutation est attachée à une action d'UI précise et porte souvent de l'ét
 - **Invalidation = la clé la plus large contenant la donnée modifiée.** React Query invalide par **préfixe** : invalider `['companies', slug]` invalide d'un coup users + projects de cette company. Créer/supprimer → `[domain]` ; muter une relation → la sous-collection.
 - `retry: false` est le défaut maison.
 
-**Les types métier vivent dans `contracts/`, pas dans `api/`.** Le fichier `api/<domain>.ts` **importe** le type contrat pour parser (`Company.fromJsonList(...)`) mais ne le **re-exporte pas**. Un composant importe :
+**Les types métier vivent dans `platform/contracts/`, pas dans `api/`.** Le fichier `api/<domain>.ts` **importe** le type contrat pour parser (`Company.fromJsonList(...)`) mais ne le **re-exporte pas**. Un composant importe :
 
 - le **hook** depuis `api/<domain>` ;
-- le **type** directement depuis `contracts/` (`import { Company } from 'contracts/shared/company'`).
+- le **type** directement depuis `platform/contracts/` (`import { Company } from 'platform/contracts/shared/company'`).
 
-`api/<domain>.ts` n'exporte que ce qu'il **définit lui-même** : ses hooks, et éventuellement un type _dérivé/composite_ qui n'existe pas dans `contracts/`. Pas de re-export de forwarding — il masque la source de vérité et ajoute une indirection à la lecture (`from '../api/companies'` laisse croire que le type est défini là).
+**Règle.** `api/<domain>.ts` n'exporte que ce qu'il **définit lui-même** : ses hooks, et éventuellement un type _dérivé/composite_ absent de `platform/contracts/`. Pas de re-export de forwarding.
 
-**Pas de barrel.** Interdiction d'un fichier qui re-exporte en vrac hooks + types de plusieurs domaines (ex. un `lib/queries.ts`). Chaque consommateur importe depuis la vraie source : le hook depuis son `api/<domain>`, le type depuis `contracts/`.
+*Pourquoi.* Un forwarding masque la source de vérité et ajoute une indirection à la lecture (`from '../api/companies'` laisse croire que le type est défini là).
+
+**Pas de barrel.** Interdiction d'un fichier qui re-exporte en vrac hooks + types de plusieurs domaines (ex. un `lib/queries.ts`). Chaque consommateur importe depuis la vraie source : le hook depuis son `api/<domain>`, le type depuis `platform/contracts/`.
 
 Never put business types or React Query hooks in `lib/`.
 
@@ -148,7 +200,7 @@ No hooks. No business types. Only:
 Deux axes décident l'emplacement d'un hook :
 
 - **Nature** (test ci-dessus) : générique UI → éligible à `hooks/` ; business → **jamais** dans `hooks/`.
-- **Portée** : 1 consommateur → chez lui ; ≥2 non liés → il remonte. Un business hook partagé par 2 pages remonte dans `components/`, **pas** dans `hooks/`.
+- **Portée** (voir « Colocation — principe transverse ») : nuance front — un business hook partagé par ≥2 pages remonte dans `components/`, **pas** dans `hooks/`.
 
 ### `components/` — shared business components
 
@@ -256,11 +308,11 @@ Emplacement : voir « Colocation — principe transverse ». Spécialisation fro
 
 ## Duplication vs decoupling
 
-Intentional duplication is preferred over forced DRY when two components serve different intents.
-
-Exemple réel : [`components/sidebar/Sidebar.tsx`](front/src/components/sidebar/Sidebar.tsx) (admin : arbre companies + liste users + recherche transverse) et [`components/sidebar/userSidebar/UserSidebar.tsx`](front/src/components/sidebar/userSidebar/UserSidebar.tsx) (user : scopé à ses propres companies). Même coquille visuelle (logout, `VersionBadge`, nav), mais intentions opposées — pilotage global vs consommation de son propre périmètre. Deux implémentations indépendantes, **aucun cross-import** : elles évoluent séparément, on ne les fusionne pas.
+**Règle.** Duplication intentionnelle > DRY forcé quand deux composants servent des intentions différentes. Deux usages avec des raisons de bifurquer indépendamment → on duplique, **aucun cross-import**.
 
 > Incidental similarity ≠ conceptual identity.
+
+*Pourquoi, avec l'exemple `Sidebar` / `UserSidebar` (même coquille, intentions opposées)* : [`docs/backend-patterns.md`](docs/backend-patterns.md#duplication-vs-decoupling--exemple-sidebar).
 
 ---
 
@@ -270,6 +322,13 @@ Exemple réel : [`components/sidebar/Sidebar.tsx`](front/src/components/sidebar/
 - Components: `PascalCase` (`LicenseModal.tsx`)
 - Hooks: `camelCase` prefixed with `use` (`useLicenseForm.ts`)
 - The entry point of a folder always matches the folder name: `licenseModal/LicenseModal.tsx`
+
+**Back (fichiers)** : **base name en `camelCase`**, suffixe de rôle accolé en **segments pointés** (`.controller.ts`, `.entity.ts`, `.guard.ts`, `.uc.ts`, `.repo.ts`…) — pas de kebab-case dans le base name. `companyProjects.controller.ts`, `projectDeliverables.controller.ts`, `userCompany.entity.ts`, `licenseMachine.entity.ts`, `jwtAuth.guard.ts`, `dataSource.ts`, `jwtPayload.ts`. Les dossiers sont aussi en `camelCase` (`userCompany/`, `readProfile/`).
+
+Deux exceptions, et deux seulement :
+
+- **`abstract-repo`** est l'unique token de rôle à tiret autorisé — c'est une forme figée du couple reader/writer : `userCompany.reader.abstract-repo.ts`, `user.writer.abstract-repo.ts`. Le tiret est dans le **suffixe**, jamais dans le base name.
+- Les fichiers de **migration TypeORM** gardent leur nom généré (`<timestamp>-InitialSchema.ts`).
 
 ---
 
@@ -287,14 +346,15 @@ back/src/
     guards/                   ← JwtAuthGuard, AdminGuard
     interceptors/             ← LoggingInterceptor
     decorators/               ← public.decorator.ts (route publique, hors AdminGuard)
-    database/                 ← data-source.ts, DatabaseModule, migrations/
+    database/                 ← dataSource.ts, DatabaseModule, migrations/
     repos/                    ← implémentations concrètes (@Injectable + @InjectRepository)
       user/                   ← user.repo.ts (une seule classe, implémente reader + writer)
       company/ project/ license/ userCompany/ deliverable/ otp/
       storage/                ← r2.repo.ts
       repo.module.ts          ← @Module wiring : lie abstractions (core/) aux implémentations
     controllers/              ← couche HTTP pure : reçoit requête → appelle flow → retourne réponse
-      login/                  ← LoginController, LoginModule
+                                (aucun *.module.ts par feature : tout est câblé dans AppModule — cf. « Wiring »)
+      login/                  ← LoginController
       adminDashboard/         ← CRUD complet, AdminGuard
         users/ companies/ projects/ licenses/ deliverables/
                               ← un dossier de ressource peut héberger plusieurs controllers
@@ -318,12 +378,12 @@ back/src/
       company/ project/ license/ userCompany/ deliverable/ otp/
       readProfile/ readLicense/ payment/   ← read repos (voir « 3ᵉ pattern » ci-dessous)
       storage/                ← storage.abstract-repo.ts (IStorageRepo)
-    flows/                    ← orchestrations cross-features (@Injectable accepté)
-      linkUser/               ← LinkUserUc + module
+    flows/                    ← orchestrations cross-features (@Injectable, provider déclaré dans AppModule)
+      linkUser/               ← LinkUserUc
       projects/               ← ProjectsUc
       deliverables/           ← DeliverablesUc
       payment/                ← StripeUc
-      jwt/                    ← JwtUc, OtpUc, jwt-payload
+      jwt/                    ← JwtUc, OtpUc, jwtPayload
 ```
 
 ### Règles de couche
@@ -342,7 +402,7 @@ infra/controllers/ → core/flows/ → core/repos/ (abstractions) ← infra/repo
 
 ### Auth & guards
 
-`JwtAuthGuard` est câblé **global** via `APP_GUARD` ([`app.module.ts`](back/src/infra/guards/jwt-auth.guard.ts)) : par défaut **toute route exige un JWT valide**. À partir de là, trois cas :
+`JwtAuthGuard` est câblé **global** via `APP_GUARD` ([`app.module.ts`](back/src/app.module.ts)) : par défaut **toute route exige un JWT valide**. À partir de là, trois cas :
 
 | Type de route                                   | Guard                                                          | Comment                                                                  |
 | ----------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------ |
@@ -378,7 +438,7 @@ user.repo.ts  ← UserRepo implements IUserWriterRepo, IUserReaderRepo
 - La ségrégation est au niveau du **contrat** : un consommateur qui injecte `IUserReaderRepo` ne voit que les méthodes de lecture
 - `infra/repos/repo.module.ts` agrège tous les tokens via `useExisting` et exporte les abstractions
 
-> **Cérémonie assumée.** Oui, c'est 4 fichiers par table (entity + reader + writer + repo) pour une seule classe concrète derrière deux tokens. C'est un choix **délibéré** : le payoff est le narrowing typé au point d'injection (un flow de lecture ne peut pas appeler `delete`). **Ne pas collapser** reader+writer en une abstraction unique, et **ne pas dupliquer** la logique entre les deux — on suit le pattern même quand il paraît verbeux. Un repo qui n'est pas un CRUD 1:1 relève du **read repo** (ci-dessous), pas du couple.
+> **Cérémonie assumée — ne pas collapser, ne pas dupliquer.** 4 fichiers/table pour une seule classe derrière deux tokens, c'est délibéré : le payoff est le narrowing typé au point d'injection (un flow de lecture ne peut pas appeler `delete`). Un repo qui n'est pas un CRUD 1:1 relève du **read repo** (ci-dessous), pas du couple. Rationnel complet : [`docs/backend-patterns.md`](docs/backend-patterns.md#couple-readerwriter--pourquoi-4-fichiers-par-table).
 
 #### 3ᵉ pattern — le `read repo` (lecture transverse, pas de couple reader/writer)
 
@@ -392,7 +452,7 @@ Le couple reader/writer vaut pour un repo **CRUD 1:1 avec une table**. Quand un 
 
 - **Nommage** : les deux formes coexistent — `IReadXxxRepo` (lecture orientée vue, `IReadProfileRepo`) et `IXxxReadRepo` (lecture orientée ressource externe, `IPaymentReadRepo`). Suffixe `Repo`, jamais `Repository`. Classe concrète en `XxxRepo` comme partout (`ReadProfileRepo`, `StripeRepo`).
 - **Annoté dans le code** : chaque read repo porte un commentaire d'en-tête expliquant pourquoi il déroge au couple reader/writer (cf. `readProfile.abstract-repo.ts`).
-- **Où vit le read model** : tant que `core/models/` n'existe pas, la forme du read model est déclarée en `interface` **dans le fichier de l'abstract-repo** (cf. `MemberProfile` / `CompanyProfile` dans [`readProfile.abstract-repo.ts`](back/src/core/repos/readProfile/readProfile.abstract-repo.ts)). Elle migrera vers une classe `core/models/*.model.ts` le jour où elle porte de la **logique** de domaine (aujourd'hui c'est une projection passive).
+- **Où vit le read model** : déclaré en `interface` **dans le fichier de l'abstract-repo** tant que `core/models/` n'existe pas (cf. `MemberProfile` / `CompanyProfile` dans [`readProfile.abstract-repo.ts`](back/src/core/repos/readProfile/readProfile.abstract-repo.ts)) ; migre vers `core/models/*.model.ts` quand il porte de la logique. Détail : [`docs/backend-patterns.md`](docs/backend-patterns.md#read-repo--où-vit-le-read-model).
 - **Garde-fou** : un read repo ne porte **pas** de méthode d'écriture CRUD. S'il a besoin d'écrire (ex. `IReadLicenseRepo.activate` qui pose un machineLock), c'est une **action métier ciblée**, pas un `update()` générique — sinon la donnée relève du couple reader/writer standard.
 
 ### Where logic lives
@@ -458,35 +518,37 @@ Même principe transverse (voir « Colocation — principe transverse »). Nuanc
 
 ## Contracts
 
-Le dossier `contracts/` est à la racine du projet, au même niveau que `front/` et `back/`. C'est la **source de vérité partagée** entre les deux.
+Le dossier `contracts/` vit sous `platform/` (`platform/contracts/`), à côté de `platform/utils/` (code TS pur partagé). `platform/` est à la racine du projet, au même niveau que `front/` et `back/`. `platform/contracts/` est la **source de vérité partagée** des contrats HTTP entre les deux.
 
 ### Structure
 
 ```
-contracts/
-  adminDashboard/
-    companies/                  ← CompaniesController
-      getCompany/
-        getCompany.request.ts     ← BASE + buildUrl + params/query classes
-        getCompany.response.ts    ← classe response + static fromJson()
-      createCompany/
-        createCompany.request.ts  ← BASE + buildUrl
-        createCompany.body.ts     ← classe body avec décorateurs @Is*
-        createCompany.response.ts
-    companyProjects/            ← CompanyProjectsController
-    projects/                   ← ProjectsController
-    deliverables/              ← DeliverablesController
-    projectDeliverables/       ← ProjectDeliverablesController
-    licenses/                   ← LicensesController
-    linkUser/                   ← LinkUserController
-    users/                      ← UsersController
-  userDashboard/
-    readProfile/
-    readLicense/
-    activateLicense/
-  payment/
-  login/
-  system/
+platform/
+  utils/                            ← TS pur partagé front↔back (ex. time.ts) — apparaît au premier besoin
+  contracts/
+    adminDashboard/
+      companies/                  ← CompaniesController
+        getCompany/
+          getCompany.request.ts     ← BASE + buildUrl + params/query classes
+          getCompany.response.ts    ← classe response + static fromJson()
+        createCompany/
+          createCompany.request.ts  ← BASE + buildUrl
+          createCompany.body.ts     ← classe body avec décorateurs @Is*
+          createCompany.response.ts
+      companyProjects/            ← CompanyProjectsController
+      projects/                   ← ProjectsController
+      deliverables/              ← DeliverablesController
+      projectDeliverables/       ← ProjectDeliverablesController
+      licenses/                   ← LicensesController
+      linkUser/                   ← LinkUserController
+      users/                      ← UsersController
+    userDashboard/
+      readProfile/
+      readLicense/
+      activateLicense/
+    payment/
+    login/
+    system/
 ```
 
 **Un dossier `contracts/` par controller** — au sens d'un fichier `*.controller.ts` de `back/src/infra/controllers/`, **pas** au sens d'un dossier de ressource. La granularité diffère volontairement des deux côtés : côté back un dossier de ressource peut héberger **plusieurs** controllers (`controllers/adminDashboard/projects/` = `ProjectsController` + `CompanyProjectsController`), mais côté contracts chacun a **son** dossier (`projects/` **et** `companyProjects/`). Sous-dossier par route, nommé en camelCase par action (`getCompany`, `createCompany`, `deleteCompany`…).
@@ -535,8 +597,8 @@ export { Company } from "../../../shared/company";
 
 ```ts
 // back — controller
-import { GetCompanyRequest } from 'contracts/adminDashboard/companies/getCompany/getCompany.request'
-import { Company } from 'contracts/shared/company'
+import { GetCompanyRequest } from 'platform/contracts/adminDashboard/companies/getCompany/getCompany.request'
+import { Company } from 'platform/contracts/shared/company'
 
 @Get(GetCompanyRequest.BASE_URL)
 async getCompany(@Param('slug') slug: string): Promise<Company> { … }
@@ -544,8 +606,8 @@ async getCompany(@Param('slug') slug: string): Promise<Company> { … }
 
 ```ts
 // front — api hook
-import { GetCompanyRequest } from "contracts/adminDashboard/companies/getCompany/getCompany.request";
-import { Company } from "contracts/shared/company";
+import { GetCompanyRequest } from "platform/contracts/adminDashboard/companies/getCompany/getCompany.request";
+import { Company } from "platform/contracts/shared/company";
 
 const data = Company.fromJson(await api.get(GetCompanyRequest.buildUrl(slug)));
 ```
@@ -586,9 +648,9 @@ export class Company {
 
 - `fromJson` lève une erreur explicite si un champ manque ou est mal typé — zéro cast aveugle.
 - `declare` est du sucre TypeScript pur, compatible `erasableSyntaxOnly`.
-- zod est installé à la racine du monorepo (`/package.json`) pour que la résolution module fonctionne depuis `contracts/` que ce soit le front ou le back qui compile.
+- zod est installé à la racine du monorepo (`/package.json`) pour que la résolution module fonctionne depuis `platform/contracts/` que ce soit le front ou le back qui compile.
 - `fromJson` pour un objet unique, `fromJsonList` pour les tableaux.
-- **Un sous-type objet imbriqué est lui aussi une classe** avec son `static schema` + `declare` + `fromJson`. La classe parente référence le schema enfant (`machines: z.array(LicenseMachine.schema)`) — cf. `License` / `LicenseMachine` / `LicenseProject` dans [`contracts/shared/license.ts`](contracts/shared/license.ts). Seuls les **enums** (unions de chaînes, ex. `LicenseTypeSchema`) restent des `z.enum` exportés, pas des classes.
+- **Un sous-type objet imbriqué est lui aussi une classe** avec son `static schema` + `declare` + `fromJson`. La classe parente référence le schema enfant (`machines: z.array(LicenseMachine.schema)`) — cf. `License` / `LicenseMachine` / `LicenseProject` dans [`platform/contracts/shared/license.ts`](platform/contracts/shared/license.ts). Seuls les **enums** (unions de chaînes, ex. `LicenseTypeSchema`) restent des `z.enum` exportés, pas des classes.
 - Les types composites (non présents dans `shared/`) définissent leur propre classe avec `fromJson`/`fromJsonList` dans leur `*.response.ts`.
 - Les `*.response.ts` qui retournent un type shared sont de simples re-exports : `export { Company } from '../../../shared/company'`.
 
@@ -654,7 +716,7 @@ async create(@Body() dto: CreateCompanyDto): Promise<Company> { … }
 
 ```ts
 // dans le controller ou un fichier sibling *.dto.ts
-import type { CreateCompanyBody } from "contracts/adminDashboard/companies/createCompany/createCompany.body";
+import type { CreateCompanyBody } from "platform/contracts/adminDashboard/companies/createCompany/createCompany.body";
 import { IsString, MinLength } from "class-validator";
 
 class CreateCompanyDto implements CreateCompanyBody {
@@ -700,49 +762,59 @@ contrat → (model si règle hors-table) → abstractions repo → impl repo
 
 Si ta feature est un CRUD sans règle métier, saute le model et le `.uc.ts` : controller → repo direct → mapper. Le `.uc.ts` et le `model/` n'apparaissent que quand tu peux les nommer.
 
----
+> Les trois blocs de référence rapide — **garde-fous enforced**, **pièges ilipro**, **Definition of Done** — sont en tête de doc (§ [À lire en premier](#-à-lire-en-premier)).
 
-## Garde-fous outillés (enforced)
+### Squelette copiable — ajouter un endpoint CRUD
 
-Plusieurs règles de ce doc ne sont **pas** que des conventions : ESLint les casse. Quand tu touches du code, c'est le lint qui te corrige, pas ta mémoire. **Ne contourne pas** ces règles (pas de `// eslint-disable` pour passer outre une frontière).
+Pour une ressource `widget` (remplace par ton nom). Crée les fichiers **dans cet ordre** ; le `.uc.ts` et `core/models/` n'apparaissent que si tu peux les nommer (CRUD pur = saute-les).
 
-| Règle                                                | Outil                                                          |
-| ---------------------------------------------------- | ------------------------------------------------------------- |
-| Une page n'importe pas d'un autre groupe de pages    | `import/no-restricted-paths` ([front](front/eslint.config.js)) |
-| `lib/` sans data layer · `hooks/` & `ui/` sans métier | `import/no-restricted-paths` (front)                          |
-| Contrats via l'alias `contracts/…`, jamais en relatif | `no-restricted-imports` (front)                              |
-| `core/` ne dépend jamais de `infra/`                 | `import/no-restricted-paths` ([back](back/eslint.config.mjs))  |
-| `as unknown as` interdit dans un controller          | `no-restricted-syntax` (back)                                 |
-| Imports de types en `import type`                    | `@typescript-eslint/consistent-type-imports` (front + back)   |
-| Pas de décorateurs dans `contracts/`                 | `erasableSyntaxOnly` du tsconfig front                        |
+```
+platform/contracts/
+  shared/widget.ts                                   ← classe zod (schema + declare + fromJson/fromJsonList) si type partagé
+  adminDashboard/widgets/                            ← un dossier contracts par CONTROLLER
+    listWidgets/listWidgets.request.ts               ← BASE_URL + buildUrl()
+    listWidgets/listWidgets.response.ts              ← re-export { Widget } from shared, ou classe composite
+    createWidget/createWidget.request.ts             ← BASE_URL + buildUrl()
+    createWidget/createWidget.body.ts                ← interface du body (PAS de décorateurs ici)
+    createWidget/createWidget.response.ts
 
-## Pièges spécifiques à ilipro
+back/src/core/repos/widget/                          ← abstractions + entité, ZÉRO @InjectRepository
+  widget.entity.ts                                   ← @Entity/@Column (+ logique sur ses propres champs)
+  widget.reader.abstract-repo.ts                     ← IWidgetReaderRepo (findById, findAll…)
+  widget.writer.abstract-repo.ts                     ← IWidgetWriterRepo (create, update, delete…)
+back/src/infra/repos/widget/
+  widget.repo.ts                                     ← UNE classe WidgetRepo implements les deux interfaces
 
-Les fautes que cette codebase induit le plus souvent. ❌ = à ne pas faire, → correction.
+back/src/infra/mappers/widget.mapper.ts             ← WidgetMapper.toResponse / toResponseList (entité→contrat)
+back/src/infra/controllers/adminDashboard/widgets/
+  widgets.controller.ts                              ← @UseGuards(AdminGuard) + DTO local implements …Body + @Is*
+```
 
-- ❌ `useMutation` dans `api/<domain>` → mutation **colocalisée** près de son déclencheur ; `api/` ne contient que des queries.
-- ❌ re-exporter un type contrat depuis `api/<domain>` → le composant importe le type **directement** depuis `contracts/`.
-- ❌ hook qui importe `api`/`contracts` rangé dans `hooks/` → c'est un **business hook**, il se colocalise.
-- ❌ page qui importe d'une autre page → **duplique**, ou remonte le partagé dans `components/` (enforced).
-- ❌ `findByIdAsModel` à côté de `findById` sur la même donnée → une donnée a **un seul** type de lecture (Entity *ou* Model).
-- ❌ inventer un writer vide pour un repo qui ne fait que lire (jointure / API externe) → c'est un **read repo** unique.
-- ❌ un `if` qui *calcule* du métier dans un `.uc.ts` → la décision vit dans l'entité/model ; le UC ne fait que **brancher** sur le résultat.
-- ❌ `as unknown as` dans un controller → conversion via un **mapper** (`infra/mappers/`).
-- ❌ URL hardcodée dans un hook/controller → toujours `XxxRequest.buildUrl(…)` / `BASE_URL`.
-- ❌ secret ou URL d'infra hardcodé → lire la **config** (`back/.env`, `import.meta.env` côté front).
-- ❌ modifier une `*.entity.ts` sans générer/jouer la **migration**.
-- ❌ créer un `*.spec.ts` → pas de tests en phase build (cf. § Tests) sans le signaler d'abord.
+> Read repo (lecture multi-tables / API externe) au lieu du couple : **une seule** abstraction `IReadWidgetRepo`, pas de writer vide. Cf. § « 3ᵉ pattern ».
 
-## Definition of Done
+### Checklist de wiring — où brancher (il n'y a PAS de module par feature)
 
-Avant de considérer une tâche terminée :
+Tout le câblage NestJS vit dans **deux** fichiers seulement. Oublier l'un des deux = `UnknownDependencies` au démarrage.
 
-- [ ] `npm run lint` **vert** des deux côtés touchés (front et/ou back) — y compris les frontières d'architecture.
-- [ ] Compilation OK (`tsc -b` front · `nest build` back).
-- [ ] Si une `*.entity.ts` a changé : **migration générée et jouée**.
-- [ ] Si nouvel endpoint : dossier `contracts/` créé **avant** le controller ; type de retour explicite ancré au contrat.
-- [ ] Si nouvelle page : route enregistrée dans `main.tsx` avec le bon garde (`ProtectedRoute`/`AdminRoute`).
-- [ ] Aucune frontière contournée par `eslint-disable`.
+| Tu ajoutes…                       | Fichier à éditer                                                   | Quoi                                                                                                              |
+| --------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| Un **repo couple** (reader/writer) | [`infra/repos/repo.module.ts`](back/src/infra/repos/repo.module.ts) | importer entité + 2 abstractions + `XxxRepo` ; ajouter l'entité à `TypeOrmModule.forFeature([…])` ; `{ provide: IXxxReaderRepo, useExisting: XxxRepo }` **et** le writer |
+| Un **read repo** (token unique)    | [`app.module.ts`](back/src/app.module.ts)                          | `{ provide: IReadXxxRepo, useClass: ReadXxxRepo }` dans `providers` ; entité dans le `TypeOrmModule.forFeature` d'`AppModule` si injection TypeORM directe |
+| Un **controller**                  | [`app.module.ts`](back/src/app.module.ts)                          | l'ajouter au tableau `controllers: [...]`                                                                        |
+| Un **`.uc.ts`** (flow)             | [`app.module.ts`](back/src/app.module.ts)                          | l'ajouter au tableau `providers: [...]`                                                                          |
+| Un champ d'**entité**              | —                                                                  | `npm run migration:generate -- …` puis `migration:run` (cf. Commands)                                            |
+
+### Squelette copiable — ajouter une page front
+
+```
+front/src/api/widgets.ts                             ← QUERIES uniquement (useWidgets…) + parsing via Widget.fromJson
+front/src/pages/admin/widgets/
+  WidgetsPage.tsx                                     ← entry point (nom = dossier)
+  useCreateWidget.ts                                  ← mutation COLOCALISÉE (parse via contrat, invalide la query key)
+  widgetCard/WidgetCard.tsx                           ← sous-composant si la page se complexifie (Option B)
+```
+
+Puis **enregistrer la route** dans [`main.tsx`](front/src/main.tsx), enveloppée du bon garde : `<AdminRoute>` (admin) ou `<ProtectedRoute>` (connecté). Le type `Widget` s'importe **directement** depuis `platform/contracts/shared/widget` — jamais re-exporté depuis `api/`.
 
 ---
 

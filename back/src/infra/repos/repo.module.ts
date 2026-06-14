@@ -17,16 +17,16 @@ import { IProjectWriterRepo } from '../../core/repos/project/project.writer.abst
 import { ProjectRepo } from './project/project.repo';
 
 import { LicenseEntity } from '../../core/repos/license/license.entity';
-import { LicenseMachineEntity } from '../../core/repos/license/license-machine.entity';
-import { LicenseProjectEntity } from '../../core/repos/license/license-project.entity';
+import { LicenseMachineEntity } from '../../core/repos/license/licenseMachine.entity';
+import { LicenseProjectEntity } from '../../core/repos/license/licenseProject.entity';
 import { ILicenseReaderRepo } from '../../core/repos/license/license.reader.abstract-repo';
 import { ILicenseWriterRepo } from '../../core/repos/license/license.writer.abstract-repo';
 import { LicenseRepo } from './license/license.repo';
 
-import { UserCompanyEntity } from '../../core/repos/userCompany/user-company.entity';
-import { IUserCompanyReaderRepo } from '../../core/repos/userCompany/user-company.reader.abstract-repo';
-import { IUserCompanyWriterRepo } from '../../core/repos/userCompany/user-company.writer.abstract-repo';
-import { UserCompanyRepo } from './userCompany/user-company.repo';
+import { UserCompanyEntity } from '../../core/repos/userCompany/userCompany.entity';
+import { IUserCompanyReaderRepo } from '../../core/repos/userCompany/userCompany.reader.abstract-repo';
+import { IUserCompanyWriterRepo } from '../../core/repos/userCompany/userCompany.writer.abstract-repo';
+import { UserCompanyRepo } from './userCompany/userCompany.repo';
 
 import { DeliverableEntity } from '../../core/repos/deliverable/deliverable.entity';
 import { IDeliverableReaderRepo } from '../../core/repos/deliverable/deliverable.reader.abstract-repo';

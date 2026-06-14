@@ -3,8 +3,8 @@ import { IDeliverableReaderRepo } from '../../repos/deliverable/deliverable.read
 import { IDeliverableWriterRepo } from '../../repos/deliverable/deliverable.writer.abstract-repo';
 import { IStorageRepo } from '../../repos/storage/storage.abstract-repo';
 import { IProjectReaderRepo } from '../../repos/project/project.reader.abstract-repo';
-import { IUserCompanyReaderRepo } from '../../repos/userCompany/user-company.reader.abstract-repo';
-import type { JwtPayload } from '../jwt/jwt-payload';
+import { IUserCompanyReaderRepo } from '../../repos/userCompany/userCompany.reader.abstract-repo';
+import type { JwtPayload } from '../jwt/jwtPayload';
 
 @Injectable()
 export class DeliverablesUc {

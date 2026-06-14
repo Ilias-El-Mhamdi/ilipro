@@ -1,4 +1,4 @@
-import type { License } from 'contracts/shared/license';
+import type { License } from 'platform/contracts/shared/license';
 
 interface Props {
   priceLabel: string;

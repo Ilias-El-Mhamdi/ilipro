@@ -4,15 +4,15 @@ import type {
   License,
   LicenseStatus,
   LicenseType,
-} from 'contracts/shared/license';
-import type { User } from 'contracts/shared/user';
+} from 'platform/contracts/shared/license';
+import type { User } from 'platform/contracts/shared/user';
 import { api } from '../../lib/api';
 import { toastSuccess, toastError } from '../../lib/toast';
-import { CreateLicenseRequest } from 'contracts/adminDashboard/licenses/createLicense/createLicense.request';
-import { UpdateLicenseRequest } from 'contracts/adminDashboard/licenses/updateLicense/updateLicense.request';
-import { DeleteLicenseRequest } from 'contracts/adminDashboard/licenses/deleteLicense/deleteLicense.request';
-import { DeleteLicenseMachineRequest } from 'contracts/adminDashboard/licenses/deleteLicenseMachine/deleteLicenseMachine.request';
-import { BillingPortalRequest } from 'contracts/payment/billingPortal/billingPortal.request';
+import { CreateLicenseRequest } from 'platform/contracts/adminDashboard/licenses/createLicense/createLicense.request';
+import { UpdateLicenseRequest } from 'platform/contracts/adminDashboard/licenses/updateLicense/updateLicense.request';
+import { DeleteLicenseRequest } from 'platform/contracts/adminDashboard/licenses/deleteLicense/deleteLicense.request';
+import { DeleteLicenseMachineRequest } from 'platform/contracts/adminDashboard/licenses/deleteLicenseMachine/deleteLicenseMachine.request';
+import { BillingPortalRequest } from 'platform/contracts/payment/billingPortal/billingPortal.request';
 
 interface Props {
   user: User;

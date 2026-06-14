@@ -4,12 +4,12 @@ import type { Request } from 'express';
 import { IReadLicenseRepo } from '../../../../core/repos/readLicense/readLicense.abstract-repo';
 import { Public } from '../../../decorators/public.decorator';
 import { LicenseMapper } from '../../../mappers/license.mapper';
-import type { JwtPayload } from '../../../../core/flows/jwt/jwt-payload';
-import type { ActivateLicenseBody } from 'contracts/userDashboard/activateLicense/activateLicense.body';
-import { License } from 'contracts/shared/license';
-import { ActivateLicenseResponse } from 'contracts/userDashboard/activateLicense/activateLicense.response';
-import { ReadLicenseRequest } from 'contracts/userDashboard/readLicense/readLicense.request';
-import { ActivateLicenseRequest } from 'contracts/userDashboard/activateLicense/activateLicense.request';
+import type { JwtPayload } from '../../../../core/flows/jwt/jwtPayload';
+import type { ActivateLicenseBody } from 'platform/contracts/userDashboard/activateLicense/activateLicense.body';
+import { License } from 'platform/contracts/shared/license';
+import { ActivateLicenseResponse } from 'platform/contracts/userDashboard/activateLicense/activateLicense.response';
+import { ReadLicenseRequest } from 'platform/contracts/userDashboard/readLicense/readLicense.request';
+import { ActivateLicenseRequest } from 'platform/contracts/userDashboard/activateLicense/activateLicense.request';
 
 class ActivateLicenseDto implements ActivateLicenseBody {
   @IsString()

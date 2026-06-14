@@ -3,10 +3,10 @@ import { DeliverablesUc } from '../../../../core/flows/deliverables/deliverables
 import { IDeliverableReaderRepo } from '../../../../core/repos/deliverable/deliverable.reader.abstract-repo';
 import { AdminGuard } from '../../../../infra/guards/admin.guard';
 import { DeliverableMapper } from '../../../mappers/deliverable.mapper';
-import { Deliverable } from 'contracts/shared/deliverable';
-import { GetDeliverableRequest } from 'contracts/adminDashboard/deliverables/getDeliverable/getDeliverable.request';
-import { GetDeliverableDownloadRequest } from 'contracts/adminDashboard/deliverables/getDeliverableDownload/getDeliverableDownload.request';
-import { DeleteDeliverableRequest } from 'contracts/adminDashboard/deliverables/deleteDeliverable/deleteDeliverable.request';
+import { Deliverable } from 'platform/contracts/shared/deliverable';
+import { GetDeliverableRequest } from 'platform/contracts/adminDashboard/deliverables/getDeliverable/getDeliverable.request';
+import { GetDeliverableDownloadRequest } from 'platform/contracts/adminDashboard/deliverables/getDeliverableDownload/getDeliverableDownload.request';
+import { DeleteDeliverableRequest } from 'platform/contracts/adminDashboard/deliverables/deleteDeliverable/deleteDeliverable.request';
 
 @UseGuards(AdminGuard)
 @Controller()

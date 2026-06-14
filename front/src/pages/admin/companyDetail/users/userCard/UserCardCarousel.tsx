@@ -1,5 +1,5 @@
-import type { License } from 'contracts/shared/license';
-import type { Project } from 'contracts/shared/project';
+import type { License } from 'platform/contracts/shared/license';
+import type { Project } from 'platform/contracts/shared/project';
 import {
   PanelOverview,
   PanelProjects,

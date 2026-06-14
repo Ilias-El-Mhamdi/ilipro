@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import type { License } from 'contracts/shared/license';
-import type { Project } from 'contracts/shared/project';
-import type { User } from 'contracts/shared/user';
+import type { License } from 'platform/contracts/shared/license';
+import type { Project } from 'platform/contracts/shared/project';
+import type { User } from 'platform/contracts/shared/user';
 import { LicenseModal } from '../../../../../components/licenseModal/LicenseModal';
 import { UserCardHeader } from './UserCardHeader';
 import { UserCardCarousel } from './UserCardCarousel';

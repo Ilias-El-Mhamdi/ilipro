@@ -5,6 +5,7 @@ import { ILicenseWriterRepo } from '../../repos/license/license.writer.abstract-
 import { ILicenseReaderRepo } from '../../repos/license/license.reader.abstract-repo';
 import { IPaymentReadRepo, StripeWebhookEvent } from '../../repos/payment/paymentRead.abstract-repo';
 import { UserEntity } from '../../repos/user/user.entity';
+import { LicenseEntity } from '../../repos/license/license.entity';
 
 interface StripeSubscription {
   id: string;
@@ -72,7 +73,7 @@ export class StripeUc {
     await this.userRepo.setStripeCustomerId(user.id, fakeCustomerId);
 
     const existing = dto.companyId ? await this.licenseReaderRepo.findByUserAndCompany(user.id, dto.companyId) : null;
-    let license;
+    let license: LicenseEntity;
 
     if (existing) {
       license = await this.licenseWriterRepo.update(existing.id, {

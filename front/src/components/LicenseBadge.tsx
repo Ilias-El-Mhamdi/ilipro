@@ -1,4 +1,4 @@
-import type { LicenseType } from 'contracts/shared/license';
+import type { LicenseType } from 'platform/contracts/shared/license';
 import { TYPE_BADGE } from '../lib/licenseConstants';
 
 interface Props {

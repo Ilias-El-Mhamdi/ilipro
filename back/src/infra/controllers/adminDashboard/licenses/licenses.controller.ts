@@ -3,14 +3,14 @@ import { IsArray, IsBoolean, IsEnum, IsNumber, IsOptional, IsString, IsUUID } fr
 import { ILicenseWriterRepo } from '../../../../core/repos/license/license.writer.abstract-repo';
 import { AdminGuard } from '../../../../infra/guards/admin.guard';
 import { LicenseMapper } from '../../../mappers/license.mapper';
-import type { CreateLicenseBody } from 'contracts/adminDashboard/licenses/createLicense/createLicense.body';
-import type { UpdateLicenseBody } from 'contracts/adminDashboard/licenses/updateLicense/updateLicense.body';
-import { License } from 'contracts/shared/license';
-import type { LicenseType, LicenseStatus } from 'contracts/shared/license';
-import { CreateLicenseRequest } from 'contracts/adminDashboard/licenses/createLicense/createLicense.request';
-import { UpdateLicenseRequest } from 'contracts/adminDashboard/licenses/updateLicense/updateLicense.request';
-import { DeleteLicenseRequest } from 'contracts/adminDashboard/licenses/deleteLicense/deleteLicense.request';
-import { DeleteLicenseMachineRequest } from 'contracts/adminDashboard/licenses/deleteLicenseMachine/deleteLicenseMachine.request';
+import type { CreateLicenseBody } from 'platform/contracts/adminDashboard/licenses/createLicense/createLicense.body';
+import type { UpdateLicenseBody } from 'platform/contracts/adminDashboard/licenses/updateLicense/updateLicense.body';
+import { License } from 'platform/contracts/shared/license';
+import type { LicenseType, LicenseStatus } from 'platform/contracts/shared/license';
+import { CreateLicenseRequest } from 'platform/contracts/adminDashboard/licenses/createLicense/createLicense.request';
+import { UpdateLicenseRequest } from 'platform/contracts/adminDashboard/licenses/updateLicense/updateLicense.request';
+import { DeleteLicenseRequest } from 'platform/contracts/adminDashboard/licenses/deleteLicense/deleteLicense.request';
+import { DeleteLicenseMachineRequest } from 'platform/contracts/adminDashboard/licenses/deleteLicenseMachine/deleteLicenseMachine.request';
 
 class CreateLicenseDto implements CreateLicenseBody {
   @IsUUID()

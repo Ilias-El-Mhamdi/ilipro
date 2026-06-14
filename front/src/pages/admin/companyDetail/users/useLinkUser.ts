@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { User } from 'contracts/shared/user';
+import type { User } from 'platform/contracts/shared/user';
 import { api } from '../../../../lib/api';
 import { toastSuccess, toastError } from '../../../../lib/toast';
-import { LinkUserRequest } from 'contracts/adminDashboard/linkUser/linkUser/linkUser.request';
+import { LinkUserRequest } from 'platform/contracts/adminDashboard/linkUser/linkUser/linkUser.request';
 
 export function useLinkUser(
   companySlug: string,

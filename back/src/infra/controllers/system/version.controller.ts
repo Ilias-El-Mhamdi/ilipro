@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { Public } from '../../decorators/public.decorator';
-import { VersionRequest } from 'contracts/system/version/version.request';
+import { VersionRequest } from 'platform/contracts/system/version/version.request';
 
 const VERSION = '1.0';
 

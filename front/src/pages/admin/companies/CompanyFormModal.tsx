@@ -1,4 +1,4 @@
-import type { Company } from 'contracts/shared/company';
+import type { Company } from 'platform/contracts/shared/company';
 import { Modal } from '../../../components/ui/Modal';
 import { Input } from '../../../components/ui/Input';
 import { Button } from '../../../components/ui/Button';

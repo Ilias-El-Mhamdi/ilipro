@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IUserCompanyReaderRepo } from '../../../core/repos/userCompany/user-company.reader.abstract-repo';
-import { IUserCompanyWriterRepo } from '../../../core/repos/userCompany/user-company.writer.abstract-repo';
-import { UserCompanyEntity } from '../../../core/repos/userCompany/user-company.entity';
+import { IUserCompanyReaderRepo } from '../../../core/repos/userCompany/userCompany.reader.abstract-repo';
+import { IUserCompanyWriterRepo } from '../../../core/repos/userCompany/userCompany.writer.abstract-repo';
+import { UserCompanyEntity } from '../../../core/repos/userCompany/userCompany.entity';
 import { UserEntity } from '../../../core/repos/user/user.entity';
 
 @Injectable()

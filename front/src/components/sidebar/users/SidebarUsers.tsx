@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import type { User } from 'contracts/shared/user';
+import type { User } from 'platform/contracts/shared/user';
 import { UserItem } from './UserItem';
 import { UserMoreButton } from './UserMoreButton';
 

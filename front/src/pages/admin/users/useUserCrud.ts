@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import type { User } from 'contracts/shared/user';
+import type { User } from 'platform/contracts/shared/user';
 import { useUsers } from '../../../api/users';
 import { api } from '../../../lib/api';
 import { toastSuccess, toastError } from '../../../lib/toast';
-import { CreateUserRequest } from 'contracts/adminDashboard/users/createUser/createUser.request';
-import { DeleteUserRequest } from 'contracts/adminDashboard/users/deleteUser/deleteUser.request';
+import { CreateUserRequest } from 'platform/contracts/adminDashboard/users/createUser/createUser.request';
+import { DeleteUserRequest } from 'platform/contracts/adminDashboard/users/deleteUser/deleteUser.request';
 
 export function useUserCrud() {
   const qc = useQueryClient();

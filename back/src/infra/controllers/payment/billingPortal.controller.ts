@@ -2,8 +2,8 @@ import { BadRequestException, Controller, Get, Inject, Req } from '@nestjs/commo
 import type { Request } from 'express';
 import { IPaymentReadRepo } from '../../../core/repos/payment/paymentRead.abstract-repo';
 import { IUserReaderRepo } from '../../../core/repos/user/user.reader.abstract-repo';
-import type { JwtPayload } from '../../../core/flows/jwt/jwt-payload';
-import { BillingPortalRequest } from 'contracts/payment/billingPortal/billingPortal.request';
+import type { JwtPayload } from '../../../core/flows/jwt/jwtPayload';
+import { BillingPortalRequest } from 'platform/contracts/payment/billingPortal/billingPortal.request';
 
 @Controller()
 export class BillingPortalController {

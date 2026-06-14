@@ -1,4 +1,4 @@
-import type { User } from 'contracts/shared/user';
+import type { User } from 'platform/contracts/shared/user';
 import { Modal } from '../../../../../components/ui/Modal';
 import { Input } from '../../../../../components/ui/Input';
 import { Button } from '../../../../../components/ui/Button';

@@ -2,21 +2,21 @@ import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Put, UseGuar
 import { IsEmail, IsString } from 'class-validator';
 import { LinkUserUc } from '../../../../core/flows/linkUser/linkUser.uc';
 import { IUserWriterRepo } from '../../../../core/repos/user/user.writer.abstract-repo';
-import { IUserCompanyReaderRepo } from '../../../../core/repos/userCompany/user-company.reader.abstract-repo';
-import { IUserCompanyWriterRepo } from '../../../../core/repos/userCompany/user-company.writer.abstract-repo';
+import { IUserCompanyReaderRepo } from '../../../../core/repos/userCompany/userCompany.reader.abstract-repo';
+import { IUserCompanyWriterRepo } from '../../../../core/repos/userCompany/userCompany.writer.abstract-repo';
 import { ICompanyReaderRepo } from '../../../../core/repos/company/company.reader.abstract-repo';
 import { ILicenseReaderRepo } from '../../../../core/repos/license/license.reader.abstract-repo';
 import { AdminGuard } from '../../../../infra/guards/admin.guard';
 import { UserMapper } from '../../../mappers/user.mapper';
-import type { CreateCompanyUserBody } from 'contracts/adminDashboard/linkUser/createCompanyUser/createCompanyUser.body';
-import type { UpdateCompanyUserBody } from 'contracts/adminDashboard/linkUser/updateCompanyUser/updateCompanyUser.body';
-import { User } from 'contracts/shared/user';
-import { CompanyUser } from 'contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.response';
-import { ListCompanyUsersRequest } from 'contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.request';
-import { CreateCompanyUserRequest } from 'contracts/adminDashboard/linkUser/createCompanyUser/createCompanyUser.request';
-import { UpdateCompanyUserRequest } from 'contracts/adminDashboard/linkUser/updateCompanyUser/updateCompanyUser.request';
-import { LinkUserRequest } from 'contracts/adminDashboard/linkUser/linkUser/linkUser.request';
-import { UnlinkUserRequest } from 'contracts/adminDashboard/linkUser/unlinkUser/unlinkUser.request';
+import type { CreateCompanyUserBody } from 'platform/contracts/adminDashboard/linkUser/createCompanyUser/createCompanyUser.body';
+import type { UpdateCompanyUserBody } from 'platform/contracts/adminDashboard/linkUser/updateCompanyUser/updateCompanyUser.body';
+import { User } from 'platform/contracts/shared/user';
+import { CompanyUser } from 'platform/contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.response';
+import { ListCompanyUsersRequest } from 'platform/contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.request';
+import { CreateCompanyUserRequest } from 'platform/contracts/adminDashboard/linkUser/createCompanyUser/createCompanyUser.request';
+import { UpdateCompanyUserRequest } from 'platform/contracts/adminDashboard/linkUser/updateCompanyUser/updateCompanyUser.request';
+import { LinkUserRequest } from 'platform/contracts/adminDashboard/linkUser/linkUser/linkUser.request';
+import { UnlinkUserRequest } from 'platform/contracts/adminDashboard/linkUser/unlinkUser/unlinkUser.request';
 
 class CreateCompanyUserDto implements CreateCompanyUserBody {
   @IsString()

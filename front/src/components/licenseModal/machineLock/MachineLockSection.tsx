@@ -1,4 +1,4 @@
-import type { LicenseMachine } from 'contracts/shared/license';
+import type { LicenseMachine } from 'platform/contracts/shared/license';
 
 interface Props {
   machineLock: boolean;

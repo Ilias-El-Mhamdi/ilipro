@@ -7,7 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 // Infra — infrastructure
 import { DatabaseModule } from './infra/database/database.module';
 import { RepoModule } from './infra/repos/repo.module';
-import { JwtAuthGuard } from './infra/guards/jwt-auth.guard';
+import { JwtAuthGuard } from './infra/guards/jwtAuth.guard';
 import { OtpRepo } from './infra/repos/otp/otp.repo';
 import { ReadProfileRepo } from './infra/repos/readProfile/readProfile.repo';
 import { ReadLicenseRepo } from './infra/repos/readLicense/readLicense.repo';
@@ -24,9 +24,9 @@ import { UserEntity } from './core/repos/user/user.entity';
 import { CompanyEntity } from './core/repos/company/company.entity';
 import { ProjectEntity } from './core/repos/project/project.entity';
 import { LicenseEntity } from './core/repos/license/license.entity';
-import { LicenseMachineEntity } from './core/repos/license/license-machine.entity';
-import { LicenseProjectEntity } from './core/repos/license/license-project.entity';
-import { UserCompanyEntity } from './core/repos/userCompany/user-company.entity';
+import { LicenseMachineEntity } from './core/repos/license/licenseMachine.entity';
+import { LicenseProjectEntity } from './core/repos/license/licenseProject.entity';
+import { UserCompanyEntity } from './core/repos/userCompany/userCompany.entity';
 
 // Core flows
 import { JwtUc } from './core/flows/jwt/jwt.uc';
@@ -43,10 +43,10 @@ import { LoginController } from './infra/controllers/login/login.controller';
 import { CompaniesController } from './infra/controllers/adminDashboard/companies/companies.controller';
 import { UsersController } from './infra/controllers/adminDashboard/users/users.controller';
 import { ProjectsController } from './infra/controllers/adminDashboard/projects/projects.controller';
-import { CompanyProjectsController } from './infra/controllers/adminDashboard/projects/company-projects.controller';
+import { CompanyProjectsController } from './infra/controllers/adminDashboard/projects/companyProjects.controller';
 import { LicensesController } from './infra/controllers/adminDashboard/licenses/licenses.controller';
 import { DeliverablesController } from './infra/controllers/adminDashboard/deliverables/deliverables.controller';
-import { ProjectDeliverablesController } from './infra/controllers/adminDashboard/deliverables/project-deliverables.controller';
+import { ProjectDeliverablesController } from './infra/controllers/adminDashboard/deliverables/projectDeliverables.controller';
 import { LinkUserController } from './infra/controllers/adminDashboard/linkUser/linkUser.controller';
 
 // Controllers — userDashboard

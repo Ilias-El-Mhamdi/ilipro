@@ -1,4 +1,4 @@
-import type { License } from 'contracts/shared/license';
+import type { License } from 'platform/contracts/shared/license';
 
 export function PanelMachines({ license }: { license: License | null }) {
   if (!license) {

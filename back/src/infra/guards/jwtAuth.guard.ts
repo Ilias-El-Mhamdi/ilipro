@@ -18,7 +18,8 @@ export class JwtAuthGuard implements CanActivate {
     if (isPublic) return true;
 
     const req = context.switchToHttp().getRequest<Request>();
-    const token = req.cookies?.[COOKIE_NAME];
+    const cookies = req.cookies as Record<string, string | undefined>;
+    const token = cookies?.[COOKIE_NAME];
     if (!token) throw new UnauthorizedException('Non authentifié');
     req['user'] = await this.jwtUc.verify(token);
     return true;

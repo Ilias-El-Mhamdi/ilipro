@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, JoinColumn, Unique } from 'typeorm';
-import { LicenseMachineEntity } from './license-machine.entity';
-import { LicenseProjectEntity } from './license-project.entity';
+import { LicenseMachineEntity } from './licenseMachine.entity';
+import { LicenseProjectEntity } from './licenseProject.entity';
 import { UserEntity } from '../user/user.entity';
 import { CompanyEntity } from '../company/company.entity';
 

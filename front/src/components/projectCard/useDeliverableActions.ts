@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Deliverable } from 'contracts/shared/deliverable';
+import type { Deliverable } from 'platform/contracts/shared/deliverable';
 import { api } from '../../lib/api';
 import { toastSuccess, toastError } from '../../lib/toast';
-import { UploadProjectDeliverableRequest } from 'contracts/adminDashboard/projectDeliverables/uploadProjectDeliverable/uploadProjectDeliverable.request';
-import { DeleteDeliverableRequest } from 'contracts/adminDashboard/deliverables/deleteDeliverable/deleteDeliverable.request';
+import { UploadProjectDeliverableRequest } from 'platform/contracts/adminDashboard/projectDeliverables/uploadProjectDeliverable/uploadProjectDeliverable.request';
+import { DeleteDeliverableRequest } from 'platform/contracts/adminDashboard/deliverables/deleteDeliverable/deleteDeliverable.request';
 
 export function useDeliverableActions(projectId: string) {
   const qc = useQueryClient();

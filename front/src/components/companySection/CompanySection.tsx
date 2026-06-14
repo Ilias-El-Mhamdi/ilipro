@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import type {
   ReadProfileResponse,
   UserCompanySection,
-} from 'contracts/userDashboard/readProfile/readProfile.response';
+} from 'platform/contracts/userDashboard/readProfile/readProfile.response';
 import { LicenseCard } from './license/LicenseCard.tsx';
 import { ProjectRow } from './project/ProjectRow.tsx';
 import { EmptyText } from '../ui/EmptyText';

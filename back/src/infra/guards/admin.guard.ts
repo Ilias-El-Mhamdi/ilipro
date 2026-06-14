@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
-import type { JwtPayload } from '../../core/flows/jwt/jwt-payload';
+import type { JwtPayload } from '../../core/flows/jwt/jwtPayload';
 
 @Injectable()
 export class AdminGuard implements CanActivate {

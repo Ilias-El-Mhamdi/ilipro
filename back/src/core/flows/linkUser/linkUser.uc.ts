@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { IUserWriterRepo } from '../../repos/user/user.writer.abstract-repo';
-import { IUserCompanyWriterRepo } from '../../repos/userCompany/user-company.writer.abstract-repo';
-import { IUserCompanyReaderRepo } from '../../repos/userCompany/user-company.reader.abstract-repo';
+import { IUserCompanyWriterRepo } from '../../repos/userCompany/userCompany.writer.abstract-repo';
+import { IUserCompanyReaderRepo } from '../../repos/userCompany/userCompany.reader.abstract-repo';
 import { UserEntity } from '../../repos/user/user.entity';
 
 @Injectable()

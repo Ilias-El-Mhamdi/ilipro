@@ -5,11 +5,11 @@ import { DeliverablesUc } from '../../../../core/flows/deliverables/deliverables
 import { IDeliverableReaderRepo } from '../../../../core/repos/deliverable/deliverable.reader.abstract-repo';
 import { AdminGuard } from '../../../../infra/guards/admin.guard';
 import { DeliverableMapper } from '../../../mappers/deliverable.mapper';
-import type { JwtPayload } from '../../../../core/flows/jwt/jwt-payload';
-import { Deliverable } from 'contracts/shared/deliverable';
-import { ListProjectDeliverablesRequest } from 'contracts/adminDashboard/projectDeliverables/listProjectDeliverables/listProjectDeliverables.request';
-import { GetProjectDeliverableDownloadRequest } from 'contracts/adminDashboard/projectDeliverables/getProjectDeliverableDownload/getProjectDeliverableDownload.request';
-import { UploadProjectDeliverableRequest } from 'contracts/adminDashboard/projectDeliverables/uploadProjectDeliverable/uploadProjectDeliverable.request';
+import type { JwtPayload } from '../../../../core/flows/jwt/jwtPayload';
+import { Deliverable } from 'platform/contracts/shared/deliverable';
+import { ListProjectDeliverablesRequest } from 'platform/contracts/adminDashboard/projectDeliverables/listProjectDeliverables/listProjectDeliverables.request';
+import { GetProjectDeliverableDownloadRequest } from 'platform/contracts/adminDashboard/projectDeliverables/getProjectDeliverableDownload/getProjectDeliverableDownload.request';
+import { UploadProjectDeliverableRequest } from 'platform/contracts/adminDashboard/projectDeliverables/uploadProjectDeliverable/uploadProjectDeliverable.request';
 
 @Controller()
 export class ProjectDeliverablesController {

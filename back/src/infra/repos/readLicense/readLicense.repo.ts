@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IReadLicenseRepo } from '../../../core/repos/readLicense/readLicense.abstract-repo';
 import { LicenseEntity } from '../../../core/repos/license/license.entity';
-import { LicenseMachineEntity } from '../../../core/repos/license/license-machine.entity';
-import { LicenseProjectEntity } from '../../../core/repos/license/license-project.entity';
+import { LicenseMachineEntity } from '../../../core/repos/license/licenseMachine.entity';
+import { LicenseProjectEntity } from '../../../core/repos/license/licenseProject.entity';
 
 const relations = { projectAccess: true, machines: true };
 const machinesOrder = { machines: { activatedAt: 'ASC' as const } };

@@ -1,4 +1,4 @@
-import { Deliverable } from 'contracts/shared/deliverable';
+import { Deliverable } from 'platform/contracts/shared/deliverable';
 import type { DeliverableEntity } from '../../core/repos/deliverable/deliverable.entity';
 
 export class DeliverableMapper {

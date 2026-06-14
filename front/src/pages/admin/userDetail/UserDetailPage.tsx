@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import type { ReadProfileResponse as UserDetail } from 'contracts/userDashboard/readProfile/readProfile.response';
+import type { ReadProfileResponse as UserDetail } from 'platform/contracts/userDashboard/readProfile/readProfile.response';
 import { useUserBySlug } from '../../../api/users';
 import { AdminLayout } from '../../../components/layouts/AdminLayout';
 import { LoadingText } from '../../../components/ui/LoadingText';

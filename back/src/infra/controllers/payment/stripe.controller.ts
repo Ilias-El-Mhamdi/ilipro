@@ -1,6 +1,6 @@
 import { BadRequestException, Body, Controller, Headers, Post, Req } from '@nestjs/common';
 import type { Request } from 'express';
-import Stripe = require('stripe');
+import Stripe from 'stripe';
 import { Public } from '../../decorators/public.decorator';
 import { StripeUc } from '../../../core/flows/payment/stripe.uc';
 import type { SimulateSubscriptionDto } from '../../../core/flows/payment/stripe.uc';

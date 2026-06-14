@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { ReadProfileResponse } from 'contracts/userDashboard/readProfile/readProfile.response';
+import type { ReadProfileResponse } from 'platform/contracts/userDashboard/readProfile/readProfile.response';
 import { api } from '../../../lib/api';
 import { toastSuccess, toastError } from '../../../lib/toast';
-import { UpdateUserRequest } from 'contracts/adminDashboard/users/updateUser/updateUser.request';
+import { UpdateUserRequest } from 'platform/contracts/adminDashboard/users/updateUser/updateUser.request';
 
 export function useEditUser(user: ReadProfileResponse) {
   const qc = useQueryClient();

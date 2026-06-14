@@ -1,4 +1,4 @@
-import type { CompanyUser } from 'contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.response';
+import type { CompanyUser } from 'platform/contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.response';
 import { LicenseBadge } from '../LicenseBadge';
 import { EmptyText } from '../ui/EmptyText';
 import { initials, scrollAndHighlight } from '../../lib/utils';

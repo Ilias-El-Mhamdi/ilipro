@@ -1,5 +1,5 @@
-import type { License } from 'contracts/shared/license';
-import type { User } from 'contracts/shared/user';
+import type { License } from 'platform/contracts/shared/license';
+import type { User } from 'platform/contracts/shared/user';
 import { Button } from '../../ui/Button';
 
 interface Props {

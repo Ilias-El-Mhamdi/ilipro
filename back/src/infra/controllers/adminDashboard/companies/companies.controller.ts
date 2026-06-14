@@ -4,16 +4,16 @@ import { ICompanyReaderRepo } from '../../../../core/repos/company/company.reade
 import { ICompanyWriterRepo } from '../../../../core/repos/company/company.writer.abstract-repo';
 import { AdminGuard } from '../../../../infra/guards/admin.guard';
 import { CompanyMapper } from '../../../mappers/company.mapper';
-import type { CreateCompanyBody } from 'contracts/adminDashboard/companies/createCompany/createCompany.body';
-import type { UpdateCompanyBody } from 'contracts/adminDashboard/companies/updateCompany/updateCompany.body';
-import type { RenameCompanyBody } from 'contracts/adminDashboard/companies/renameCompany/renameCompany.body';
-import { Company } from 'contracts/shared/company';
-import { ListCompaniesRequest } from 'contracts/adminDashboard/companies/listCompanies/listCompanies.request';
-import { GetCompanyRequest } from 'contracts/adminDashboard/companies/getCompany/getCompany.request';
-import { CreateCompanyRequest } from 'contracts/adminDashboard/companies/createCompany/createCompany.request';
-import { UpdateCompanyRequest } from 'contracts/adminDashboard/companies/updateCompany/updateCompany.request';
-import { RenameCompanyRequest } from 'contracts/adminDashboard/companies/renameCompany/renameCompany.request';
-import { DeleteCompanyRequest } from 'contracts/adminDashboard/companies/deleteCompany/deleteCompany.request';
+import type { CreateCompanyBody } from 'platform/contracts/adminDashboard/companies/createCompany/createCompany.body';
+import type { UpdateCompanyBody } from 'platform/contracts/adminDashboard/companies/updateCompany/updateCompany.body';
+import type { RenameCompanyBody } from 'platform/contracts/adminDashboard/companies/renameCompany/renameCompany.body';
+import { Company } from 'platform/contracts/shared/company';
+import { ListCompaniesRequest } from 'platform/contracts/adminDashboard/companies/listCompanies/listCompanies.request';
+import { GetCompanyRequest } from 'platform/contracts/adminDashboard/companies/getCompany/getCompany.request';
+import { CreateCompanyRequest } from 'platform/contracts/adminDashboard/companies/createCompany/createCompany.request';
+import { UpdateCompanyRequest } from 'platform/contracts/adminDashboard/companies/updateCompany/updateCompany.request';
+import { RenameCompanyRequest } from 'platform/contracts/adminDashboard/companies/renameCompany/renameCompany.request';
+import { DeleteCompanyRequest } from 'platform/contracts/adminDashboard/companies/deleteCompany/deleteCompany.request';
 
 class CreateCompanyDto implements CreateCompanyBody {
   @IsString()

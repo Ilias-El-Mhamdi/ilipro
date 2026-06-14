@@ -1,4 +1,4 @@
-import type { LicenseType, LicenseStatus } from 'contracts/shared/license';
+import type { LicenseType, LicenseStatus } from 'platform/contracts/shared/license';
 
 export const TYPE_BADGE: Record<
   LicenseType,

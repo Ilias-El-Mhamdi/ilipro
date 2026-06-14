@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import type { Company } from 'contracts/shared/company';
-import type { Project } from 'contracts/shared/project';
+import type { Company } from 'platform/contracts/shared/company';
+import type { Project } from 'platform/contracts/shared/project';
 import { CompanyRow } from './CompanyRow';
 
 interface Props {

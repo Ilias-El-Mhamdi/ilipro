@@ -1,4 +1,4 @@
-import { Company } from 'contracts/shared/company';
+import { Company } from 'platform/contracts/shared/company';
 import type { CompanyEntity } from '../../core/repos/company/company.entity';
 
 export class CompanyMapper {

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import type { Project } from 'contracts/shared/project';
-import type { CompanyUser } from 'contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.response';
+import type { Project } from 'platform/contracts/shared/project';
+import type { CompanyUser } from 'platform/contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.response';
 import { useProjectDeliverables } from '../../api/projects';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useProjectCardActions } from './useProjectCardActions';

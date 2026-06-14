@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../../lib/api';
 import { toastSuccess, toastError } from '../../../lib/toast';
-import { RenameCompanyRequest } from 'contracts/adminDashboard/companies/renameCompany/renameCompany.request';
+import { RenameCompanyRequest } from 'platform/contracts/adminDashboard/companies/renameCompany/renameCompany.request';
 
 export function useRenameCompany(companySlug: string) {
   const qc = useQueryClient();

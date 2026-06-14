@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
-import { SendOtpRequest } from 'contracts/login/sendOtp/sendOtp.request';
-import { VerifyOtpRequest } from 'contracts/login/verifyOtp/verifyOtp.request';
+import { SendOtpRequest } from 'platform/contracts/login/sendOtp/sendOtp.request';
+import { VerifyOtpRequest } from 'platform/contracts/login/verifyOtp/verifyOtp.request';
 
 type Step = 'email' | 'otp';
 

@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import type { Company } from 'contracts/shared/company';
+import type { Company } from 'platform/contracts/shared/company';
 import { useCompanies } from '../../../api/companies';
 import { api } from '../../../lib/api';
 import { toastSuccess, toastError } from '../../../lib/toast';
-import { CreateCompanyRequest } from 'contracts/adminDashboard/companies/createCompany/createCompany.request';
-import { UpdateCompanyRequest } from 'contracts/adminDashboard/companies/updateCompany/updateCompany.request';
-import { DeleteCompanyRequest } from 'contracts/adminDashboard/companies/deleteCompany/deleteCompany.request';
+import { CreateCompanyRequest } from 'platform/contracts/adminDashboard/companies/createCompany/createCompany.request';
+import { UpdateCompanyRequest } from 'platform/contracts/adminDashboard/companies/updateCompany/updateCompany.request';
+import { DeleteCompanyRequest } from 'platform/contracts/adminDashboard/companies/deleteCompany/deleteCompany.request';
 
 export function useCompanyCrud() {
   const qc = useQueryClient();

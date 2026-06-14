@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { User } from 'contracts/shared/user';
+import type { User } from 'platform/contracts/shared/user';
 import { api } from '../../../../lib/api';
 import { toastSuccess, toastError } from '../../../../lib/toast';
-import { CreateCompanyUserRequest } from 'contracts/adminDashboard/linkUser/createCompanyUser/createCompanyUser.request';
-import { UnlinkUserRequest } from 'contracts/adminDashboard/linkUser/unlinkUser/unlinkUser.request';
+import { CreateCompanyUserRequest } from 'platform/contracts/adminDashboard/linkUser/createCompanyUser/createCompanyUser.request';
+import { UnlinkUserRequest } from 'platform/contracts/adminDashboard/linkUser/unlinkUser/unlinkUser.request';
 
 export function useManageUsers(companySlug: string) {
   const qc = useQueryClient();

@@ -1,4 +1,4 @@
-import type { LicenseStatus } from 'contracts/shared/license';
+import type { LicenseStatus } from 'platform/contracts/shared/license';
 import { STATUS_LABEL } from '../../../lib/licenseConstants';
 
 interface Props {

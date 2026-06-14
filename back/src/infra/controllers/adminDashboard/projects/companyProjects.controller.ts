@@ -5,10 +5,10 @@ import { IProjectWriterRepo } from '../../../../core/repos/project/project.write
 import { ICompanyReaderRepo } from '../../../../core/repos/company/company.reader.abstract-repo';
 import { AdminGuard } from '../../../../infra/guards/admin.guard';
 import { ProjectMapper } from '../../../mappers/project.mapper';
-import type { CreateCompanyProjectBody } from 'contracts/adminDashboard/companyProjects/createCompanyProject/createCompanyProject.body';
-import { Project } from 'contracts/shared/project';
-import { ListCompanyProjectsRequest } from 'contracts/adminDashboard/companyProjects/listCompanyProjects/listCompanyProjects.request';
-import { CreateCompanyProjectRequest } from 'contracts/adminDashboard/companyProjects/createCompanyProject/createCompanyProject.request';
+import type { CreateCompanyProjectBody } from 'platform/contracts/adminDashboard/companyProjects/createCompanyProject/createCompanyProject.body';
+import { Project } from 'platform/contracts/shared/project';
+import { ListCompanyProjectsRequest } from 'platform/contracts/adminDashboard/companyProjects/listCompanyProjects/listCompanyProjects.request';
+import { CreateCompanyProjectRequest } from 'platform/contracts/adminDashboard/companyProjects/createCompanyProject/createCompanyProject.request';
 
 class CreateCompanyProjectDto implements CreateCompanyProjectBody {
   @IsString()

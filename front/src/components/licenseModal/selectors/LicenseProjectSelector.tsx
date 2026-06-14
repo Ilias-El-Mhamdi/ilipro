@@ -1,5 +1,5 @@
-import type { LicenseType } from 'contracts/shared/license';
-import type { Project } from 'contracts/shared/project';
+import type { LicenseType } from 'platform/contracts/shared/license';
+import type { Project } from 'platform/contracts/shared/project';
 
 interface Props {
   type: LicenseType;

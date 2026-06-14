@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import Stripe = require('stripe');
+import Stripe from 'stripe';
 import { IPaymentReadRepo, StripeCustomerData } from '../../../core/repos/payment/paymentRead.abstract-repo';
 
 @Injectable()

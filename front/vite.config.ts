@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      contracts: path.resolve(__dirname, '../contracts'),
+      platform: path.resolve(__dirname, '../platform'),
     },
   },
 });

@@ -1,4 +1,4 @@
-import type { Project } from 'contracts/shared/project';
+import type { Project } from 'platform/contracts/shared/project';
 import { Button } from '../ui/Button';
 
 const LINK_BUTTON_STYLE = {

@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
-import { ListProjectsRequest } from 'contracts/adminDashboard/projects/listProjects/listProjects.request';
-import { ListProjectDeliverablesRequest } from 'contracts/adminDashboard/projectDeliverables/listProjectDeliverables/listProjectDeliverables.request';
-import { Project } from 'contracts/shared/project';
-import { Deliverable } from 'contracts/shared/deliverable';
+import { ListProjectsRequest } from 'platform/contracts/adminDashboard/projects/listProjects/listProjects.request';
+import { ListProjectDeliverablesRequest } from 'platform/contracts/adminDashboard/projectDeliverables/listProjectDeliverables/listProjectDeliverables.request';
+import { Project } from 'platform/contracts/shared/project';
+import { Deliverable } from 'platform/contracts/shared/deliverable';
 
 export function useProjects() {
   return useQuery<Project[]>({

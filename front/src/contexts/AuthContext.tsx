@@ -9,8 +9,8 @@ import {
   type ReactNode,
 } from 'react';
 import { api } from '../lib/api';
-import { MeRequest } from 'contracts/login/me/me.request';
-import { LogoutRequest } from 'contracts/login/logout/logout.request';
+import { MeRequest } from 'platform/contracts/login/me/me.request';
+import { LogoutRequest } from 'platform/contracts/login/logout/logout.request';
 
 export interface AuthUser {
   sub: string;

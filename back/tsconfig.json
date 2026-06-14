@@ -15,7 +15,7 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "contracts/*": ["../contracts/*"]
+      "platform/*": ["../platform/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

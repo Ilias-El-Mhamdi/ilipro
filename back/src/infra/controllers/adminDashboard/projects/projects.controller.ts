@@ -4,12 +4,12 @@ import { IProjectReaderRepo } from '../../../../core/repos/project/project.reade
 import { IProjectWriterRepo } from '../../../../core/repos/project/project.writer.abstract-repo';
 import { AdminGuard } from '../../../../infra/guards/admin.guard';
 import { ProjectMapper } from '../../../mappers/project.mapper';
-import type { UpdateProjectBody } from 'contracts/adminDashboard/projects/updateProject/updateProject.body';
-import { Project } from 'contracts/shared/project';
-import { ListProjectsRequest } from 'contracts/adminDashboard/projects/listProjects/listProjects.request';
-import { GetProjectRequest } from 'contracts/adminDashboard/projects/getProject/getProject.request';
-import { UpdateProjectRequest } from 'contracts/adminDashboard/projects/updateProject/updateProject.request';
-import { DeleteProjectRequest } from 'contracts/adminDashboard/projects/deleteProject/deleteProject.request';
+import type { UpdateProjectBody } from 'platform/contracts/adminDashboard/projects/updateProject/updateProject.body';
+import { Project } from 'platform/contracts/shared/project';
+import { ListProjectsRequest } from 'platform/contracts/adminDashboard/projects/listProjects/listProjects.request';
+import { GetProjectRequest } from 'platform/contracts/adminDashboard/projects/getProject/getProject.request';
+import { UpdateProjectRequest } from 'platform/contracts/adminDashboard/projects/updateProject/updateProject.request';
+import { DeleteProjectRequest } from 'platform/contracts/adminDashboard/projects/deleteProject/deleteProject.request';
 
 class UpdateProjectDto implements UpdateProjectBody {
   @IsOptional()

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
-import { ReadLicenseRequest } from 'contracts/userDashboard/readLicense/readLicense.request';
-import { License } from 'contracts/shared/license';
+import { ReadLicenseRequest } from 'platform/contracts/userDashboard/readLicense/readLicense.request';
+import { License } from 'platform/contracts/shared/license';
 
 export function useUserLicense(userId: string) {
   return useQuery<License>({
