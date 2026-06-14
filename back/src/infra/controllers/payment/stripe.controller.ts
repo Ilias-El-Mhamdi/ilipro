@@ -16,7 +16,7 @@ export class StripeController {
     let event: StripeWebhookEvent;
     try {
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', { apiVersion: '2026-05-27.dahlia' });
-      event = stripe.webhooks.constructEvent(req.rawBody!, sig, process.env.STRIPE_WEBHOOK_SECRET ?? '') as unknown as StripeWebhookEvent;
+      event = stripe.webhooks.constructEvent(req.rawBody!, sig, process.env.STRIPE_WEBHOOK_SECRET ?? '');
     } catch {
       throw new BadRequestException('Invalid Stripe webhook signature');
     }

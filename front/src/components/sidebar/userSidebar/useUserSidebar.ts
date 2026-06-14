@@ -1,29 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { useUserBySlug } from '../../../lib/queries';
+import { useUserBySlug } from '../../../api/users';
 
 export function useUserSidebar() {
   const { userSlug } = useParams<{ userSlug: string }>();
   const { data: userDetail } = useUserBySlug(userSlug ?? '');
-  const [openCompanies, setOpenCompanies] = useState<Set<string>>(new Set());
+  // Companies dépliées par défaut : on ne mémorise que celles repliées explicitement.
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
-  const companies = userDetail?.companies ?? [];
+  const companies = useMemo(() => userDetail?.companies ?? [], [userDetail]);
 
-  useEffect(() => {
-    if (companies.length > 0)
-      setOpenCompanies(new Set(companies.map((c) => c.id)));
-  }, [companies]);
+  const openCompanies = useMemo(
+    () => new Set(companies.filter((c) => !collapsed.has(c.id)).map((c) => c.id)),
+    [companies, collapsed],
+  );
 
   function toggleCompany(id: string) {
-    setOpenCompanies((prev) => {
+    setCollapsed((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   }
 
   function scrollToProject(projectId: string) {
-    document.getElementById(`project-${projectId}`)?.scrollIntoView({ behavior: 'smooth' });
+    document
+      .getElementById(`project-${projectId}`)
+      ?.scrollIntoView({ behavior: 'smooth' });
   }
 
   return { companies, openCompanies, toggleCompany, scrollToProject };

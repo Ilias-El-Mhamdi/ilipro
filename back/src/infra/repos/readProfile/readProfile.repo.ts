@@ -1,24 +1,24 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IReadProfileRepository, UserProfile } from '../../../core/repos/readProfile/readProfile.abstract-repo';
-import { UserModel } from '../../../core/repos/user/user.entity';
+import { IReadProfileRepo, UserProfile } from '../../../core/repos/readProfile/readProfile.abstract-repo';
+import { UserEntity } from '../../../core/repos/user/user.entity';
 import { UserCompanyEntity } from '../../../core/repos/userCompany/user-company.entity';
-import { CompanyModel } from '../../../core/repos/company/company.entity';
-import { ProjectModel } from '../../../core/repos/project/project.entity';
-import { LicenseModel } from '../../../core/repos/license/license.entity';
+import { CompanyEntity } from '../../../core/repos/company/company.entity';
+import { ProjectEntity } from '../../../core/repos/project/project.entity';
+import { LicenseEntity } from '../../../core/repos/license/license.entity';
 
 const licenseRelations = { projectAccess: true, machines: true };
 const licenseOrder = { machines: { activatedAt: 'ASC' as const } };
 
 @Injectable()
-export class ReadProfileRepository implements IReadProfileRepository {
+export class ReadProfileRepo implements IReadProfileRepo {
   constructor(
-    @InjectRepository(UserModel) private readonly userRepo: Repository<UserModel>,
+    @InjectRepository(UserEntity) private readonly userRepo: Repository<UserEntity>,
     @InjectRepository(UserCompanyEntity) private readonly ucRepo: Repository<UserCompanyEntity>,
-    @InjectRepository(CompanyModel) private readonly companyRepo: Repository<CompanyModel>,
-    @InjectRepository(ProjectModel) private readonly projectRepo: Repository<ProjectModel>,
-    @InjectRepository(LicenseModel) private readonly licenseRepo: Repository<LicenseModel>,
+    @InjectRepository(CompanyEntity) private readonly companyRepo: Repository<CompanyEntity>,
+    @InjectRepository(ProjectEntity) private readonly projectRepo: Repository<ProjectEntity>,
+    @InjectRepository(LicenseEntity) private readonly licenseRepo: Repository<LicenseEntity>,
   ) {}
 
   async findBySlug(slug: string): Promise<UserProfile> {
@@ -63,7 +63,7 @@ export class ReadProfileRepository implements IReadProfileRepository {
       }),
     );
 
-    const { otp, otpExpiry, otpAttempts, otpRequestedAt, ...safeUser } = user as UserModel & Record<string, unknown>;
+    const { otp, otpExpiry, otpAttempts, otpRequestedAt, ...safeUser } = user as UserEntity & Record<string, unknown>;
 
     return {
       ...safeUser,

@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserModel } from '../../../core/repos/user/user.entity';
-import { IOtpRepository } from '../../../core/repos/otp/otp.abstract-repo';
+import { UserEntity } from '../../../core/repos/user/user.entity';
+import { IOtpRepo } from '../../../core/repos/otp/otp.abstract-repo';
 
 @Injectable()
-export class OtpRepository implements IOtpRepository {
+export class OtpRepo implements IOtpRepo {
   constructor(
-    @InjectRepository(UserModel)
-    private readonly repo: Repository<UserModel>,
+    @InjectRepository(UserEntity)
+    private readonly repo: Repository<UserEntity>,
   ) {}
 
   async setOtp(userId: string, otp: string, otpExpiry: Date): Promise<void> {

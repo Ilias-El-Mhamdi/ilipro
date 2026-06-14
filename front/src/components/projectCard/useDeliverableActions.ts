@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Deliverable } from '../../lib/queries';
+import type { Deliverable } from 'contracts/shared/deliverable';
 import { api } from '../../lib/api';
 import { toastSuccess, toastError } from '../../lib/toast';
+import { UploadProjectDeliverableRequest } from 'contracts/adminDashboard/projectDeliverables/uploadProjectDeliverable/uploadProjectDeliverable.request';
+import { DeleteDeliverableRequest } from 'contracts/adminDashboard/deliverables/deleteDeliverable/deleteDeliverable.request';
 
 export function useDeliverableActions(projectId: string) {
   const qc = useQueryClient();
@@ -12,21 +14,30 @@ export function useDeliverableActions(projectId: string) {
     mutationFn: (file: File) => {
       const form = new FormData();
       form.append('file', file);
-      return api.post(`/projects/${projectId}/deliverables`, form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      return api.post(
+        UploadProjectDeliverableRequest.buildUrl(projectId),
+        form,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        },
+      );
     },
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['projects', projectId, 'deliverables'] });
+      void qc.invalidateQueries({
+        queryKey: ['projects', projectId, 'deliverables'],
+      });
       toastSuccess('Fichier uploadé');
     },
     onError: toastError,
   });
 
   const remove = useMutation({
-    mutationFn: (id: string) => api.delete(`/deliverables/${id}`),
+    mutationFn: (id: string) =>
+      api.delete(DeleteDeliverableRequest.buildUrl(id)),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['projects', projectId, 'deliverables'] });
+      void qc.invalidateQueries({
+        queryKey: ['projects', projectId, 'deliverables'],
+      });
       setConfirm(null);
       toastSuccess('Fichier supprimé');
     },

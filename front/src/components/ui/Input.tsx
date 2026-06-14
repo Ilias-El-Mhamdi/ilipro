@@ -1,8 +1,8 @@
-import type { InputHTMLAttributes } from 'react'
+import type { InputHTMLAttributes } from 'react';
 
 interface Props extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string
-  error?: string
+  label?: string;
+  error?: string;
 }
 
 export function Input({ label, error, className = '', ...props }: Props) {
@@ -15,5 +15,5 @@ export function Input({ label, error, className = '', ...props }: Props) {
       />
       {error && <span className="text-xs text-red-400">{error}</span>}
     </div>
-  )
+  );
 }

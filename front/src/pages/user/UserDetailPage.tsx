@@ -1,10 +1,10 @@
 import { useParams, Navigate } from 'react-router-dom';
-import { useUserBySlug } from '../../lib/queries';
+import { useUserBySlug } from '../../api/users';
 import { UserLayout } from '../../components/layouts/UserLayout';
 import { LoadingText } from '../../components/ui/LoadingText';
 import { EmptyText } from '../../components/ui/EmptyText';
-import { CompanySection } from '../admin/userDetail/company/CompanySection';
-import { UserHeader } from '../admin/userDetail/UserHeader';
+import { CompanySection } from '../../components/companySection/CompanySection';
+import { UserHeader } from '../../components/UserHeader';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -15,7 +15,11 @@ export function UserDetailPage() {
   usePageTitle(user ? `${user.firstName} ${user.lastName}` : '');
 
   if (isAuthLoading) {
-    return <UserLayout><LoadingText /></UserLayout>;
+    return (
+      <UserLayout>
+        <LoadingText />
+      </UserLayout>
+    );
   }
 
   if (!authUser?.isAdmin && authUser?.slug !== userSlug) {
@@ -23,23 +27,43 @@ export function UserDetailPage() {
   }
 
   if (isLoading) {
-    return <UserLayout><LoadingText /></UserLayout>;
+    return (
+      <UserLayout>
+        <LoadingText />
+      </UserLayout>
+    );
   }
 
   if (!user) {
-    return <UserLayout><EmptyText message="Utilisateur introuvable." /></UserLayout>;
+    return (
+      <UserLayout>
+        <EmptyText message="Utilisateur introuvable." />
+      </UserLayout>
+    );
   }
 
   return (
     <UserLayout>
-      <UserHeader firstName={user.firstName} lastName={user.lastName} email={user.email} />
+      <UserHeader
+        firstName={user.firstName}
+        lastName={user.lastName}
+        email={user.email}
+      />
 
       <div className="mt-6">
         {user.companies.length === 0 ? (
-          <EmptyText message="Vous n'appartenez à aucune entreprise." className="text-gray-600 text-sm" />
+          <EmptyText
+            message="Vous n'appartenez à aucune entreprise."
+            className="text-gray-600 text-sm"
+          />
         ) : (
           user.companies.map((section) => (
-            <CompanySection key={section.id} section={section} user={user} isAdmin={false} />
+            <CompanySection
+              key={section.id}
+              section={section}
+              user={user}
+              isAdmin={false}
+            />
           ))
         )}
       </div>

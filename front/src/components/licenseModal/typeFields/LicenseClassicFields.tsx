@@ -1,4 +1,4 @@
-import type { License } from '../../../lib/queries';
+import type { License } from 'contracts/shared/license';
 
 interface Props {
   priceLabel: string;
@@ -6,11 +6,17 @@ interface Props {
   license: License | null;
 }
 
-export function LicenseClassicFields({ priceLabel, onPriceLabelChange, license }: Props) {
+export function LicenseClassicFields({
+  priceLabel,
+  onPriceLabelChange,
+  license,
+}: Props) {
   return (
     <>
       <div>
-        <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide">Prix</p>
+        <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide">
+          Prix
+        </p>
         <input
           type="text"
           value={priceLabel}
@@ -22,10 +28,13 @@ export function LicenseClassicFields({ priceLabel, onPriceLabelChange, license }
       {license?.stripeSubscriptionId && (
         <div className="bg-gray-900/50 border border-gray-700 rounded-md px-3 py-2 text-xs text-gray-400">
           <span className="text-gray-500">Subscription Stripe : </span>
-          <span className="font-mono text-gray-300">{license.stripeSubscriptionId}</span>
+          <span className="font-mono text-gray-300">
+            {license.stripeSubscriptionId}
+          </span>
           {license.currentPeriodEnd && (
             <span className="ml-2 text-gray-500">
-              · Expire le {new Date(license.currentPeriodEnd).toLocaleDateString('fr-FR')}
+              · Expire le{' '}
+              {new Date(license.currentPeriodEnd).toLocaleDateString('fr-FR')}
             </span>
           )}
         </div>

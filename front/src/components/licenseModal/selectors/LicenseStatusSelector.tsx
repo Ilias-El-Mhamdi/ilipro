@@ -1,4 +1,4 @@
-import type { LicenseStatus } from '../../../lib/queries';
+import type { LicenseStatus } from 'contracts/shared/license';
 import { STATUS_LABEL } from '../../../lib/licenseConstants';
 
 interface Props {
@@ -9,7 +9,9 @@ interface Props {
 export function LicenseStatusSelector({ value, onChange }: Props) {
   return (
     <div>
-      <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide">Statut</p>
+      <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide">
+        Statut
+      </p>
       <div className="flex gap-2">
         {(['ACTIVE', 'EXPIRED', 'CANCELLED'] as LicenseStatus[]).map((s) => (
           <button

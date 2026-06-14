@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { SendOtpRequest } from 'contracts/login/sendOtp/sendOtp.request';
+import { VerifyOtpRequest } from 'contracts/login/verifyOtp/verifyOtp.request';
 
 type Step = 'email' | 'otp';
 
@@ -26,7 +28,12 @@ function useCountdown(initialSeconds: number) {
     }, 1000);
   }
 
-  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    },
+    [],
+  );
 
   return { seconds, start };
 }
@@ -39,12 +46,13 @@ export function useLogin() {
   const [otpInvalidated, setOtpInvalidated] = useState(false);
   const { refresh } = useAuth();
   const navigate = useNavigate();
-  const { seconds: cooldown, start: startCooldown } = useCountdown(RESEND_COOLDOWN);
+  const { seconds: cooldown, start: startCooldown } =
+    useCountdown(RESEND_COOLDOWN);
 
   async function sendOtp() {
     setLoading(true);
     try {
-      await api.post('/auth/send-otp', { email: email.trim() });
+      await api.post(SendOtpRequest.buildUrl(), { email: email.trim() });
       toast.success('Code envoyé par email');
       setOtp('');
       setOtpInvalidated(false);
@@ -52,8 +60,8 @@ export function useLogin() {
       startCooldown();
     } catch (err: unknown) {
       const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        "Erreur lors de l'envoi";
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? "Erreur lors de l'envoi";
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -64,14 +72,18 @@ export function useLogin() {
     if (!value.trim()) return;
     setLoading(true);
     try {
-      const { data } = await api.post<{ user: { slug: string; isAdmin: boolean } }>('/auth/verify-otp', { email, otp: value.trim() });
+      const { data } = await api.post<{
+        user: { slug: string; isAdmin: boolean };
+      }>(VerifyOtpRequest.buildUrl(), { email, otp: value.trim() });
       await refresh();
-      const dest = data.user.isAdmin ? `/admin/users/${data.user.slug}` : `/user/${data.user.slug}`;
+      const dest = data.user.isAdmin
+        ? `/admin/users/${data.user.slug}`
+        : `/user/${data.user.slug}`;
       navigate(dest, { replace: true });
     } catch (err: unknown) {
       const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        'Code invalide ou expiré';
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? 'Code invalide ou expiré';
       toast.error(msg);
       if (msg.includes('Trop de tentatives')) {
         setOtpInvalidated(true);
@@ -90,8 +102,10 @@ export function useLogin() {
 
   return {
     step,
-    email, setEmail,
-    otp, setOtp,
+    email,
+    setEmail,
+    otp,
+    setOtp,
     loading,
     cooldown,
     otpInvalidated,

@@ -1,10 +1,10 @@
-import type { User } from '../../lib/queries';
+import type { CompanyUser } from 'contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.response';
 import { LicenseBadge } from '../LicenseBadge';
 import { EmptyText } from '../ui/EmptyText';
 import { initials, scrollAndHighlight } from '../../lib/utils';
 
 interface Props {
-  users: User[];
+  users: CompanyUser[];
 }
 
 export function ProjectAccessSection({ users }: Props) {
@@ -14,7 +14,10 @@ export function ProjectAccessSection({ users }: Props) {
         Accès ({users.length})
       </span>
       {users.length === 0 ? (
-        <EmptyText message="Aucun utilisateur" className="text-gray-600 text-sm" />
+        <EmptyText
+          message="Aucun utilisateur"
+          className="text-gray-600 text-sm"
+        />
       ) : (
         <div className="flex flex-col gap-1.5">
           {users.map((u) => (
@@ -27,10 +30,14 @@ export function ProjectAccessSection({ users }: Props) {
                 {initials(u.firstName, u.lastName)}
               </div>
               <div className="min-w-0 flex-1">
-                <span className="text-xs text-gray-300">{u.firstName} {u.lastName}</span>
+                <span className="text-xs text-gray-300">
+                  {u.firstName} {u.lastName}
+                </span>
                 <span className="text-xs text-gray-600 ml-1.5">{u.email}</span>
               </div>
-              {u.license?.type && <LicenseBadge type={u.license.type} className="shrink-0" />}
+              {u.license?.type && (
+                <LicenseBadge type={u.license.type} className="shrink-0" />
+              )}
             </button>
           ))}
         </div>

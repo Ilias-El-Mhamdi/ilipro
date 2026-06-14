@@ -1,6 +1,6 @@
-import type { DeliverableModel } from './deliverable.entity';
+import type { DeliverableEntity } from './deliverable.entity';
 
 export abstract class IDeliverableWriterRepo {
-  abstract create(data: Omit<DeliverableModel, 'id' | 'createdAt' | 'updatedAt'>): Promise<DeliverableModel>;
+  abstract create(data: Omit<DeliverableEntity, 'id' | 'createdAt' | 'updatedAt'>): Promise<DeliverableEntity>;
   abstract delete(id: string): Promise<void>;
 }

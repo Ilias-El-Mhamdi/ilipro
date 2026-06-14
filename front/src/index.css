@@ -1,5 +1,6 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-button, [role="button"] {
-    cursor: pointer;
+button,
+[role='button'] {
+  cursor: pointer;
 }

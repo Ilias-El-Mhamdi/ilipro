@@ -15,7 +15,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (isLoading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
 
-  return <>{children}</>;
+  return children;
 }
 
 export function AdminRoute({ children }: { children: React.ReactNode }) {
@@ -25,5 +25,5 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
   if (!user) return <Navigate to="/login" replace />;
   if (!user.isAdmin) return <Navigate to={`/user/${user.slug}`} replace />;
 
-  return <>{children}</>;
+  return children;
 }

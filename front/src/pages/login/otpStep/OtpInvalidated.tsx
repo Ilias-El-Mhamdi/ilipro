@@ -5,11 +5,17 @@ interface Props {
 }
 
 export function OtpInvalidated({ loading, cooldown, onResend }: Props) {
-  const resendLabel = loading ? 'Envoi…' : cooldown > 0 ? `Renvoyer un code (${cooldown}s)` : 'Renvoyer un code';
+  const resendLabel = loading
+    ? 'Envoi…'
+    : cooldown > 0
+      ? `Renvoyer un code (${cooldown}s)`
+      : 'Renvoyer un code';
 
   return (
     <div className="space-y-4">
-      <p className="text-amber-400 text-sm text-center">Code invalidé après 3 tentatives.</p>
+      <p className="text-amber-400 text-sm text-center">
+        Code invalidé après 3 tentatives.
+      </p>
       <button
         onClick={onResend}
         disabled={loading || cooldown > 0}

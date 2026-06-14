@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Unique } from 'typeorm';
-import { LicenseModel } from './license.entity';
+import { LicenseEntity } from './license.entity';
 
 @Entity('LicenseProject')
 @Unique(['licenseId', 'projectId'])
-export class LicenseProjectModel {
+export class LicenseProjectEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -13,7 +13,7 @@ export class LicenseProjectModel {
   @Column()
   projectId: string;
 
-  @ManyToOne(() => LicenseModel, (l) => l.projectAccess, { onDelete: 'CASCADE' })
+  @ManyToOne(() => LicenseEntity, (l) => l.projectAccess, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'licenseId' })
-  license: LicenseModel;
+  license: LicenseEntity;
 }

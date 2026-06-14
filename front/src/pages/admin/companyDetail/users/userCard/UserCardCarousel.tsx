@@ -1,5 +1,10 @@
-import type { License, Project } from '../../../../../lib/queries';
-import { PanelOverview, PanelProjects, PanelMachines } from '../../../../../components/licensePanel';
+import type { License } from 'contracts/shared/license';
+import type { Project } from 'contracts/shared/project';
+import {
+  PanelOverview,
+  PanelProjects,
+  PanelMachines,
+} from '../../../../../components/licensePanel';
 
 const PANELS = ['Général', 'Projets', 'Machines'] as const;
 
@@ -12,11 +17,23 @@ interface Props {
   projects: Project[];
 }
 
-export function UserCardCarousel({ panel, onPrev, onNext, onDotClick, license, projects }: Props) {
+export function UserCardCarousel({
+  panel,
+  onPrev,
+  onNext,
+  onDotClick,
+  license,
+  projects,
+}: Props) {
   return (
     <div className="flex-1 flex flex-col min-h-0">
       <div className="flex items-center justify-between px-3 pt-2 pb-1 shrink-0">
-        <button onClick={onPrev} className="text-gray-600 hover:text-gray-300 transition-colors cursor-pointer text-xs px-1">‹</button>
+        <button
+          onClick={onPrev}
+          className="text-gray-600 hover:text-gray-300 transition-colors cursor-pointer text-xs px-1"
+        >
+          ‹
+        </button>
         <div className="flex gap-1">
           {PANELS.map((_, i) => (
             <button
@@ -26,7 +43,12 @@ export function UserCardCarousel({ panel, onPrev, onNext, onDotClick, license, p
             />
           ))}
         </div>
-        <button onClick={onNext} className="text-gray-600 hover:text-gray-300 transition-colors cursor-pointer text-xs px-1">›</button>
+        <button
+          onClick={onNext}
+          className="text-gray-600 hover:text-gray-300 transition-colors cursor-pointer text-xs px-1"
+        >
+          ›
+        </button>
       </div>
       <div className="flex-1 px-3 pt-2 pb-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
         {panel === 0 && <PanelOverview license={license} />}

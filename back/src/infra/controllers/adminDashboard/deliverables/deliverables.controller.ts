@@ -2,28 +2,33 @@ import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
 import { DeliverablesUc } from '../../../../core/flows/deliverables/deliverables.uc';
 import { IDeliverableReaderRepo } from '../../../../core/repos/deliverable/deliverable.reader.abstract-repo';
 import { AdminGuard } from '../../../../infra/guards/admin.guard';
+import { DeliverableMapper } from '../../../mappers/deliverable.mapper';
+import { Deliverable } from 'contracts/shared/deliverable';
+import { GetDeliverableRequest } from 'contracts/adminDashboard/deliverables/getDeliverable/getDeliverable.request';
+import { GetDeliverableDownloadRequest } from 'contracts/adminDashboard/deliverables/getDeliverableDownload/getDeliverableDownload.request';
+import { DeleteDeliverableRequest } from 'contracts/adminDashboard/deliverables/deleteDeliverable/deleteDeliverable.request';
 
 @UseGuards(AdminGuard)
-@Controller('deliverables')
+@Controller()
 export class DeliverablesController {
   constructor(
     private readonly uc: DeliverablesUc,
     private readonly repo: IDeliverableReaderRepo,
   ) {}
 
-  @Get(':id')
-  findById(@Param('id') id: string) {
-    return this.repo.findById(id);
+  @Get(GetDeliverableRequest.BASE_URL)
+  async findById(@Param('id') id: string): Promise<Deliverable> {
+    return DeliverableMapper.toResponse(await this.repo.findById(id));
   }
 
-  @Get(':id/download')
-  async download(@Param('id') id: string) {
+  @Get(GetDeliverableDownloadRequest.BASE_URL)
+  async download(@Param('id') id: string): Promise<{ url: string }> {
     const url = await this.uc.getDownloadUrl(id);
     return { url };
   }
 
-  @Delete(':id')
-  delete(@Param('id') id: string) {
+  @Delete(DeleteDeliverableRequest.BASE_URL)
+  delete(@Param('id') id: string): Promise<void> {
     return this.uc.delete(id);
   }
 }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../../lib/api';
 import { toastSuccess, toastError } from '../../../lib/toast';
+import { RenameCompanyRequest } from 'contracts/adminDashboard/companies/renameCompany/renameCompany.request';
 
 export function useRenameCompany(companySlug: string) {
   const qc = useQueryClient();
@@ -9,7 +10,8 @@ export function useRenameCompany(companySlug: string) {
   const [draft, setDraft] = useState('');
 
   const mutation = useMutation({
-    mutationFn: (name: string) => api.patch(`/companies/${companySlug}/name`, { name }),
+    mutationFn: (name: string) =>
+      api.patch(RenameCompanyRequest.buildUrl(companySlug), { name }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['companies'] });
       setEditing(false);

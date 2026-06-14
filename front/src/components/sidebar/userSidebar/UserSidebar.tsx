@@ -3,14 +3,18 @@ import { toast } from 'sonner';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useUserSidebar } from './useUserSidebar';
 import { VersionBadge } from '../../VersionBadge';
-import type { UserCompanySection } from '../../../lib/queries';
+import type { UserCompanySection } from 'contracts/userDashboard/readProfile/readProfile.response';
 
 export function UserSidebar() {
   const { user, logout } = useAuth();
-  const { companies, openCompanies, toggleCompany, scrollToProject } = useUserSidebar();
+  const { companies, openCompanies, toggleCompany, scrollToProject } =
+    useUserSidebar();
   const navigate = useNavigate();
 
-  const displayName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email || '';
+  const displayName =
+    [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
+    user?.email ||
+    '';
 
   async function handleLogout() {
     await logout();
@@ -27,15 +31,32 @@ export function UserSidebar() {
         </div>
         {user && (
           <div className="mt-1">
-            <p className="text-gray-400 text-sm font-medium truncate">{displayName}</p>
+            <p className="text-gray-400 text-sm font-medium truncate">
+              {displayName}
+            </p>
             <button
-              onClick={() => { navigator.clipboard.writeText(user.email); toast.success('Email copié'); }}
+              onClick={() => {
+                navigator.clipboard.writeText(user.email);
+                toast.success('Email copié');
+              }}
               className="flex items-center gap-1 text-gray-600 text-xs hover:text-gray-400 transition-colors cursor-pointer group"
               title="Copier l'email"
             >
               <span className="truncate">{user.email}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
               </svg>
             </button>
           </div>
@@ -43,7 +64,9 @@ export function UserSidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3">
-        <p className="text-xs uppercase tracking-wide px-2 mb-2 text-gray-500">Mes entreprises</p>
+        <p className="text-xs uppercase tracking-wide px-2 mb-2 text-gray-500">
+          Mes entreprises
+        </p>
         {companies.length === 0 && (
           <p className="text-gray-600 text-xs px-2">Aucune entreprise</p>
         )}
@@ -90,8 +113,12 @@ function CompanyEntry({
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className={`w-3 h-3 text-gray-500 transition-transform shrink-0 ${isOpen ? 'rotate-90' : ''}`}
-          viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-          strokeLinecap="round" strokeLinejoin="round"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         >
           <polyline points="9 18 15 12 9 6" />
         </svg>

@@ -1,25 +1,47 @@
 import { useMemo } from 'react';
-import { useProjectDeliverables } from '../../lib/queries';
-import type { Project, User } from '../../lib/queries';
+import type { Project } from 'contracts/shared/project';
+import type { CompanyUser } from 'contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.response';
+import { useProjectDeliverables } from '../../api/projects';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useProjectCardActions } from './useProjectCardActions';
-import { getAccessUsers } from '../../lib/utils';
 import { ProjectCardHeader } from './ProjectCardHeader';
 import { ProjectAccessSection } from './ProjectAccessSection';
 import { ProjectDeliverablesSection } from './ProjectDeliverablesSection';
 import { ProjectEditModal } from './ProjectEditModal';
 
+function getAccessUsers(users: CompanyUser[], projectId: string): CompanyUser[] {
+  return users.filter((u) => {
+    const license = u.license;
+    if (!license || license.status !== 'ACTIVE') return false;
+    if (license.type === 'ADMIN') return true;
+    return license.projectAccess.some((a) => a.projectId === projectId);
+  });
+}
+
 interface Props {
   project: Project;
   companySlug: string;
-  users: User[];
+  users: CompanyUser[];
   onDeleteProject: (project: Project) => void;
 }
 
-export function ProjectCard({ project, companySlug, users, onDeleteProject }: Props) {
+export function ProjectCard({
+  project,
+  companySlug,
+  users,
+  onDeleteProject,
+}: Props) {
   const { data: deliverables = [] } = useProjectDeliverables(project.id);
-  const { clipboard, copyProjectId, deliverables: deliv, edit } = useProjectCardActions(project, companySlug);
-  const accessUsers = useMemo(() => getAccessUsers(users, project.id), [users, project.id]);
+  const {
+    clipboard,
+    copyProjectId,
+    deliverables: deliv,
+    edit,
+  } = useProjectCardActions(project, companySlug);
+  const accessUsers = useMemo(
+    () => getAccessUsers(users, project.id),
+    [users, project.id],
+  );
 
   return (
     <div className="border border-gray-800 rounded-lg overflow-hidden">

@@ -8,6 +8,8 @@ export function toastSuccess(message: string) {
 export function toastError(err: unknown) {
   const axiosErr = err as AxiosError<{ message?: string | string[] }>;
   const raw = axiosErr?.response?.data?.message;
-  const message = Array.isArray(raw) ? raw[0] : (raw ?? 'Une erreur est survenue');
+  const message = Array.isArray(raw)
+    ? raw[0]
+    : (raw ?? 'Une erreur est survenue');
   toast.error(message);
 }

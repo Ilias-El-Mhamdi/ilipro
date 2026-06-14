@@ -1,4 +1,4 @@
-import type { Company } from '../../../lib/queries';
+import type { Company } from 'contracts/shared/company';
 import { Modal } from '../../../components/ui/Modal';
 import { Input } from '../../../components/ui/Input';
 import { Button } from '../../../components/ui/Button';
@@ -11,14 +11,39 @@ interface Props {
   onSubmit: () => void;
 }
 
-export function CompanyFormModal({ editing, name, onNameChange, onClose, onSubmit }: Props) {
+export function CompanyFormModal({
+  editing,
+  name,
+  onNameChange,
+  onClose,
+  onSubmit,
+}: Props) {
   return (
-    <Modal title={editing ? "Modifier l'entreprise" : 'Nouvelle entreprise'} onClose={onClose}>
-      <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="flex flex-col gap-4">
-        <Input label="Nom" value={name} onChange={(e) => onNameChange(e.target.value)} placeholder="Nom de l'entreprise" autoFocus />
+    <Modal
+      title={editing ? "Modifier l'entreprise" : 'Nouvelle entreprise'}
+      onClose={onClose}
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit();
+        }}
+        className="flex flex-col gap-4"
+      >
+        <Input
+          label="Nom"
+          value={name}
+          onChange={(e) => onNameChange(e.target.value)}
+          placeholder="Nom de l'entreprise"
+          autoFocus
+        />
         <div className="flex gap-2 justify-end">
-          <Button type="button" variant="ghost" onClick={onClose}>Annuler</Button>
-          <Button type="submit" disabled={!name.trim()}>{editing ? 'Mettre à jour' : 'Créer'}</Button>
+          <Button type="button" variant="ghost" onClick={onClose}>
+            Annuler
+          </Button>
+          <Button type="submit" disabled={!name.trim()}>
+            {editing ? 'Mettre à jour' : 'Créer'}
+          </Button>
         </div>
       </form>
     </Modal>

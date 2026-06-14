@@ -2,7 +2,7 @@ import { AdminLayout } from '../../../components/layouts/AdminLayout';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { Button } from '../../../components/ui/Button';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
-import { useUserCrud } from '../../../hooks/useUserCrud';
+import { useUserCrud } from './useUserCrud';
 import { LoadingText } from '../../../components/ui/LoadingText';
 import { EmptyText } from '../../../components/ui/EmptyText';
 import { UsersTable } from './UsersTable';
@@ -11,13 +11,21 @@ import { CreateUserModal } from './CreateUserModal';
 export function UsersPage() {
   usePageTitle('Utilisateurs');
   const {
-    users, isLoading, navigate,
-    modalOpen, setModalOpen,
-    confirmUser, setConfirmUser,
-    firstName, setFirstName,
-    lastName, setLastName,
-    email, setEmail,
-    create, remove,
+    users,
+    isLoading,
+    navigate,
+    modalOpen,
+    setModalOpen,
+    confirmUser,
+    setConfirmUser,
+    firstName,
+    setFirstName,
+    lastName,
+    setLastName,
+    email,
+    setEmail,
+    create,
+    remove,
   } = useUserCrud();
 
   return (
@@ -35,15 +43,21 @@ export function UsersPage() {
         <UsersTable
           users={users}
           onNavigate={(slug) => navigate(`/admin/users/${slug}`)}
-          onDelete={(e, user) => { e.stopPropagation(); setConfirmUser(user); }}
+          onDelete={(e, user) => {
+            e.stopPropagation();
+            setConfirmUser(user);
+          }}
         />
       )}
 
       {modalOpen && (
         <CreateUserModal
-          firstName={firstName} onFirstNameChange={setFirstName}
-          lastName={lastName} onLastNameChange={setLastName}
-          email={email} onEmailChange={setEmail}
+          firstName={firstName}
+          onFirstNameChange={setFirstName}
+          lastName={lastName}
+          onLastNameChange={setLastName}
+          email={email}
+          onEmailChange={setEmail}
           onClose={() => setModalOpen(false)}
           onSubmit={create.mutate}
           isPending={create.isPending}

@@ -1,13 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import type { UserModel } from '../../repos/user/user.entity';
+import type { UserEntity } from '../../repos/user/user.entity';
 import type { JwtPayload } from './jwt-payload';
 
 @Injectable()
 export class JwtUc {
   constructor(private readonly jwtService: JwtService) {}
 
-  async create(user: UserModel): Promise<{ token: string; payload: JwtPayload }> {
+  async create(user: UserEntity): Promise<{ token: string; payload: JwtPayload }> {
     const payload: JwtPayload = {
       sub: user.id,
       slug: user.slug,

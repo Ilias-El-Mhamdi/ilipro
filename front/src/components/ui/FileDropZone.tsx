@@ -24,7 +24,10 @@ export function FileDropZone({ onFiles, loading }: Props) {
 
   return (
     <div
-      onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+      }}
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
       onClick={() => inputRef.current?.click()}
@@ -42,10 +45,14 @@ export function FileDropZone({ onFiles, loading }: Props) {
         onChange={handleChange}
       />
       <p className="text-gray-400 text-sm">
-        {loading
-          ? 'Envoi en cours...'
-          : <>Glissez vos fichiers ici ou <span className="text-indigo-400">cliquez pour parcourir</span></>
-        }
+        {loading ? (
+          'Envoi en cours...'
+        ) : (
+          <>
+            Glissez vos fichiers ici ou{' '}
+            <span className="text-indigo-400">cliquez pour parcourir</span>
+          </>
+        )}
       </p>
     </div>
   );

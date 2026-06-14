@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ILicenseReaderRepo } from '../../../core/repos/license/license.reader.abstract-repo';
 import { ILicenseWriterRepo, CreateLicenseInput, UpdateLicenseInput } from '../../../core/repos/license/license.writer.abstract-repo';
-import { LicenseModel } from '../../../core/repos/license/license.entity';
-import { LicenseMachineModel } from '../../../core/repos/license/license-machine.entity';
-import { LicenseProjectModel } from '../../../core/repos/license/license-project.entity';
+import { LicenseEntity } from '../../../core/repos/license/license.entity';
+import { LicenseMachineEntity } from '../../../core/repos/license/license-machine.entity';
+import { LicenseProjectEntity } from '../../../core/repos/license/license-project.entity';
 
 const relations = { projectAccess: true, machines: true };
 const machinesOrder = { machines: { activatedAt: 'ASC' as const } };
@@ -13,29 +13,29 @@ const machinesOrder = { machines: { activatedAt: 'ASC' as const } };
 @Injectable()
 export class LicenseRepo implements ILicenseReaderRepo, ILicenseWriterRepo {
   constructor(
-    @InjectRepository(LicenseModel)
-    private readonly repo: Repository<LicenseModel>,
-    @InjectRepository(LicenseMachineModel)
-    private readonly machineRepo: Repository<LicenseMachineModel>,
-    @InjectRepository(LicenseProjectModel)
-    private readonly projectRepo: Repository<LicenseProjectModel>,
+    @InjectRepository(LicenseEntity)
+    private readonly repo: Repository<LicenseEntity>,
+    @InjectRepository(LicenseMachineEntity)
+    private readonly machineRepo: Repository<LicenseMachineEntity>,
+    @InjectRepository(LicenseProjectEntity)
+    private readonly projectRepo: Repository<LicenseProjectEntity>,
   ) {}
 
-  async findByUserId(userId: string): Promise<LicenseModel> {
+  async findByUserId(userId: string): Promise<LicenseEntity> {
     const license = await this.repo.findOne({ where: { userId }, relations, order: machinesOrder });
     if (!license) throw new NotFoundException(`No license found for user ${userId}`);
     return license;
   }
 
-  findByUserAndCompany(userId: string, companyId: string): Promise<LicenseModel | null> {
+  findByUserAndCompany(userId: string, companyId: string): Promise<LicenseEntity | null> {
     return this.repo.findOne({ where: { userId, companyId }, relations, order: machinesOrder });
   }
 
-  findByStripeSubscriptionId(subscriptionId: string): Promise<LicenseModel | null> {
+  findByStripeSubscriptionId(subscriptionId: string): Promise<LicenseEntity | null> {
     return this.repo.findOne({ where: { stripeSubscriptionId: subscriptionId }, relations, order: machinesOrder });
   }
 
-  async create(input: CreateLicenseInput): Promise<LicenseModel> {
+  async create(input: CreateLicenseInput): Promise<LicenseEntity> {
     const existing = await this.findByUserAndCompany(input.userId, input.companyId);
     if (existing) throw new BadRequestException(`User already has a license for this company`);
 
@@ -50,10 +50,14 @@ export class LicenseRepo implements ILicenseReaderRepo, ILicenseWriterRepo {
     if (projectIds?.length) {
       await this.projectRepo.save(projectIds.map((projectId) => this.projectRepo.create({ licenseId: license.id, projectId })));
     }
-    return this.repo.findOneOrFail({ where: { id: license.id }, relations: { projectAccess: true, machines: true }, order: { machines: { activatedAt: 'ASC' } } });
+    return this.repo.findOneOrFail({
+      where: { id: license.id },
+      relations: { projectAccess: true, machines: true },
+      order: { machines: { activatedAt: 'ASC' } },
+    });
   }
 
-  async update(id: string, input: UpdateLicenseInput): Promise<LicenseModel> {
+  async update(id: string, input: UpdateLicenseInput): Promise<LicenseEntity> {
     const { projectIds, ...data } = input;
     if (projectIds !== undefined) {
       await this.projectRepo.delete({ licenseId: id });
@@ -64,7 +68,11 @@ export class LicenseRepo implements ILicenseReaderRepo, ILicenseWriterRepo {
     if (Object.keys(data).length) {
       await this.repo.update(id, data);
     }
-    return this.repo.findOneOrFail({ where: { id }, relations: { projectAccess: true, machines: true }, order: { machines: { activatedAt: 'ASC' } } });
+    return this.repo.findOneOrFail({
+      where: { id },
+      relations: { projectAccess: true, machines: true },
+      order: { machines: { activatedAt: 'ASC' } },
+    });
   }
 
   async delete(id: string): Promise<void> {

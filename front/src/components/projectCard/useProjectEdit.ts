@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Project } from '../../lib/queries';
+import type { Project } from 'contracts/shared/project';
 import { api } from '../../lib/api';
 import { toastSuccess, toastError } from '../../lib/toast';
+import { UpdateProjectRequest } from 'contracts/adminDashboard/projects/updateProject/updateProject.request';
 
 export function useProjectEdit(project: Project, companySlug: string) {
   const qc = useQueryClient();
@@ -14,14 +15,16 @@ export function useProjectEdit(project: Project, companySlug: string) {
 
   const mutation = useMutation({
     mutationFn: () =>
-      api.patch(`/projects/${project.id}`, {
+      api.patch(UpdateProjectRequest.buildUrl(project.id), {
         name: name.trim() || project.name,
         appUrl: appUrl || null,
         docsUrl: docsUrl || null,
         changelogUrl: changelogUrl || null,
       }),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'projects'] });
+      void qc.invalidateQueries({
+        queryKey: ['companies', companySlug, 'projects'],
+      });
       void qc.invalidateQueries({ queryKey: ['projects'] });
       setOpen(false);
       toastSuccess('Projet mis à jour');
@@ -38,11 +41,16 @@ export function useProjectEdit(project: Project, companySlug: string) {
   }
 
   return {
-    open, setOpen,
-    name, setName,
-    appUrl, setAppUrl,
-    docsUrl, setDocsUrl,
-    changelogUrl, setChangelogUrl,
+    open,
+    setOpen,
+    name,
+    setName,
+    appUrl,
+    setAppUrl,
+    docsUrl,
+    setDocsUrl,
+    changelogUrl,
+    setChangelogUrl,
     mutation,
     openModal,
   };

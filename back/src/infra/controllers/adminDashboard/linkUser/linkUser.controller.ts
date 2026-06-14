@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Put, UseGuards } from '@nestjs/common';
+import { IsEmail, IsString } from 'class-validator';
 import { LinkUserUc } from '../../../../core/flows/linkUser/linkUser.uc';
 import { IUserWriterRepo } from '../../../../core/repos/user/user.writer.abstract-repo';
 import { IUserCompanyReaderRepo } from '../../../../core/repos/userCompany/user-company.reader.abstract-repo';
@@ -6,9 +7,38 @@ import { IUserCompanyWriterRepo } from '../../../../core/repos/userCompany/user-
 import { ICompanyReaderRepo } from '../../../../core/repos/company/company.reader.abstract-repo';
 import { ILicenseReaderRepo } from '../../../../core/repos/license/license.reader.abstract-repo';
 import { AdminGuard } from '../../../../infra/guards/admin.guard';
+import { UserMapper } from '../../../mappers/user.mapper';
+import type { CreateCompanyUserBody } from 'contracts/adminDashboard/linkUser/createCompanyUser/createCompanyUser.body';
+import type { UpdateCompanyUserBody } from 'contracts/adminDashboard/linkUser/updateCompanyUser/updateCompanyUser.body';
+import { User } from 'contracts/shared/user';
+import { CompanyUser } from 'contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.response';
+import { ListCompanyUsersRequest } from 'contracts/adminDashboard/linkUser/listCompanyUsers/listCompanyUsers.request';
+import { CreateCompanyUserRequest } from 'contracts/adminDashboard/linkUser/createCompanyUser/createCompanyUser.request';
+import { UpdateCompanyUserRequest } from 'contracts/adminDashboard/linkUser/updateCompanyUser/updateCompanyUser.request';
+import { LinkUserRequest } from 'contracts/adminDashboard/linkUser/linkUser/linkUser.request';
+import { UnlinkUserRequest } from 'contracts/adminDashboard/linkUser/unlinkUser/unlinkUser.request';
+
+class CreateCompanyUserDto implements CreateCompanyUserBody {
+  @IsString()
+  firstName: string;
+
+  @IsString()
+  lastName: string;
+
+  @IsEmail()
+  email: string;
+}
+
+class UpdateCompanyUserDto implements UpdateCompanyUserBody {
+  @IsString()
+  firstName: string;
+
+  @IsString()
+  lastName: string;
+}
 
 @UseGuards(AdminGuard)
-@Controller('companies/:companySlug/users')
+@Controller()
 export class LinkUserController {
   constructor(
     private readonly linkUserUc: LinkUserUc,
@@ -19,44 +49,44 @@ export class LinkUserController {
     @Inject(ILicenseReaderRepo) private readonly licenseRepo: ILicenseReaderRepo,
   ) {}
 
-  @Get()
-  async findByCompany(@Param('companySlug') companySlug: string) {
+  @Get(ListCompanyUsersRequest.BASE_URL)
+  async findByCompany(@Param('companySlug') companySlug: string): Promise<CompanyUser[]> {
     const company = await this.companyRepo.findBySlug(companySlug);
     const users = await this.userCompanyReaderRepo.findUsersByCompanyId(company.id);
 
     return Promise.all(
       users.map(async (user) => {
         const license = await this.licenseRepo.findByUserAndCompany(user.id, company.id);
-        return { ...user, license: license ?? null };
+        return UserMapper.toCompanyUser(user, license ?? null);
       }),
     );
   }
 
-  @Post()
-  async createOrLink(
-    @Param('companySlug') companySlug: string,
-    @Body('firstName') firstName: string,
-    @Body('lastName') lastName: string,
-    @Body('email') email: string,
-  ) {
+  @Post(CreateCompanyUserRequest.BASE_URL)
+  async createOrLink(@Param('companySlug') companySlug: string, @Body() dto: CreateCompanyUserDto): Promise<User> {
     const company = await this.companyRepo.findBySlug(companySlug);
-    return this.linkUserUc.createOrLink(firstName, lastName, email, company.id);
+    return UserMapper.toResponse(await this.linkUserUc.createOrLink(dto.firstName, dto.lastName, dto.email, company.id));
   }
 
-  @Put(':userId')
-  update(@Param('userId') userId: string, @Body('firstName') firstName: string, @Body('lastName') lastName: string) {
-    return this.userRepo.update(userId, { firstName, lastName });
+  @Put(UpdateCompanyUserRequest.BASE_URL)
+  async update(@Param('userId') userId: string, @Body() dto: UpdateCompanyUserDto): Promise<User> {
+    return UserMapper.toResponse(
+      await this.userRepo.update(userId, {
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+      }),
+    );
   }
 
-  @Patch(':userId/link')
-  async linkExisting(@Param('companySlug') companySlug: string, @Param('userId') userId: string) {
+  @Patch(LinkUserRequest.BASE_URL)
+  async linkExisting(@Param('companySlug') companySlug: string, @Param('userId') userId: string): Promise<void> {
     const company = await this.companyRepo.findBySlug(companySlug);
-    return this.linkUserUc.linkToCompany(userId, company.id);
+    await this.linkUserUc.linkToCompany(userId, company.id);
   }
 
-  @Delete(':userId')
-  async unlink(@Param('companySlug') companySlug: string, @Param('userId') userId: string) {
+  @Delete(UnlinkUserRequest.BASE_URL)
+  async unlink(@Param('companySlug') companySlug: string, @Param('userId') userId: string): Promise<void> {
     const company = await this.companyRepo.findBySlug(companySlug);
-    return this.userCompanyWriterRepo.unlink(userId, company.id);
+    await this.userCompanyWriterRepo.unlink(userId, company.id);
   }
 }

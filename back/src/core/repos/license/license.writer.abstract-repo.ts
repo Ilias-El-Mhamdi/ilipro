@@ -1,4 +1,4 @@
-import type { LicenseModel, LicenseType, LicenseStatus } from './license.entity';
+import type { LicenseEntity, LicenseType, LicenseStatus } from './license.entity';
 
 export interface CreateLicenseInput {
   userId: string;
@@ -29,8 +29,8 @@ export interface UpdateLicenseInput {
 }
 
 export abstract class ILicenseWriterRepo {
-  abstract create(input: CreateLicenseInput): Promise<LicenseModel>;
-  abstract update(id: string, input: UpdateLicenseInput): Promise<LicenseModel>;
+  abstract create(input: CreateLicenseInput): Promise<LicenseEntity>;
+  abstract update(id: string, input: UpdateLicenseInput): Promise<LicenseEntity>;
   abstract delete(id: string): Promise<void>;
   abstract removeMachine(licenseId: string, machineId: string): Promise<void>;
   abstract activate(licenseKey: string, machineId: string, label?: string): Promise<{ valid: true }>;

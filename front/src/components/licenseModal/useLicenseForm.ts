@@ -1,8 +1,18 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { User, License, LicenseType, LicenseStatus } from '../../lib/queries';
+import type {
+  License,
+  LicenseStatus,
+  LicenseType,
+} from 'contracts/shared/license';
+import type { User } from 'contracts/shared/user';
 import { api } from '../../lib/api';
 import { toastSuccess, toastError } from '../../lib/toast';
+import { CreateLicenseRequest } from 'contracts/adminDashboard/licenses/createLicense/createLicense.request';
+import { UpdateLicenseRequest } from 'contracts/adminDashboard/licenses/updateLicense/updateLicense.request';
+import { DeleteLicenseRequest } from 'contracts/adminDashboard/licenses/deleteLicense/deleteLicense.request';
+import { DeleteLicenseMachineRequest } from 'contracts/adminDashboard/licenses/deleteLicenseMachine/deleteLicenseMachine.request';
+import { BillingPortalRequest } from 'contracts/payment/billingPortal/billingPortal.request';
 
 interface Props {
   user: User;
@@ -12,11 +22,19 @@ interface Props {
   onClose: () => void;
 }
 
-export function useLicenseForm({ user, license, companySlug, companyId, onClose }: Props) {
+export function useLicenseForm({
+  user,
+  license,
+  companySlug,
+  companyId,
+  onClose,
+}: Props) {
   const qc = useQueryClient();
 
   const [type, setType] = useState<LicenseType>(license?.type ?? 'FREE');
-  const [status, setStatus] = useState<LicenseStatus>(license?.status ?? 'ACTIVE');
+  const [status, setStatus] = useState<LicenseStatus>(
+    license?.status ?? 'ACTIVE',
+  );
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>(
     license?.projectAccess.map((p) => p.projectId) ?? [],
   );
@@ -28,7 +46,9 @@ export function useLicenseForm({ user, license, companySlug, companyId, onClose 
   const [priceLabel, setPriceLabel] = useState(license?.priceLabel ?? '');
 
   function invalidate() {
-    void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'users'] });
+    void qc.invalidateQueries({
+      queryKey: ['companies', companySlug, 'users'],
+    });
     void qc.invalidateQueries({ queryKey: ['users', user.id, 'license'] });
   }
 
@@ -43,8 +63,13 @@ export function useLicenseForm({ user, license, companySlug, companyId, onClose 
         validUntil: type === 'FREE' && validUntil ? validUntil : null,
         priceLabel: type === 'CLASSIC' && priceLabel ? priceLabel : null,
       };
-      if (license) return api.patch(`/licenses/${license.id}`, payload);
-      return api.post('/licenses', { ...payload, userId: user.id, companyId });
+      if (license)
+        return api.patch(UpdateLicenseRequest.buildUrl(license.id), payload);
+      return api.post(CreateLicenseRequest.buildUrl(), {
+        ...payload,
+        userId: user.id,
+        companyId,
+      });
     },
     onSuccess: () => {
       invalidate();
@@ -55,7 +80,7 @@ export function useLicenseForm({ user, license, companySlug, companyId, onClose 
   });
 
   const revokeMutation = useMutation({
-    mutationFn: () => api.delete(`/licenses/${license!.id}`),
+    mutationFn: () => api.delete(DeleteLicenseRequest.buildUrl(license!.id)),
     onSuccess: () => {
       invalidate();
       onClose();
@@ -65,7 +90,8 @@ export function useLicenseForm({ user, license, companySlug, companyId, onClose 
   });
 
   const removeMachineMutation = useMutation({
-    mutationFn: (machineId: string) => api.delete(`/licenses/${license!.id}/machines/${machineId}`),
+    mutationFn: (machineId: string) =>
+      api.delete(DeleteLicenseMachineRequest.buildUrl(license!.id, machineId)),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['users', user.id, 'license'] });
       toastSuccess('Machine retirée');
@@ -75,7 +101,9 @@ export function useLicenseForm({ user, license, companySlug, companyId, onClose 
 
   const billingPortalMutation = useMutation({
     mutationFn: () =>
-      api.post('/stripe/billing-portal', { userId: user.id }).then((r) => r.data as { url: string }),
+      api
+        .post(BillingPortalRequest.buildUrl(), { userId: user.id })
+        .then((r) => r.data as { url: string }),
     onSuccess: ({ url }) => window.open(url, '_blank'),
     onError: toastError,
   });
@@ -102,13 +130,19 @@ export function useLicenseForm({ user, license, companySlug, companyId, onClose 
   }
 
   return {
-    type, setType,
-    status, setStatus,
+    type,
+    setType,
+    status,
+    setStatus,
     selectedProjectIds,
-    machineLock, setMachineLock,
-    maxMachines, setMaxMachines,
-    validUntil, setValidUntil,
-    priceLabel, setPriceLabel,
+    machineLock,
+    setMachineLock,
+    maxMachines,
+    setMaxMachines,
+    validUntil,
+    setValidUntil,
+    priceLabel,
+    setPriceLabel,
     machines: license?.machines ?? [],
     toggleProject,
     saveMutation,

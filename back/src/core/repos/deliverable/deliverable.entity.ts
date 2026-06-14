@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('Deliverable')
-export class DeliverableModel {
+export class DeliverableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

@@ -1,7 +1,7 @@
-import type { DeliverableModel } from './deliverable.entity';
+import type { DeliverableEntity } from './deliverable.entity';
 
 export abstract class IDeliverableReaderRepo {
-  abstract findAll(): Promise<DeliverableModel[]>;
-  abstract findByProjectId(projectId: string): Promise<DeliverableModel[]>;
-  abstract findById(id: string): Promise<DeliverableModel>;
+  abstract findAll(): Promise<DeliverableEntity[]>;
+  abstract findByProjectId(projectId: string): Promise<DeliverableEntity[]>;
+  abstract findById(id: string): Promise<DeliverableEntity>;
 }

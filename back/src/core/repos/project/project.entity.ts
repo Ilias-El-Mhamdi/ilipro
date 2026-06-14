@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 
 @Entity('Project')
 @Unique(['companyId', 'slug'])
-export class ProjectModel {
+export class ProjectEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

@@ -6,7 +6,19 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 
 export function LoginPage() {
   usePageTitle('Connexion');
-  const { step, email, setEmail, otp, setOtp, loading, cooldown, otpInvalidated, sendOtp, verifyOtp, backToEmail } = useLogin();
+  const {
+    step,
+    email,
+    setEmail,
+    otp,
+    setOtp,
+    loading,
+    cooldown,
+    otpInvalidated,
+    sendOtp,
+    verifyOtp,
+    backToEmail,
+  } = useLogin();
 
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center relative">

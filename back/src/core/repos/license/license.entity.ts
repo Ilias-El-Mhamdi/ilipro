@@ -1,31 +1,31 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, JoinColumn, Unique } from 'typeorm';
-import { LicenseMachineModel } from './license-machine.entity';
-import { LicenseProjectModel } from './license-project.entity';
-import { UserModel } from '../user/user.entity';
-import { CompanyModel } from '../company/company.entity';
+import { LicenseMachineEntity } from './license-machine.entity';
+import { LicenseProjectEntity } from './license-project.entity';
+import { UserEntity } from '../user/user.entity';
+import { CompanyEntity } from '../company/company.entity';
 
 export type LicenseType = 'CLASSIC' | 'FREE' | 'ADMIN';
 export type LicenseStatus = 'ACTIVE' | 'EXPIRED' | 'CANCELLED';
 
 @Entity('License')
 @Unique(['userId', 'companyId'])
-export class LicenseModel {
+export class LicenseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ type: 'uuid' })
   userId: string;
 
-  @ManyToOne(() => UserModel, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
-  user: UserModel;
+  user: UserEntity;
 
   @Column({ type: 'uuid' })
   companyId: string;
 
-  @ManyToOne(() => CompanyModel, { onDelete: 'CASCADE' })
+  @ManyToOne(() => CompanyEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'companyId' })
-  company: CompanyModel;
+  company: CompanyEntity;
 
   @Column('varchar')
   type: LicenseType;
@@ -33,8 +33,8 @@ export class LicenseModel {
   @Column('varchar')
   status: LicenseStatus;
 
-  @OneToMany(() => LicenseProjectModel, (lp) => lp.license)
-  projectAccess: LicenseProjectModel[];
+  @OneToMany(() => LicenseProjectEntity, (lp) => lp.license)
+  projectAccess: LicenseProjectEntity[];
 
   @Column({ default: false })
   machineLock: boolean;
@@ -42,8 +42,8 @@ export class LicenseModel {
   @Column({ default: 1 })
   maxMachines: number;
 
-  @OneToMany(() => LicenseMachineModel, (m) => m.license)
-  machines: LicenseMachineModel[];
+  @OneToMany(() => LicenseMachineEntity, (m) => m.license)
+  machines: LicenseMachineEntity[];
 
   @Column({ type: 'varchar', nullable: true })
   stripeSubscriptionId: string | null;

@@ -1,24 +1,25 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { UserDetail } from '../../../lib/queries';
+import type { ReadProfileResponse } from 'contracts/userDashboard/readProfile/readProfile.response';
 import { api } from '../../../lib/api';
 import { toastSuccess, toastError } from '../../../lib/toast';
+import { UpdateUserRequest } from 'contracts/adminDashboard/users/updateUser/updateUser.request';
 
-export function useEditUser(user: UserDetail) {
+export function useEditUser(user: ReadProfileResponse) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [firstNameDraft, setFirstNameDraft] = useState('');
   const [lastNameDraft, setLastNameDraft] = useState('');
 
   function openModal() {
-    setFirstNameDraft(user.firstName);
-    setLastNameDraft(user.lastName);
+    setFirstNameDraft(user.firstName ?? '');
+    setLastNameDraft(user.lastName ?? '');
     setOpen(true);
   }
 
   const update = useMutation({
     mutationFn: () =>
-      api.patch(`/users/${user.id}`, {
+      api.patch(UpdateUserRequest.buildUrl(user.id), {
         firstName: firstNameDraft.trim(),
         lastName: lastNameDraft.trim(),
       }),
@@ -31,9 +32,12 @@ export function useEditUser(user: UserDetail) {
   });
 
   return {
-    open, setOpen,
-    firstNameDraft, setFirstNameDraft,
-    lastNameDraft, setLastNameDraft,
+    open,
+    setOpen,
+    firstNameDraft,
+    setFirstNameDraft,
+    lastNameDraft,
+    setLastNameDraft,
     openModal,
     update,
   };

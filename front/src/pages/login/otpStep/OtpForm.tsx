@@ -7,12 +7,26 @@ interface Props {
   onResend: () => void;
 }
 
-export function OtpForm({ otp, loading, cooldown, onChange, onVerify, onResend }: Props) {
-  const resendLabel = loading ? 'Envoi…' : cooldown > 0 ? `Renvoyer un code (${cooldown}s)` : 'Renvoyer un code';
+export function OtpForm({
+  otp,
+  loading,
+  cooldown,
+  onChange,
+  onVerify,
+  onResend,
+}: Props) {
+  const resendLabel = loading
+    ? 'Envoi…'
+    : cooldown > 0
+      ? `Renvoyer un code (${cooldown}s)`
+      : 'Renvoyer un code';
 
   return (
     <form
-      onSubmit={(e) => { e.preventDefault(); onVerify(otp); }}
+      onSubmit={(e) => {
+        e.preventDefault();
+        onVerify(otp);
+      }}
       className="space-y-4"
     >
       <input

@@ -8,24 +8,24 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseModule } from './infra/database/database.module';
 import { RepoModule } from './infra/repos/repo.module';
 import { JwtAuthGuard } from './infra/guards/jwt-auth.guard';
-import { OtpRepository } from './infra/repos/otp/otp.repo';
-import { ReadProfileRepository } from './infra/repos/readProfile/readProfile.repo';
-import { ReadLicenseRepository } from './infra/repos/readLicense/readLicense.repo';
+import { OtpRepo } from './infra/repos/otp/otp.repo';
+import { ReadProfileRepo } from './infra/repos/readProfile/readProfile.repo';
+import { ReadLicenseRepo } from './infra/repos/readLicense/readLicense.repo';
 import { StripeRepo } from './infra/repos/payment/stripe.repo';
 
 // Core — abstractions
-import { IOtpRepository } from './core/repos/otp/otp.abstract-repo';
-import { IReadProfileRepository } from './core/repos/readProfile/readProfile.abstract-repo';
-import { IReadLicenseRepository } from './core/repos/readLicense/readLicense.abstract-repo';
+import { IOtpRepo } from './core/repos/otp/otp.abstract-repo';
+import { IReadProfileRepo } from './core/repos/readProfile/readProfile.abstract-repo';
+import { IReadLicenseRepo } from './core/repos/readLicense/readLicense.abstract-repo';
 import { IPaymentReadRepo } from './core/repos/payment/paymentRead.abstract-repo';
 
-// Entities (TypeOrmModule.forFeature — pour OtpRepo, ReadProfileRepository, ReadLicenseRepository)
-import { UserModel } from './core/repos/user/user.entity';
-import { CompanyModel } from './core/repos/company/company.entity';
-import { ProjectModel } from './core/repos/project/project.entity';
-import { LicenseModel } from './core/repos/license/license.entity';
-import { LicenseMachineModel } from './core/repos/license/license-machine.entity';
-import { LicenseProjectModel } from './core/repos/license/license-project.entity';
+// Entities (TypeOrmModule.forFeature — pour OtpRepo, ReadProfileRepo, ReadLicenseRepo)
+import { UserEntity } from './core/repos/user/user.entity';
+import { CompanyEntity } from './core/repos/company/company.entity';
+import { ProjectEntity } from './core/repos/project/project.entity';
+import { LicenseEntity } from './core/repos/license/license.entity';
+import { LicenseMachineEntity } from './core/repos/license/license-machine.entity';
+import { LicenseProjectEntity } from './core/repos/license/license-project.entity';
 import { UserCompanyEntity } from './core/repos/userCompany/user-company.entity';
 
 // Core flows
@@ -66,7 +66,15 @@ import { VersionController } from './infra/controllers/system/version.controller
     DatabaseModule,
     RepoModule,
     // Entités pour les repos à injection TypeORM directe (OtpRepo, ReadProfile, ReadLicense)
-    TypeOrmModule.forFeature([UserModel, CompanyModel, ProjectModel, LicenseModel, LicenseMachineModel, LicenseProjectModel, UserCompanyEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      CompanyEntity,
+      ProjectEntity,
+      LicenseEntity,
+      LicenseMachineEntity,
+      LicenseProjectEntity,
+      UserCompanyEntity,
+    ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -101,9 +109,9 @@ import { VersionController } from './infra/controllers/system/version.controller
     DeliverablesUc,
     ProjectsUc,
     StripeUc,
-    { provide: IOtpRepository, useClass: OtpRepository },
-    { provide: IReadProfileRepository, useClass: ReadProfileRepository },
-    { provide: IReadLicenseRepository, useClass: ReadLicenseRepository },
+    { provide: IOtpRepo, useClass: OtpRepo },
+    { provide: IReadProfileRepo, useClass: ReadProfileRepo },
+    { provide: IReadLicenseRepo, useClass: ReadLicenseRepo },
     StripeRepo,
     { provide: IPaymentReadRepo, useExisting: StripeRepo },
   ],

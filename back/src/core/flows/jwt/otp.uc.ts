@@ -2,8 +2,8 @@ import { BadRequestException, HttpException, HttpStatus, Injectable, Unauthorize
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
 import { IUserReaderRepo } from '../../repos/user/user.reader.abstract-repo';
-import { IOtpRepository } from '../../repos/otp/otp.abstract-repo';
-import type { UserModel } from '../../repos/user/user.entity';
+import { IOtpRepo } from '../../repos/otp/otp.abstract-repo';
+import type { UserEntity } from '../../repos/user/user.entity';
 
 const OTP_TTL_MS = 15 * 60 * 1000;
 const OTP_RESEND_COOLDOWN_MS = 30 * 1000;
@@ -19,7 +19,7 @@ export class OtpUc {
 
   constructor(
     private readonly userRepo: IUserReaderRepo,
-    private readonly otpRepo: IOtpRepository,
+    private readonly otpRepo: IOtpRepo,
     config: ConfigService,
   ) {
     this.resend = new Resend(config.get<string>('MAIL_API_KEY'));
@@ -67,7 +67,7 @@ export class OtpUc {
     });
   }
 
-  async verify(email: string, otp: string): Promise<UserModel> {
+  async verify(email: string, otp: string): Promise<UserEntity> {
     const user = await this.userRepo.findByEmail(email.trim().toLowerCase());
     if (!user) throw new UnauthorizedException('Identifiants invalides');
 

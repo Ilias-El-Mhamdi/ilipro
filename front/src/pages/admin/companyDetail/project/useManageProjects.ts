@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Project } from '../../../../lib/queries';
+import type { Project } from 'contracts/shared/project';
 import { api } from '../../../../lib/api';
 import { toastSuccess, toastError } from '../../../../lib/toast';
+import { CreateCompanyProjectRequest } from 'contracts/adminDashboard/companyProjects/createCompanyProject/createCompanyProject.request';
+import { DeleteProjectRequest } from 'contracts/adminDashboard/projects/deleteProject/deleteProject.request';
 
 export function useManageProjects(companySlug: string) {
   const qc = useQueryClient();
@@ -15,14 +17,16 @@ export function useManageProjects(companySlug: string) {
 
   const add = useMutation({
     mutationFn: () =>
-      api.post(`/companies/${companySlug}/projects`, {
+      api.post(CreateCompanyProjectRequest.buildUrl(companySlug), {
         name,
         appUrl: appUrl || null,
         docsUrl: docsUrl || null,
         changelogUrl: changelogUrl || null,
       }),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'projects'] });
+      void qc.invalidateQueries({
+        queryKey: ['companies', companySlug, 'projects'],
+      });
       void qc.invalidateQueries({ queryKey: ['projects'] });
       setModalOpen(false);
       setName('');
@@ -35,9 +39,11 @@ export function useManageProjects(companySlug: string) {
   });
 
   const remove = useMutation({
-    mutationFn: (id: string) => api.delete(`/projects/${id}`),
+    mutationFn: (id: string) => api.delete(DeleteProjectRequest.buildUrl(id)),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'projects'] });
+      void qc.invalidateQueries({
+        queryKey: ['companies', companySlug, 'projects'],
+      });
       void qc.invalidateQueries({ queryKey: ['projects'] });
       setConfirm(null);
       toastSuccess('Projet supprimé');
@@ -46,12 +52,18 @@ export function useManageProjects(companySlug: string) {
   });
 
   return {
-    modalOpen, setModalOpen,
-    confirm, setConfirm,
-    name, setName,
-    appUrl, setAppUrl,
-    docsUrl, setDocsUrl,
-    changelogUrl, setChangelogUrl,
+    modalOpen,
+    setModalOpen,
+    confirm,
+    setConfirm,
+    name,
+    setName,
+    appUrl,
+    setAppUrl,
+    docsUrl,
+    setDocsUrl,
+    changelogUrl,
+    setChangelogUrl,
     add,
     remove,
   };

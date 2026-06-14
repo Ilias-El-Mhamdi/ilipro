@@ -1,4 +1,5 @@
-import type { User, License } from '../../../lib/queries';
+import type { License } from 'contracts/shared/license';
+import type { User } from 'contracts/shared/user';
 import { Button } from '../../ui/Button';
 
 interface Props {
@@ -13,21 +14,45 @@ interface Props {
   savePending: boolean;
 }
 
-export function LicenseActions({ license, user, onRevoke, revokePending, onBillingPortal, billingPending, onCancel, onSave, savePending }: Props) {
+export function LicenseActions({
+  license,
+  user,
+  onRevoke,
+  revokePending,
+  onBillingPortal,
+  billingPending,
+  onCancel,
+  onSave,
+  savePending,
+}: Props) {
   return (
     <div className="flex items-center justify-between border-t border-gray-800 pt-4">
       <div className="flex gap-2">
         {license && (
           <>
-            <Button variant="danger" onClick={onRevoke} disabled={revokePending}>Révoquer</Button>
+            <Button
+              variant="danger"
+              onClick={onRevoke}
+              disabled={revokePending}
+            >
+              Révoquer
+            </Button>
             {user.stripeCustomerId && (
-              <Button variant="ghost" onClick={onBillingPortal} disabled={billingPending}>Stripe billing</Button>
+              <Button
+                variant="ghost"
+                onClick={onBillingPortal}
+                disabled={billingPending}
+              >
+                Stripe billing
+              </Button>
             )}
           </>
         )}
       </div>
       <div className="flex gap-2">
-        <Button variant="ghost" onClick={onCancel}>Annuler</Button>
+        <Button variant="ghost" onClick={onCancel}>
+          Annuler
+        </Button>
         <Button onClick={onSave} disabled={savePending}>
           {license ? 'Sauvegarder' : 'Créer'}
         </Button>

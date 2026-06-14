@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, Unique } from 'typeorm';
-import { LicenseModel } from './license.entity';
+import { LicenseEntity } from './license.entity';
 
 @Entity('LicenseMachine')
 @Unique(['licenseId', 'machineId'])
-export class LicenseMachineModel {
+export class LicenseMachineEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -22,7 +22,7 @@ export class LicenseMachineModel {
   @Column({ nullable: true, type: 'timestamptz' })
   lastSeenAt: Date | null;
 
-  @ManyToOne(() => LicenseModel, (l) => l.machines, { onDelete: 'CASCADE' })
+  @ManyToOne(() => LicenseEntity, (l) => l.machines, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'licenseId' })
-  license: LicenseModel;
+  license: LicenseEntity;
 }

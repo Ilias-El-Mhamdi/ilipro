@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { User } from '../../../../lib/queries';
+import type { User } from 'contracts/shared/user';
 import { api } from '../../../../lib/api';
 import { toastSuccess, toastError } from '../../../../lib/toast';
+import { CreateCompanyUserRequest } from 'contracts/adminDashboard/linkUser/createCompanyUser/createCompanyUser.request';
+import { UnlinkUserRequest } from 'contracts/adminDashboard/linkUser/unlinkUser/unlinkUser.request';
 
 export function useManageUsers(companySlug: string) {
   const qc = useQueryClient();
@@ -14,9 +16,15 @@ export function useManageUsers(companySlug: string) {
 
   const add = useMutation({
     mutationFn: () =>
-      api.post(`/companies/${companySlug}/users`, { firstName, lastName, email }),
+      api.post(CreateCompanyUserRequest.buildUrl(companySlug), {
+        firstName,
+        lastName,
+        email,
+      }),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'users'] });
+      void qc.invalidateQueries({
+        queryKey: ['companies', companySlug, 'users'],
+      });
       setModalOpen(false);
       setFirstName('');
       setLastName('');
@@ -27,9 +35,12 @@ export function useManageUsers(companySlug: string) {
   });
 
   const remove = useMutation({
-    mutationFn: (id: string) => api.delete(`/companies/${companySlug}/users/${id}`),
+    mutationFn: (id: string) =>
+      api.delete(UnlinkUserRequest.buildUrl(companySlug, id)),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['companies', companySlug, 'users'] });
+      void qc.invalidateQueries({
+        queryKey: ['companies', companySlug, 'users'],
+      });
       void qc.invalidateQueries({ queryKey: ['users'] });
       setConfirm(null);
       toastSuccess('Utilisateur retiré');
@@ -38,11 +49,16 @@ export function useManageUsers(companySlug: string) {
   });
 
   return {
-    modalOpen, setModalOpen,
-    confirm, setConfirm,
-    firstName, setFirstName,
-    lastName, setLastName,
-    email, setEmail,
+    modalOpen,
+    setModalOpen,
+    confirm,
+    setConfirm,
+    firstName,
+    setFirstName,
+    lastName,
+    setLastName,
+    email,
+    setEmail,
     add,
     remove,
   };

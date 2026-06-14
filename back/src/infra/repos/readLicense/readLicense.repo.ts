@@ -1,26 +1,26 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IReadLicenseRepository } from '../../../core/repos/readLicense/readLicense.abstract-repo';
-import { LicenseModel } from '../../../core/repos/license/license.entity';
-import { LicenseMachineModel } from '../../../core/repos/license/license-machine.entity';
-import { LicenseProjectModel } from '../../../core/repos/license/license-project.entity';
+import { IReadLicenseRepo } from '../../../core/repos/readLicense/readLicense.abstract-repo';
+import { LicenseEntity } from '../../../core/repos/license/license.entity';
+import { LicenseMachineEntity } from '../../../core/repos/license/license-machine.entity';
+import { LicenseProjectEntity } from '../../../core/repos/license/license-project.entity';
 
 const relations = { projectAccess: true, machines: true };
 const machinesOrder = { machines: { activatedAt: 'ASC' as const } };
 
 @Injectable()
-export class ReadLicenseRepository implements IReadLicenseRepository {
+export class ReadLicenseRepo implements IReadLicenseRepo {
   constructor(
-    @InjectRepository(LicenseModel)
-    private readonly repo: Repository<LicenseModel>,
-    @InjectRepository(LicenseMachineModel)
-    private readonly machineRepo: Repository<LicenseMachineModel>,
-    @InjectRepository(LicenseProjectModel)
-    private readonly projectRepo: Repository<LicenseProjectModel>,
+    @InjectRepository(LicenseEntity)
+    private readonly repo: Repository<LicenseEntity>,
+    @InjectRepository(LicenseMachineEntity)
+    private readonly machineRepo: Repository<LicenseMachineEntity>,
+    @InjectRepository(LicenseProjectEntity)
+    private readonly projectRepo: Repository<LicenseProjectEntity>,
   ) {}
 
-  async findByUserId(userId: string): Promise<LicenseModel> {
+  async findByUserId(userId: string): Promise<LicenseEntity> {
     const license = await this.repo.findOne({ where: { userId }, relations, order: machinesOrder });
     if (!license) throw new NotFoundException(`No license found for user ${userId}`);
     return license;

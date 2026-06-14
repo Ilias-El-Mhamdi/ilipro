@@ -4,18 +4,18 @@ import { Repository } from 'typeorm';
 import { IUserCompanyReaderRepo } from '../../../core/repos/userCompany/user-company.reader.abstract-repo';
 import { IUserCompanyWriterRepo } from '../../../core/repos/userCompany/user-company.writer.abstract-repo';
 import { UserCompanyEntity } from '../../../core/repos/userCompany/user-company.entity';
-import { UserModel } from '../../../core/repos/user/user.entity';
+import { UserEntity } from '../../../core/repos/user/user.entity';
 
 @Injectable()
 export class UserCompanyRepo implements IUserCompanyReaderRepo, IUserCompanyWriterRepo {
   constructor(
     @InjectRepository(UserCompanyEntity)
     private readonly repo: Repository<UserCompanyEntity>,
-    @InjectRepository(UserModel)
-    private readonly userRepo: Repository<UserModel>,
+    @InjectRepository(UserEntity)
+    private readonly userRepo: Repository<UserEntity>,
   ) {}
 
-  async findUsersByCompanyId(companyId: string): Promise<UserModel[]> {
+  async findUsersByCompanyId(companyId: string): Promise<UserEntity[]> {
     const links = await this.repo.find({ where: { companyId } });
     if (!links.length) return [];
     const ids = links.map((l) => l.userId);

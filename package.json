@@ -1,0 +1,25 @@
+{
+  "name": "ilipro",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "check:docs": "node scripts/check-doc-paths.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ilias-El-Mhamdi/ilipro.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Ilias-El-Mhamdi/ilipro/issues"
+  },
+  "homepage": "https://github.com/Ilias-El-Mhamdi/ilipro#readme",
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}

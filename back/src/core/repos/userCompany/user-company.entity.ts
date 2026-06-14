@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Unique, ManyToOne, JoinColumn } from 'typeorm';
-import { UserModel } from '../user/user.entity';
-import { CompanyModel } from '../company/company.entity';
+import { UserEntity } from '../user/user.entity';
+import { CompanyEntity } from '../company/company.entity';
 
 @Entity('UserCompany')
 @Unique(['userId', 'companyId'])
@@ -11,16 +11,16 @@ export class UserCompanyEntity {
   @Column()
   userId: string;
 
-  @ManyToOne(() => UserModel, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
-  user: UserModel;
+  user: UserEntity;
 
   @Column()
   companyId: string;
 
-  @ManyToOne(() => CompanyModel, { onDelete: 'CASCADE' })
+  @ManyToOne(() => CompanyEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'companyId' })
-  company: CompanyModel;
+  company: CompanyEntity;
 
   @CreateDateColumn()
   createdAt: Date;

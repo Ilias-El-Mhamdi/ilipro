@@ -1,4 +1,4 @@
-import type { User } from '../../../lib/queries';
+import type { User } from 'contracts/shared/user';
 import { Button } from '../../../components/ui/Button';
 import { initials } from '../../../lib/utils';
 
@@ -32,14 +32,20 @@ export function UsersTable({ users, onNavigate, onDelete }: Props) {
                   <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
                     {initials(u.firstName, u.lastName)}
                   </div>
-                  <span className="text-white font-medium">{u.firstName} {u.lastName}</span>
+                  <span className="text-white font-medium">
+                    {u.firstName} {u.lastName}
+                  </span>
                 </div>
               </td>
               <td className="px-4 py-3 text-gray-400">{u.email}</td>
-              <td className="px-4 py-3 text-gray-400">{new Date(u.createdAt).toLocaleDateString('fr-FR')}</td>
+              <td className="px-4 py-3 text-gray-400">
+                {new Date(u.createdAt).toLocaleDateString('fr-FR')}
+              </td>
               <td className="px-4 py-3">
                 <div className="flex gap-2 justify-end">
-                  <Button variant="danger" onClick={(e) => onDelete(e, u)}>Supprimer</Button>
+                  <Button variant="danger" onClick={(e) => onDelete(e, u)}>
+                    Supprimer
+                  </Button>
                 </div>
               </td>
             </tr>

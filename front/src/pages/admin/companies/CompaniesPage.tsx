@@ -1,7 +1,7 @@
 import { AdminLayout } from '../../../components/layouts/AdminLayout';
 import { Button } from '../../../components/ui/Button';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
-import { useCompanyCrud } from '../../../hooks/useCompanyCrud';
+import { useCompanyCrud } from './useCompanyCrud';
 import { LoadingText } from '../../../components/ui/LoadingText';
 import { EmptyText } from '../../../components/ui/EmptyText';
 import { CompanyTable } from './CompanyTable';
@@ -11,10 +11,21 @@ import { usePageTitle } from '../../../hooks/usePageTitle';
 export function CompaniesPage() {
   usePageTitle('Entreprises');
   const {
-    companies, isLoading, navigate,
-    modalOpen, editing, confirmId, setConfirmId,
-    name, setName,
-    remove, openCreate, openEdit, closeModal, submit, confirmCompany,
+    companies,
+    isLoading,
+    navigate,
+    modalOpen,
+    editing,
+    confirmId,
+    setConfirmId,
+    name,
+    setName,
+    remove,
+    openCreate,
+    openEdit,
+    closeModal,
+    submit,
+    confirmCompany,
   } = useCompanyCrud();
 
   return (
@@ -33,12 +44,21 @@ export function CompaniesPage() {
           companies={companies}
           onNavigate={(slug) => navigate(`/admin/companies/${slug}`)}
           onEdit={openEdit}
-          onDelete={(e, slug) => { e.stopPropagation(); setConfirmId(slug); }}
+          onDelete={(e, slug) => {
+            e.stopPropagation();
+            setConfirmId(slug);
+          }}
         />
       )}
 
       {modalOpen && (
-        <CompanyFormModal editing={editing} name={name} onNameChange={setName} onClose={closeModal} onSubmit={submit} />
+        <CompanyFormModal
+          editing={editing}
+          name={name}
+          onNameChange={setName}
+          onClose={closeModal}
+          onSubmit={submit}
+        />
       )}
       {confirmId && (
         <ConfirmDialog

@@ -6,7 +6,9 @@ interface Props {
 export function LicenseFreeFields({ validUntil, onChange }: Props) {
   return (
     <div>
-      <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide">Valide jusqu'au</p>
+      <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide">
+        Valide jusqu'au
+      </p>
       <input
         type="date"
         value={validUntil}

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { IUserWriterRepo } from '../../repos/user/user.writer.abstract-repo';
 import { IUserCompanyWriterRepo } from '../../repos/userCompany/user-company.writer.abstract-repo';
 import { IUserCompanyReaderRepo } from '../../repos/userCompany/user-company.reader.abstract-repo';
-import { UserModel } from '../../repos/user/user.entity';
+import { UserEntity } from '../../repos/user/user.entity';
 
 @Injectable()
 export class LinkUserUc {
@@ -12,10 +12,10 @@ export class LinkUserUc {
     private readonly userCompanyReaderRepo: IUserCompanyReaderRepo,
   ) {}
 
-  async createOrLink(firstName: string, lastName: string, email: string, companyId: string): Promise<UserModel> {
+  async createOrLink(firstName: string, lastName: string, email: string, companyId: string): Promise<UserEntity> {
     let user = await this.userRepo.findByEmail(email);
     if (!user) {
-      user = await this.userRepo.create(new UserModel(email, firstName, lastName));
+      user = await this.userRepo.create(new UserEntity(email, firstName, lastName));
     }
     const alreadyLinked = await this.userCompanyReaderRepo.isLinked(user.id, companyId);
     if (!alreadyLinked) {

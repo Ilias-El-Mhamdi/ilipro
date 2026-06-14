@@ -4,7 +4,7 @@ import { IUserWriterRepo } from '../../repos/user/user.writer.abstract-repo';
 import { ILicenseWriterRepo } from '../../repos/license/license.writer.abstract-repo';
 import { ILicenseReaderRepo } from '../../repos/license/license.reader.abstract-repo';
 import { IPaymentReadRepo, StripeWebhookEvent } from '../../repos/payment/paymentRead.abstract-repo';
-import { UserModel } from '../../repos/user/user.entity';
+import { UserEntity } from '../../repos/user/user.entity';
 
 interface StripeSubscription {
   id: string;
@@ -65,7 +65,7 @@ export class StripeUc {
       if (dto.companyId) {
         user = await this.linkUserUc.createOrLink(dto.name ?? dto.email, '', dto.email, dto.companyId);
       } else {
-        user = await this.userRepo.create(new UserModel(dto.email, dto.name ?? dto.email));
+        user = await this.userRepo.create(new UserEntity(dto.email, dto.name ?? dto.email));
       }
     }
 

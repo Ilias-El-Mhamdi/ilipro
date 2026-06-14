@@ -9,9 +9,14 @@ export function EmailStep({ email, loading, onChange, onSubmit }: Props) {
   return (
     <>
       <h2 className="text-white font-semibold text-lg mb-1">Connexion</h2>
-      <p className="text-gray-400 text-sm mb-6">Saisissez votre email pour recevoir un code.</p>
+      <p className="text-gray-400 text-sm mb-6">
+        Saisissez votre email pour recevoir un code.
+      </p>
       <form
-        onSubmit={(e) => { e.preventDefault(); onSubmit(); }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit();
+        }}
         className="space-y-4"
       >
         <input

@@ -13,7 +13,17 @@ interface Props {
   onBack: () => void;
 }
 
-export function OtpStep({ email, otp, loading, cooldown, otpInvalidated, onChange, onVerify, onResend, onBack }: Props) {
+export function OtpStep({
+  email,
+  otp,
+  loading,
+  cooldown,
+  otpInvalidated,
+  onChange,
+  onVerify,
+  onResend,
+  onBack,
+}: Props) {
   return (
     <>
       <h2 className="text-white font-semibold text-lg mb-1">Vérification</h2>
@@ -22,9 +32,20 @@ export function OtpStep({ email, otp, loading, cooldown, otpInvalidated, onChang
       </p>
 
       {otpInvalidated ? (
-        <OtpInvalidated loading={loading} cooldown={cooldown} onResend={onResend} />
+        <OtpInvalidated
+          loading={loading}
+          cooldown={cooldown}
+          onResend={onResend}
+        />
       ) : (
-        <OtpForm otp={otp} loading={loading} cooldown={cooldown} onChange={onChange} onVerify={onVerify} onResend={onResend} />
+        <OtpForm
+          otp={otp}
+          loading={loading}
+          cooldown={cooldown}
+          onChange={onChange}
+          onVerify={onVerify}
+          onResend={onResend}
+        />
       )}
 
       <button

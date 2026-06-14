@@ -1,4 +1,4 @@
-import type { LicenseType } from '../../../lib/queries';
+import type { LicenseType } from 'contracts/shared/license';
 import { TYPE_BADGE } from '../../../lib/licenseConstants';
 
 interface Props {
@@ -9,7 +9,9 @@ interface Props {
 export function LicenseTypeSelector({ value, onChange }: Props) {
   return (
     <div>
-      <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide">Type de licence</p>
+      <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide">
+        Type de licence
+      </p>
       <div className="flex gap-2">
         {(['FREE', 'CLASSIC', 'ADMIN'] as LicenseType[]).map((t) => (
           <button

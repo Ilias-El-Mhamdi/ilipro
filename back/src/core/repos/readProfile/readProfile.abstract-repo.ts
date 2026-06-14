@@ -1,22 +1,22 @@
 // Read model spécifique au userDashboard : jointure multi-entités (User, Company, Project, License).
 // Ce n'est pas un repo CRUD standard — il construit une vue dénormalisée pour un seul endpoint.
 // Placé dans core/repos/ pour respecter le pattern abstraction/implémentation du projet.
-import type { LicenseModel } from '../license/license.entity';
-import type { ProjectModel } from '../project/project.entity';
+import type { LicenseEntity } from '../license/license.entity';
+import type { ProjectEntity } from '../project/project.entity';
 
 export interface MemberProfile {
   id: string;
   firstName: string | null;
   lastName: string | null;
-  license: LicenseModel | null;
+  license: LicenseEntity | null;
 }
 
 export interface CompanyProfile {
   id: string;
   name: string;
   slug: string;
-  projects: ProjectModel[];
-  license: LicenseModel | null;
+  projects: ProjectEntity[];
+  license: LicenseEntity | null;
   members: MemberProfile[];
 }
 
@@ -33,6 +33,6 @@ export interface UserProfile {
   companies: CompanyProfile[];
 }
 
-export abstract class IReadProfileRepository {
+export abstract class IReadProfileRepo {
   abstract findBySlug(slug: string): Promise<UserProfile>;
 }

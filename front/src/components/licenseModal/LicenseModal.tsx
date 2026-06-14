@@ -1,4 +1,6 @@
-import type { User, License, Project } from '../../lib/queries';
+import type { License } from 'contracts/shared/license';
+import type { Project } from 'contracts/shared/project';
+import type { User } from 'contracts/shared/user';
 import { Modal } from '../ui/Modal';
 import { useLicenseForm } from './useLicenseForm';
 import { LicenseTypeSelector } from './selectors/LicenseTypeSelector';
@@ -19,18 +21,48 @@ interface Props {
   onClose: () => void;
 }
 
-export function LicenseModal({ user, license, projects, companySlug, companyId, onClose }: Props) {
-  const form = useLicenseForm({ user, license, companySlug, companyId, onClose });
+export function LicenseModal({
+  user,
+  license,
+  projects,
+  companySlug,
+  companyId,
+  onClose,
+}: Props) {
+  const form = useLicenseForm({
+    user,
+    license,
+    companySlug,
+    companyId,
+    onClose,
+  });
 
   return (
-    <Modal title={`Licence — ${user.firstName} ${user.lastName}`} onClose={onClose}>
+    <Modal
+      title={`Licence — ${user.firstName} ${user.lastName}`}
+      onClose={onClose}
+    >
       <div className="flex flex-col gap-5">
         <LicenseTypeSelector value={form.type} onChange={form.setType} />
         <LicenseStatusSelector value={form.status} onChange={form.setStatus} />
-        <LicenseProjectSelector type={form.type} projects={projects} selectedIds={form.selectedProjectIds} onToggle={form.toggleProject} />
-        {form.type === 'FREE' && <LicenseFreeFields validUntil={form.validUntil} onChange={form.setValidUntil} />}
+        <LicenseProjectSelector
+          type={form.type}
+          projects={projects}
+          selectedIds={form.selectedProjectIds}
+          onToggle={form.toggleProject}
+        />
+        {form.type === 'FREE' && (
+          <LicenseFreeFields
+            validUntil={form.validUntil}
+            onChange={form.setValidUntil}
+          />
+        )}
         {form.type === 'CLASSIC' && (
-          <LicenseClassicFields priceLabel={form.priceLabel} onPriceLabelChange={form.setPriceLabel} license={license} />
+          <LicenseClassicFields
+            priceLabel={form.priceLabel}
+            onPriceLabelChange={form.setPriceLabel}
+            license={license}
+          />
         )}
         <MachineLockSection
           machineLock={form.machineLock}
@@ -41,7 +73,10 @@ export function LicenseModal({ user, license, projects, companySlug, companyId, 
           onRemoveMachine={form.removeMachineMutation.mutate}
           removePending={form.removeMachineMutation.isPending}
         />
-        <LicenseSimulate onSimulate={form.simulateMutation.mutate} isPending={form.simulateMutation.isPending} />
+        <LicenseSimulate
+          onSimulate={form.simulateMutation.mutate}
+          isPending={form.simulateMutation.isPending}
+        />
         <LicenseActions
           license={license}
           user={user}
