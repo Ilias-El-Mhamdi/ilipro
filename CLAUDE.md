@@ -143,15 +143,7 @@ src/
 
 ### `api/` — data layer
 
-One file per business domain. Le fichier contient les **queries React Query** (lecture) + le parsing (`fromJson`). **Les mutations n'y vivent pas** (cf. règle ci-dessous).
-
-```
-api/
-  companies.ts      ← useCompanies(), useCompany()      — queries only
-  users.ts          ← useUsers(), useUser()             — queries only
-  licenses.ts       ← useUserLicense()                  — queries only
-  projects.ts       ← useProjects()                     — queries only
-```
+One file per business domain (`companies.ts`, `users.ts`, `projects.ts`, `licenses.ts`, `system.ts`). Le fichier contient les **queries React Query** (lecture) + le parsing (`fromJson`). **Les mutations n'y vivent pas** (cf. règle ci-dessous).
 
 #### Query vs mutation — où vit chaque hook React Query
 
@@ -409,18 +401,7 @@ Règle pratique : un nouvel endpoint admin → `@UseGuards(AdminGuard)` ; un end
 
 ### Pattern repo (reader/writer)
 
-Chaque entité dans `core/repos/<entity>/` expose deux abstractions indépendantes :
-
-```
-user.reader.abstract-repo.ts  ← IUserReaderRepo : findById, findBySlug, findByEmail
-user.writer.abstract-repo.ts  ← IUserWriterRepo : findAll, create, update, delete…
-```
-
-**Une seule implémentation** dans `infra/repos/<entity>/` :
-
-```
-user.repo.ts  ← UserRepo implements IUserWriterRepo, IUserReaderRepo
-```
+Chaque entité dans `core/repos/<entity>/` expose **deux abstractions indépendantes** (`user.reader.abstract-repo.ts` → `IUserReaderRepo` : `findById/findBySlug…` ; `user.writer.abstract-repo.ts` → `IUserWriterRepo` : `create/update/delete…`), pour **une seule implémentation** dans `infra/repos/<entity>/` (`user.repo.ts` → `UserRepo implements IUserWriterRepo, IUserReaderRepo`). Les deux tokens pointent sur la même classe :
 
 ```ts
 // repo.module.ts
@@ -503,7 +484,7 @@ Même principe transverse (voir « Colocation — principe transverse »). Nuanc
 
 ## Contracts
 
-Le dossier `contracts/` vit sous `platform/` (`platform/contracts/`), à côté de `platform/utils/` (code TS pur partagé). `platform/` est à la racine du projet, au même niveau que `front/` et `back/`. `platform/contracts/` est la **source de vérité partagée** des contrats HTTP entre les deux.
+`platform/contracts/` est la **source de vérité partagée** des contrats HTTP front↔back (sous `platform/`, à côté de `platform/utils/`, à la racine du projet au même niveau que `front/`/`back/`). Cette section porte les **règles** ; les templates copiables (request, zod, mapper, DTO, usage end-to-end) vivent dans [`docs/contracts.md`](docs/contracts.md).
 
 ### Structure
 
@@ -548,168 +529,33 @@ platform/
 
 Si le body est simple, il peut rester dans `*.request.ts`. Séparer dans `*.body.ts` dès que ça dépasse ~20 lignes.
 
-### Conventions
+### Type shared — squelette
+
+Les types de `contracts/shared/` sont des **classes** à schema zod statique : `schema` (source de vérité, valide au runtime) + `declare` (expose les champs à TS sans émettre de JS) + `fromJson`/`fromJsonList`.
 
 ```ts
-// getCompany.request.ts — avec params URL
-export class GetCompanyRequest {
-  static BASE_URL = "/companies/:slug";
-  static buildUrl(slug: string) {
-    return `/companies/${slug}`;
-  }
-}
-
-// listCompanies.request.ts — sans params URL
-export class ListCompaniesRequest {
-  static BASE_URL = "/companies";
-  static buildUrl() {
-    return ListCompaniesRequest.BASE_URL;
-  }
-}
-```
-
-**Règles** :
-
-- `BASE_URL` est réservé au back (décorateurs NestJS). Le front n'y touche jamais.
-- Le front appelle **toujours** `XxxRequest.buildUrl(…)` — zéro URL hardcodée dans les hooks et composants.
-- Avec params : `buildUrl` interpole les valeurs dans le template.
-- Sans params : `buildUrl` retourne `ClassName.BASE_URL` — pas de duplication de la chaîne.
-
-```ts
-// getCompany.response.ts — re-export si la response est exactement le type shared
-export { Company } from "../../../shared/company";
-```
-
-```ts
-// back — controller
-import { GetCompanyRequest } from 'platform/contracts/adminDashboard/companies/getCompany/getCompany.request'
-import { Company } from 'platform/contracts/shared/company'
-
-@Get(GetCompanyRequest.BASE_URL)
-async getCompany(@Param('slug') slug: string): Promise<Company> { … }
-```
-
-```ts
-// front — api hook
-import { GetCompanyRequest } from "platform/contracts/adminDashboard/companies/getCompany/getCompany.request";
-import { Company } from "platform/contracts/shared/company";
-
-const data = Company.fromJson(await api.get(GetCompanyRequest.buildUrl(slug)));
-```
-
-### Types shared — classes avec schema zod
-
-Les types dans `contracts/shared/` sont des **classes** avec un schema zod statique. Le schema est la source de vérité : il valide à l'exécution et les `declare` exposent les propriétés à TypeScript sans émettre de JS.
-
-```ts
-// contracts/shared/company.ts
-import { z } from "zod";
-
 export class Company {
-  static readonly schema = z.object({
-    id: z.string(),
-    name: z.string(),
-    slug: z.string(),
-    createdAt: z.string(),
-  });
-
+  static readonly schema = z.object({ id: z.string(), name: z.string() /* … */ });
   declare id: string;
   declare name: string;
-  declare slug: string;
-  declare createdAt: string;
-
-  static fromJson(json: unknown): Company {
-    return Object.assign(new Company(), Company.schema.parse(json));
-  }
-
-  static fromJsonList(json: unknown): Company[] {
-    return z
-      .array(Company.schema)
-      .parse(json)
-      .map((d) => Object.assign(new Company(), d));
-  }
+  static fromJson(j: unknown) { return Object.assign(new Company(), Company.schema.parse(j)); }
+  static fromJsonList(j: unknown) { return z.array(Company.schema).parse(j).map((d) => Object.assign(new Company(), d)); }
 }
 ```
 
-- `fromJson` lève une erreur explicite si un champ manque ou est mal typé — zéro cast aveugle.
-- `declare` est du sucre TypeScript pur, compatible `erasableSyntaxOnly`.
-- zod est installé à la racine du monorepo (`/package.json`) pour que la résolution module fonctionne depuis `platform/contracts/` que ce soit le front ou le back qui compile.
-- `fromJson` pour un objet unique, `fromJsonList` pour les tableaux.
-- **Un sous-type objet imbriqué est lui aussi une classe** avec son `static schema` + `declare` + `fromJson`. La classe parente référence le schema enfant (`machines: z.array(LicenseMachine.schema)`) — cf. `License` / `LicenseMachine` / `LicenseProject` dans [`platform/contracts/shared/license.ts`](platform/contracts/shared/license.ts). Seuls les **enums** (unions de chaînes, ex. `LicenseTypeSchema`) restent des `z.enum` exportés, pas des classes.
-- Les types composites (non présents dans `shared/`) définissent leur propre classe avec `fromJson`/`fromJsonList` dans leur `*.response.ts`.
-- Les `*.response.ts` qui retournent un type shared sont de simples re-exports : `export { Company } from '../../../shared/company'`. C'est le **seul** endroit où re-exporter un type contrat est légitime (la source reste dans `shared/`, voisine) — côté front, `api/<domain>` ne re-exporte jamais (cf. pièges).
-
-### Mapper pattern — conversion entité → contrat
-
-Les entités TypeORM ont des champs `Date` ; les classes de contrat ont des `string`. La conversion se fait dans `back/src/infra/mappers/` via des mappers statiques. **Zéro `as unknown as` dans les controllers.**
-
-```
-infra/mappers/
-  company.mapper.ts     ← CompanyMapper.toResponse(entity): Company
-  user.mapper.ts        ← UserMapper.toResponse(entity): User  +  toCompanyUser(user, license): CompanyUser
-  project.mapper.ts     ← ProjectMapper.toResponse / toResponseList
-  license.mapper.ts     ← LicenseMapper.toResponse (mappe aussi les nested machines/projectAccess)
-  deliverable.mapper.ts ← DeliverableMapper.toResponse / toResponseList
-  readProfile.mapper.ts ← ReadProfileMapper.toResponse (profil utilisateur imbriqué)
-```
-
-Pattern controller :
-
-```ts
-@Get(LIST_BASE)
-async findAll(): Promise<Company[]> {
-  return CompanyMapper.toResponseList(await this.readerRepo.findAll());
-}
-
-@Get(GET_BASE)
-async findBySlug(@Param('slug') slug: string): Promise<Company> {
-  return CompanyMapper.toResponse(await this.readerRepo.findBySlug(slug));
-}
-```
-
-- `Object.assign(new ResponseClass(), { ...fields })` — crée une vraie instance du contrat
-- Les mappers sont dans `infra/` (pas `core/`) car ils connaissent les entités TypeORM et les classes contrat
-- Un mapper par entité métier ; les méthodes sont spécialisées si la réponse est composite (ex. `toCompanyUser`)
-
-### Colocation des mappers
-
-Même principe transverse (voir « Colocation — principe transverse »). Nuance : un mapper utilisé par **plusieurs controllers** vit dans `infra/mappers/` (cas des CRUD `CompanyMapper`, `UserMapper`… que plusieurs controllers manipulent) ; un mapper de **vue complexe spécifique à un endpoint** (ex. `readProfile.mapper.ts`) reste colocalisé avec son controller.
-
-### Types de retour explicites dans les controllers
-
-Chaque méthode de controller **doit** avoir un type de retour explicite ancré dans le contrat :
-
-```ts
-@Get(LIST_BASE)
-async findAll(): Promise<Company[]> { … }
-
-@Post(CREATE_BASE)
-async create(@Body() dto: CreateCompanyDto): Promise<Company> { … }
-```
+Classe complète + sous-types imbriqués + mapper + DTO + usage end-to-end : [`docs/contracts.md`](docs/contracts.md).
 
 ### Règles
 
-- **Zéro logique métier** dans les contrats — types, interfaces, `fromJson()` uniquement.
-- **`fromJson()` uniquement sur les responses** — le front ne valide pas les inputs avec class-validator.
-- **Pas de décorateurs dans `contracts/`** — le front a `erasableSyntaxOnly: true` et n'active pas `experimentalDecorators`, la compilation planterait. Les décorateurs `@Is*` restent dans le back.
-- **Back** : chaque controller définit des DTOs locaux (dans le fichier controller ou un fichier sibling) qui `implement` l'interface du contrat et y ajoutent les décorateurs `@Is*`. TypeScript garantit que le DTO reste aligné sur le contrat — si le type shared change, le DTO ne compile plus jusqu'à être mis à jour.
-- Le back active `ValidationPipe` globalement — aucun pipe manuel par route nécessaire.
-- Chaque nouveau controller **doit** avoir son dossier dans `contracts/` avant d'écrire le controller.
-- Les imports de types dans `contracts/` utilisent `import type` (requis par `verbatimModuleSyntax` du front).
-
-### Pattern DTO back
-
-```ts
-// dans le controller ou un fichier sibling *.dto.ts
-import type { CreateCompanyBody } from "platform/contracts/adminDashboard/companies/createCompany/createCompany.body";
-import { IsString, MinLength } from "class-validator";
-
-class CreateCompanyDto implements CreateCompanyBody {
-  @IsString()
-  @MinLength(2)
-  name: string;
-}
-```
+- **`fromJson` lève** si un champ manque/est mal typé — zéro cast aveugle. Un sous-type imbriqué est **lui-même** une classe (`static schema` + `declare` + `fromJson`) ; seuls les **enums** restent des `z.enum`. Types composites absents de `shared/` → leur propre classe dans le `*.response.ts`.
+- **`BASE_URL` réservé au back** (décorateurs NestJS) ; le front appelle **toujours** `XxxRequest.buildUrl(…)` — zéro URL hardcodée. `buildUrl` interpole les params, ou retourne `ClassName.BASE_URL` sans param (pas de duplication de chaîne).
+- **`fromJson()` uniquement sur les responses** — le front ne valide pas les inputs.
+- **Zéro logique métier** dans les contrats — types, `fromJson()` uniquement. Imports de types en `import type` (`verbatimModuleSyntax`).
+- **Pas de décorateurs dans `contracts/`** (front `erasableSyntaxOnly`, pas d'`experimentalDecorators` → la compilation planterait). Les `@Is*` vivent côté back dans un **DTO local** qui `implements` le `*.body` du contrat : si le contrat change, le DTO ne compile plus. `ValidationPipe` est global, aucun pipe manuel par route.
+- **Conversion entité→contrat via mapper** (`infra/mappers/XxxMapper.toResponse`) — jamais `as unknown as` dans un controller. Partagé par ≥2 controllers → `infra/mappers/` ; vue spécifique à un endpoint → colocalisé (`readProfile.mapper.ts`).
+- **Type de retour de controller explicite** ancré au contrat (`Promise<Company>`).
+- **Re-export d'un type contrat légitime uniquement** dans un `*.response.ts` dont la response = type shared (`export { Company } from '../../../shared/company'`). Jamais ailleurs ; côté front `api/<domain>` ne re-exporte jamais (cf. pièges).
+- Dossier `contracts/` créé **avant** le controller.
 
 ---
 
