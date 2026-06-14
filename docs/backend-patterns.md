@@ -1,6 +1,6 @@
-# Backend patterns — rationnel approfondi
+# Patterns — rationnel approfondi (front + back)
 
-Ce fichier porte le **pourquoi** des patterns back d'ilipro. Le [`CLAUDE.md`](../CLAUDE.md) garde les **règles** compactes ; viens ici quand tu veux la justification complète d'un choix qui paraît verbeux. Aucune règle nouvelle ici — uniquement le rationnel derrière celles du CLAUDE.md.
+Ce fichier porte le **pourquoi** des patterns d'ilipro, des deux côtés. Le [`CLAUDE.md`](../CLAUDE.md) garde les **règles** compactes ; viens ici quand tu veux la justification complète d'un choix qui paraît verbeux. Aucune règle nouvelle ici — uniquement le rationnel derrière celles du CLAUDE.md.
 
 ---
 
@@ -31,3 +31,29 @@ Ce fichier porte le **pourquoi** des patterns back d'ilipro. Le [`CLAUDE.md`](..
 **Règle (CLAUDE.md).** Duplication intentionnelle > DRY forcé quand deux composants servent des intentions différentes. *Incidental similarity ≠ conceptual identity.*
 
 **Exemple réel.** [`components/sidebar/Sidebar.tsx`](../front/src/components/sidebar/Sidebar.tsx) (admin : arbre companies + liste users + recherche transverse) et [`components/sidebar/userSidebar/UserSidebar.tsx`](../front/src/components/sidebar/userSidebar/UserSidebar.tsx) (user : scopé à ses propres companies) partagent la même coquille visuelle (logout, `VersionBadge`, nav) mais portent des intentions opposées — pilotage global vs consommation de son propre périmètre. Deux implémentations indépendantes, **aucun cross-import** : elles évoluent séparément, on ne les fusionne pas. La ressemblance est incidentelle ; les faire diverger librement coûte moins cher que de maintenir une abstraction partagée qui devrait gérer les deux intentions.
+
+---
+
+## Mutation colocalisée — pourquoi pas dans `api/`
+
+**Règle (CLAUDE.md).** Les `useMutation` ne vivent pas dans `api/<domain>` (qui ne porte que des queries) : une mutation se colocalise avec le composant/hook qui la déclenche.
+
+**Pourquoi.** Une mutation est attachée à une **action d'UI précise** et porte presque toujours de l'état UI local autour d'elle — `modalOpen`, champ de recherche, sélection courante. La séparer de cet état pour la ranger dans un fichier `api/` partagé n'a pas de sens : on couperait la mutation de la moitié de son contexte. Une query, à l'inverse, est un cache partagé keyé que plusieurs composants relisent — sa place est centralisée dans `api/<domain>`.
+
+**Exemple réel.** [`useLinkUser.ts`](../front/src/pages/admin/companyDetail/users/useLinkUser.ts) colocalise sa `useMutation` (liaison user↔company) avec l'état de la modale de liaison, et invalide la query key `['companies', slug, 'users']` après succès.
+
+---
+
+## Forwarding de type interdit — pourquoi `api/` ne re-exporte pas un contrat
+
+**Règle (CLAUDE.md).** `api/<domain>.ts` n'exporte que ce qu'il **définit** (ses hooks, un type composite local). Il **importe** un type contrat pour parser mais ne le re-exporte jamais. Le composant importe le type directement depuis `platform/contracts/`.
+
+**Pourquoi.** Un re-export de forwarding (`export { Company } from 'platform/contracts/...'` depuis `api/companies`) **masque la source de vérité** : un lecteur qui voit `import { Company } from '../api/companies'` croit que le type est défini là, et doit ouvrir le fichier pour découvrir que ce n'est qu'un relais. C'est une indirection gratuite à la lecture. Le seul endroit où re-exporter un contrat est légitime, c'est un `*.response.ts` **dans `contracts/`** : là, la source (`shared/`) est voisine et le re-export exprime « cette réponse *est* exactement ce type shared ».
+
+---
+
+## `hooks/` — le test de dépendance binaire
+
+**Règle (CLAUDE.md).** `hooks/` ne contient que des hooks **génériques UI** (import `react` uniquement). Dès qu'un hook importe `api/`, `lib/api`, `lib/toast`, `contracts/` ou un type métier → **business hook**, il se colocalise.
+
+**Pourquoi binaire.** Le test « pourrais-je publier ce hook sur npm et le réutiliser dans une app sans rapport avec ilipro ? » tranche sans débat : un `useCarousel` ou `useClipboard` ne sait rien du domaine, il est portable → `hooks/` ; un hook qui touche au domaine ne l'est pas → colocalisé. La **nature** (générique vs business) décide l'éligibilité à `hooks/` ; la **portée** décide ensuite *où* va le business hook (un seul consommateur → colocalisé ; ≥2 pages → `components/`, **jamais** `hooks/`).

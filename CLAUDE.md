@@ -34,7 +34,8 @@ Ces règles ne sont **pas** de simples conventions : ESLint les casse. Quand tu 
 Les fautes que cette codebase induit le plus souvent. ❌ = à ne pas faire, → correction.
 
 - ❌ `useMutation` dans `api/<domain>` → mutation **colocalisée** près de son déclencheur ; `api/` ne contient que des queries.
-- ❌ re-exporter un type contrat depuis `api/<domain>` → le composant importe le type **directement** depuis `platform/contracts/`.
+- ❌ re-exporter un type contrat depuis `api/<domain>` → le composant importe le type **directement** depuis `platform/contracts/`. (Le re-export n'est légitime **que** dans un `*.response.ts` de `contracts/`, où la source de vérité reste locale au dossier contrat ; partout ailleurs c'est du forwarding interdit.)
+- ❌ ajouter un controller / `.uc.ts` / repo sans le câbler → `UnknownDependencies` au démarrage. Wiring dans `app.module.ts` (controllers, flows, read repos) **ou** `repo.module.ts` (couples reader/writer) — cf. « Checklist de wiring ».
 - ❌ hook qui importe `api`/`contracts` rangé dans `hooks/` → c'est un **business hook**, il se colocalise.
 - ❌ page qui importe d'une autre page → **duplique**, ou remonte le partagé dans `components/` (enforced).
 - ❌ `findByIdAsModel` à côté de `findById` sur la même donnée → une donnée a **un seul** type de lecture (Entity *ou* Model).
@@ -52,7 +53,8 @@ Avant de considérer une tâche terminée :
 
 - [ ] `npm run lint` **vert** des deux côtés touchés (front et/ou back) — y compris les frontières d'architecture.
 - [ ] Compilation OK (`tsc -b` front · `nest build` back).
-- [ ] Si une `*.entity.ts` a changé : **migration générée et jouée**.
+- [ ] Si une `*.entity.ts` a changé : **migration générée et jouée** (`npm run migration:generate -- src/infra/database/migrations/<Name>` puis `migration:run`).
+- [ ] Si nouveau controller / `.uc.ts` / repo : **câblé** dans `app.module.ts` ou `repo.module.ts` (cf. « Checklist de wiring »).
 - [ ] Si nouvel endpoint : dossier `contracts/` créé **avant** le controller ; type de retour explicite ancré au contrat.
 - [ ] Si nouvelle page : route enregistrée dans `main.tsx` avec le bon garde (`ProtectedRoute`/`AdminRoute`).
 - [ ] Aucune frontière contournée par `eslint-disable`.
@@ -158,9 +160,7 @@ api/
 | **Query** (lecture, cache partagé, keyé) | `api/<domain>.ts`                                                            |
 | **Mutation** (écriture)                  | **colocalisée** avec le composant/hook déclencheur (principe de colocation) |
 
-**Règle.** Une mutation se colocalise avec son déclencheur ; elle parse sa réponse via le contrat (`fromJson`) et invalide les query keys de `api/` qu'elle a rendues périmées.
-
-*Pourquoi.* Elle est attachée à une action d'UI précise et porte souvent de l'état UI local (`modalOpen`, recherche, sélection…) — la séparer de cet état n'a pas de sens. Exemple réel : `front/src/pages/admin/companyDetail/users/useLinkUser.ts` colocalise sa `useMutation` avec l'état de la modale de liaison.
+**Règle.** Une mutation se colocalise avec son déclencheur ; elle parse sa réponse via le contrat (`fromJson`) et invalide les query keys de `api/` qu'elle a rendues périmées. *Pourquoi (état UI local) + exemple `useLinkUser.ts`* : [`docs/backend-patterns.md`](docs/backend-patterns.md#mutation-colocalisée--pourquoi-pas-dans-api).
 
 #### Query keys & invalidation
 
@@ -174,9 +174,7 @@ api/
 - le **hook** depuis `api/<domain>` ;
 - le **type** directement depuis `platform/contracts/` (`import { Company } from 'platform/contracts/shared/company'`).
 
-**Règle.** `api/<domain>.ts` n'exporte que ce qu'il **définit lui-même** : ses hooks, et éventuellement un type _dérivé/composite_ absent de `platform/contracts/`. Pas de re-export de forwarding.
-
-*Pourquoi.* Un forwarding masque la source de vérité et ajoute une indirection à la lecture (`from '../api/companies'` laisse croire que le type est défini là).
+**Règle.** `api/<domain>.ts` n'exporte que ce qu'il **définit lui-même** : ses hooks, et éventuellement un type _dérivé/composite_ absent de `platform/contracts/`. Pas de re-export de forwarding. *Pourquoi (masque la source de vérité)* : [`docs/backend-patterns.md`](docs/backend-patterns.md#forwarding-de-type-interdit--pourquoi-api-ne-re-exporte-pas-un-contrat).
 
 **Pas de barrel.** Interdiction d'un fichier qui re-exporte en vrac hooks + types de plusieurs domaines (ex. un `lib/queries.ts`). Chaque consommateur importe depuis la vraie source : le hook depuis son `api/<domain>`, le type depuis `platform/contracts/`.
 
@@ -197,10 +195,7 @@ No hooks. No business types. Only:
 
 **Test de dépendance (binaire)** : dès qu'un hook importe `api/`, `lib/api`, `lib/toast`, `contracts/`, ou un type métier → c'est un **business hook**, il n'a rien à faire ici, il se colocalise (principe de colocation). Mémo : _« pourrais-je publier ce hook sur npm et le réutiliser dans une app sans rapport avec ilipro ? »_ Oui → `hooks/` ; non → colocalisé.
 
-Deux axes décident l'emplacement d'un hook :
-
-- **Nature** (test ci-dessus) : générique UI → éligible à `hooks/` ; business → **jamais** dans `hooks/`.
-- **Portée** (voir « Colocation — principe transverse ») : nuance front — un business hook partagé par ≥2 pages remonte dans `components/`, **pas** dans `hooks/`.
+**Nature** décide l'éligibilité (générique UI → `hooks/` ; business → **jamais** ici), **portée** décide ensuite *où* va le business hook : un seul consommateur → colocalisé ; ≥2 pages → `components/`, **pas** `hooks/`. *Pourquoi le test est binaire* : [`docs/backend-patterns.md`](docs/backend-patterns.md#hooks--le-test-de-dépendance-binaire).
 
 ### `components/` — shared business components
 
@@ -438,7 +433,7 @@ user.repo.ts  ← UserRepo implements IUserWriterRepo, IUserReaderRepo
 - La ségrégation est au niveau du **contrat** : un consommateur qui injecte `IUserReaderRepo` ne voit que les méthodes de lecture
 - `infra/repos/repo.module.ts` agrège tous les tokens via `useExisting` et exporte les abstractions
 
-> **Cérémonie assumée — ne pas collapser, ne pas dupliquer.** 4 fichiers/table pour une seule classe derrière deux tokens, c'est délibéré : le payoff est le narrowing typé au point d'injection (un flow de lecture ne peut pas appeler `delete`). Un repo qui n'est pas un CRUD 1:1 relève du **read repo** (ci-dessous), pas du couple. Rationnel complet : [`docs/backend-patterns.md`](docs/backend-patterns.md#couple-readerwriter--pourquoi-4-fichiers-par-table).
+> **Cérémonie assumée — ne pas collapser, ne pas dupliquer.** Un repo qui n'est pas un CRUD 1:1 relève du **read repo** (ci-dessous), pas du couple. Pourquoi 4 fichiers par table : [`docs/backend-patterns.md`](docs/backend-patterns.md#couple-readerwriter--pourquoi-4-fichiers-par-table).
 
 #### 3ᵉ pattern — le `read repo` (lecture transverse, pas de couple reader/writer)
 
@@ -452,7 +447,7 @@ Le couple reader/writer vaut pour un repo **CRUD 1:1 avec une table**. Quand un 
 
 - **Nommage** : les deux formes coexistent — `IReadXxxRepo` (lecture orientée vue, `IReadProfileRepo`) et `IXxxReadRepo` (lecture orientée ressource externe, `IPaymentReadRepo`). Suffixe `Repo`, jamais `Repository`. Classe concrète en `XxxRepo` comme partout (`ReadProfileRepo`, `StripeRepo`).
 - **Annoté dans le code** : chaque read repo porte un commentaire d'en-tête expliquant pourquoi il déroge au couple reader/writer (cf. `readProfile.abstract-repo.ts`).
-- **Où vit le read model** : déclaré en `interface` **dans le fichier de l'abstract-repo** tant que `core/models/` n'existe pas (cf. `MemberProfile` / `CompanyProfile` dans [`readProfile.abstract-repo.ts`](back/src/core/repos/readProfile/readProfile.abstract-repo.ts)) ; migre vers `core/models/*.model.ts` quand il porte de la logique. Détail : [`docs/backend-patterns.md`](docs/backend-patterns.md#read-repo--où-vit-le-read-model).
+- **Où vit le read model** : `interface` dans le fichier de l'abstract-repo tant que `core/models/` n'existe pas ; migre vers `core/models/*.model.ts` quand il porte de la logique. Détail + exemple : [`docs/backend-patterns.md`](docs/backend-patterns.md#read-repo--où-vit-le-read-model).
 - **Garde-fou** : un read repo ne porte **pas** de méthode d'écriture CRUD. S'il a besoin d'écrire (ex. `IReadLicenseRepo.activate` qui pose un machineLock), c'est une **action métier ciblée**, pas un `update()` générique — sinon la donnée relève du couple reader/writer standard.
 
 ### Where logic lives
@@ -495,17 +490,7 @@ Deux mots, deux sens nets : `Entity` = persistance, `Model` = domaine. Ne jamais
 
 > `core/models/` n'apparaît qu'au moment où une première classe le justifie — pas en prévision. Comme les hooks et les `.uc.ts`.
 
-**Injection pattern:**
-
-```ts
-// abstract-repo: abstract class, not interface (survives compilation)
-export abstract class IUserReaderRepo {
-  abstract findById(id: string): Promise<UserEntity>;
-}
-
-// repo.module.ts: une seule classe concrète derrière les deux tokens
-{ provide: IUserReaderRepo, useExisting: UserRepo }
-```
+**Injection pattern.** L'abstract-repo est une `abstract class` (pas une `interface`) : elle survit à la compilation et sert de token d'injection NestJS. Le câblage `{ provide, useExisting }` est montré plus haut (§ Pattern repo).
 
 **Shared endpoints — duplicate, don't share:**
 Endpoints communs à admin et user sont dupliqués délibérément. Incidental similarity ≠ conceptual identity.
@@ -652,7 +637,7 @@ export class Company {
 - `fromJson` pour un objet unique, `fromJsonList` pour les tableaux.
 - **Un sous-type objet imbriqué est lui aussi une classe** avec son `static schema` + `declare` + `fromJson`. La classe parente référence le schema enfant (`machines: z.array(LicenseMachine.schema)`) — cf. `License` / `LicenseMachine` / `LicenseProject` dans [`platform/contracts/shared/license.ts`](platform/contracts/shared/license.ts). Seuls les **enums** (unions de chaînes, ex. `LicenseTypeSchema`) restent des `z.enum` exportés, pas des classes.
 - Les types composites (non présents dans `shared/`) définissent leur propre classe avec `fromJson`/`fromJsonList` dans leur `*.response.ts`.
-- Les `*.response.ts` qui retournent un type shared sont de simples re-exports : `export { Company } from '../../../shared/company'`.
+- Les `*.response.ts` qui retournent un type shared sont de simples re-exports : `export { Company } from '../../../shared/company'`. C'est le **seul** endroit où re-exporter un type contrat est légitime (la source reste dans `shared/`, voisine) — côté front, `api/<domain>` ne re-exporte jamais (cf. pièges).
 
 ### Mapper pattern — conversion entité → contrat
 
