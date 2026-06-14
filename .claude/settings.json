@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/check-doc-paths.mjs\" || exit 2",
+            "timeout": 30,
+            "statusMessage": "Vérif doc ↔ code (check:docs)"
+          }
+        ]
+      }
+    ]
+  }
+}

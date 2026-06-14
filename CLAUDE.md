@@ -58,6 +58,7 @@ Avant de considérer une tâche terminée :
 - [ ] Si nouvel endpoint : dossier `contracts/` créé **avant** le controller ; type de retour explicite ancré au contrat.
 - [ ] Si nouvelle page : route enregistrée dans `main.tsx` avec le bon garde (`ProtectedRoute`/`AdminRoute`).
 - [ ] Aucune frontière contournée par `eslint-disable`.
+- [ ] **Doc en phase avec le code** : `npm run check:docs` vert (chemins + ancres). Si la feature a déplacé/renommé un fichier cité, ou changé un pattern décrit, relire la section concernée de CLAUDE.md/`docs/` — le script ne valide que les **références**, pas la **prose**.
 
 ---
 
