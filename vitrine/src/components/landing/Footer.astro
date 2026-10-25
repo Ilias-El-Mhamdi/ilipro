@@ -1,5 +1,7 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
+import { Image } from 'astro:assets';
+import icon from '../../assets/logo-icon.png';
 import { locales, localeNames, type Dictionary, type Locale } from '../../i18n/ui';
 
 interface Props {
@@ -16,7 +18,10 @@ const appUrl = import.meta.env.PUBLIC_APP_URL;
   <div class="container">
     <div class="footer__top">
       <div class="footer__brand">
-        <p class="footer__name">ilipro</p>
+        <p class="footer__name">
+          <Image src={icon} alt="" width={36} densities={[1, 2]} />
+          ilipro
+        </p>
         <p>{t.footer.tagline}</p>
       </div>
       <div class="footer__cols">
@@ -89,6 +94,9 @@ const appUrl = import.meta.env.PUBLIC_APP_URL;
     max-width: 300px;
   }
   .footer__name {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     font-size: 24px;
     font-weight: 500;
     letter-spacing: -0.02em;

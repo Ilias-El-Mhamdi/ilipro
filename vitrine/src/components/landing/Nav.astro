@@ -1,5 +1,7 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
+import { Image } from 'astro:assets';
+import logo from '../../assets/logo-horizontal.png';
 import { locales, localeNames, type Dictionary, type Locale } from '../../i18n/ui';
 
 interface Props {
@@ -13,7 +15,9 @@ const { t, locale, path = '' } = Astro.props;
 
 <header class="nav">
   <div class="container nav__inner">
-    <a href={getRelativeLocaleUrl(locale)} class="nav__brand">ilipro</a>
+    <a href={getRelativeLocaleUrl(locale)} class="nav__brand">
+      <Image src={logo} alt="ilipro" height={36} densities={[1, 2]} loading="eager" />
+    </a>
     <nav class="nav__links" aria-label={t.nav.mainLabel}>
       <a href="#cases">{t.nav.cases}</a>
       <a href="#process">{t.nav.process}</a>
@@ -53,10 +57,10 @@ const { t, locale, path = '' } = Astro.props;
     gap: 16px 32px;
     padding-block: 20px;
   }
-  .nav__brand {
-    font-size: 22px;
-    font-weight: 500;
-    letter-spacing: -0.02em;
+  .nav__brand img {
+    display: block;
+    height: 36px;
+    width: auto;
   }
   .nav__links {
     display: flex;

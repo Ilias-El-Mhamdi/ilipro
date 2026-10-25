@@ -1,11 +1,18 @@
 ---
+import { Image } from 'astro:assets';
 import type { Dictionary } from '../../i18n/ui';
+import prospection from '../../assets/cases/prospection.avif';
+import routageLeads from '../../assets/cases/routage-leads.avif';
+import reponseDevis from '../../assets/cases/reponse-devis.avif';
 
 interface Props {
   t: Dictionary;
 }
 
 const { t } = Astro.props;
+
+// Une image par cas, dans l'ordre de t.cases.items (l'alt vit dans ui.ts).
+const images = [reponseDevis, routageLeads, prospection];
 ---
 
 <section id="cases" class="section section--dark">
@@ -19,13 +26,20 @@ const { t } = Astro.props;
     </div>
     <div class="cases__grid">
       {
-        t.cases.items.map((item) => (
+        t.cases.items.map((item, i) => (
           <article class="case">
             <ul class="case__tags mono">
               {item.tags.map((tag) => (
                 <li>{tag}</li>
               ))}
             </ul>
+            <Image
+              class="case__image"
+              src={images[i]}
+              alt={item.imageAlt}
+              widths={[400, 800, 1200]}
+              sizes="(max-width: 1100px) 100vw, 400px"
+            />
             <div>
               <h3 class="case__title">{item.title}</h3>
               <p class="case__text">{item.text}</p>
@@ -61,9 +75,7 @@ const { t } = Astro.props;
   .case {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 64px;
-    min-height: 360px;
+    gap: 32px;
     padding: 36px;
     background: var(--dark-card);
     border-radius: 6px;
@@ -82,6 +94,14 @@ const { t } = Astro.props;
     text-transform: uppercase;
     padding: 5px 9px;
     background: var(--dark-chip);
+  }
+  .case__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 4px;
   }
   .case__title {
     font-size: 28px;
