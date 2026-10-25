@@ -63,7 +63,8 @@ Direction validée : **11e « Atelier · Votre palette »** (référence : [`can
 qui importe [`canva/Atelier.dc.html`](canva/Atelier.dc.html) avec `palette="signature"`).
 
 - Couleurs uniquement via les variables de `global.css`. Palette du client : `#F1F4F6`, `#94B0C6`, `#C1996D`,
-  `#AD723F`, `#1375C4`, plus les bleus profonds de la même teinte pour les sections sombres (`#0E2A40` → `#2D5470`).
+  `#AD723F`, `#1375C4`, plus un marine et ses paliers pour les sections sombres (`#1B2638` → `#3B4C68`, choix
+  du client hors palette d'origine, qui remplace l'ancien `#0E2A40`).
   **Ne pas introduire de couleur hors palette** sans le signaler.
 - Exception assumée : `--on-accent` est `#FFFFFF` (et non `#F1F4F6`) pour passer le contraste AA sur `#1375C4`.
 - Le cuivre `--em` n'est assez contrasté sur fond clair que pour du **grand** texte (titres en italique serif).
@@ -79,5 +80,5 @@ l'`action` du formulaire.
 
 - Brancher le formulaire de contact (`PUBLIC_CONTACT_ENDPOINT`) — aujourd'hui il ne poste nulle part.
 - Pages **Mentions légales** et **Confidentialité** (obligatoires en France), puis les lier dans le footer.
-- Une page par cas d'usage et les articles de la section Ressources (marqués « Bientôt »), image Open Graph.
+- Une page par cas d'usage, image Open Graph.
 - Domaine définitif dans `PUBLIC_SITE_URL` et 301 `/` → `/fr/` chez l'hébergeur.

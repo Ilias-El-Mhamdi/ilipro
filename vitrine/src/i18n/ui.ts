@@ -15,7 +15,6 @@ const fr = {
     cases: 'Automatisations',
     process: 'Méthode',
     model: 'Modèle',
-    resources: 'Ressources',
     cta: 'Prenons contact',
     switchLabel: 'Changer de langue',
     mainLabel: 'Navigation principale',
@@ -68,7 +67,10 @@ const fr = {
     titleEm: 'avant',
     titleEnd: 'de construire.',
     steps: [
-      { label: 'Diagnostic', text: 'Un appel de qualification pour cartographier le process et chiffrer le temps perdu.' },
+      {
+        label: 'Diagnostic',
+        text: 'On chiffre ce que le process vous coûte : temps perdu, opportunités manquées, talents sous-employés.',
+      },
       { label: 'Conception', text: "On définit ensemble le résultat attendu : c'est lui qui conditionne le paiement." },
       { label: 'Livraison', text: "L'automatisation tourne sur vos outils. Vous validez — ou vous ne payez pas." },
       { label: 'Suivi', text: 'Maintenance continue, livrables et factures dans votre espace client.' },
@@ -112,17 +114,6 @@ const fr = {
       { title: 'Un espace client dédié', text: 'Livrables, factures et suivi de vos automatisations, au même endroit.' },
     ],
   },
-  resources: {
-    eyebrow: 'Ressources',
-    title: "Guides et retours d'expérience",
-    soon: 'Bientôt',
-    visual: 'Visuel article',
-    items: [
-      { tag: 'Guide', title: 'Automatiser la réponse aux devis : le guide pour PME' },
-      { tag: 'CRM', title: 'Salesforce → SharePoint : router ses leads sans ressaisie' },
-      { tag: 'Prospection', title: "Cold emailing : une infrastructure d'envoi qui ne finit pas en spam" },
-    ],
-  },
   faq: {
     eyebrow: 'FAQ',
     titleStart: 'Questions',
@@ -142,7 +133,7 @@ const fr = {
       },
       {
         q: 'Que comprend la maintenance ?',
-        a: "Le suivi et les corrections nécessaires pour que l'automatisation continue de fonctionner, y compris quand vos outils évoluent. Sans surcoût.",
+        a: "Le suivi et les corrections nécessaires pour que l'automatisation continue de fonctionner. Sans surcoût.",
       },
     ],
   },
@@ -178,7 +169,6 @@ const en: Dictionary = {
     cases: 'Automations',
     process: 'Method',
     model: 'Pricing model',
-    resources: 'Resources',
     cta: 'Get in touch',
     switchLabel: 'Change language',
     mainLabel: 'Main navigation',
@@ -231,7 +221,10 @@ const en: Dictionary = {
     titleEm: 'before',
     titleEnd: 'we build.',
     steps: [
-      { label: 'Assessment', text: 'A qualification call to map the process and measure the time it costs you.' },
+      {
+        label: 'Assessment',
+        text: 'We measure what the process costs you: lost time, missed opportunities, underused talent.',
+      },
       { label: 'Design', text: 'We agree on the expected outcome together: it is what payment depends on.' },
       { label: 'Delivery', text: 'The automation runs on your tools. You sign off — or you don’t pay.' },
       { label: 'Follow-up', text: 'Ongoing maintenance, deliverables and invoices in your client area.' },
@@ -275,17 +268,6 @@ const en: Dictionary = {
       { title: 'A dedicated client area', text: 'Deliverables, invoices and automation follow-up, all in one place.' },
     ],
   },
-  resources: {
-    eyebrow: 'Resources',
-    title: 'Guides and field notes',
-    soon: 'Coming soon',
-    visual: 'Article visual',
-    items: [
-      { tag: 'Guide', title: 'Automating quote replies: a guide for SMBs' },
-      { tag: 'CRM', title: 'Salesforce → SharePoint: routing leads without re-keying' },
-      { tag: 'Prospecting', title: 'Cold emailing: a sending infrastructure that stays out of spam' },
-    ],
-  },
   faq: {
     eyebrow: 'FAQ',
     titleStart: 'Frequently asked',
@@ -305,7 +287,7 @@ const en: Dictionary = {
       },
       {
         q: 'What does maintenance include?',
-        a: 'The monitoring and fixes needed to keep the automation running, including when your tools change. At no extra cost.',
+        a: 'The monitoring and fixes needed to keep the automation running. At no extra cost.',
       },
     ],
   },

@@ -7,10 +7,11 @@
   --faint: #80858c;
   --line: #94b0c6;
 
-  --dark: #0e2a40;
-  --dark-card: #163650;
-  --dark-chip: #21445e;
-  --dark-line: #2d5470;
+  /* Sections sombres : marine (relevé sur une veste) + trois paliers plus clairs. */
+  --dark: #1b2638;
+  --dark-card: #24324a;
+  --dark-chip: #2e3d57;
+  --dark-line: #3b4c68;
   --dark-muted: #94b0c6;
   --on-dark: #f1f4f6;
 
@@ -19,10 +20,6 @@
   --on-accent: #ffffff;
   --accent-soft: #c1996d;
   --em: #ad723f;
-
-  --tile-1: #94b0c6;
-  --tile-2: #c1996d;
-  --tile-3: #ad723f;
 
   --font-sans: 'Jost Variable', system-ui, sans-serif;
   --font-serif: 'Newsreader', Georgia, serif;

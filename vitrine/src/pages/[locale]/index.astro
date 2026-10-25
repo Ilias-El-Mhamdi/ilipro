@@ -8,7 +8,6 @@ import Cases from '../../components/landing/Cases.astro';
 import Process from '../../components/landing/Process.astro';
 import Model from '../../components/landing/Model.astro';
 import Difference from '../../components/landing/Difference.astro';
-import Resources from '../../components/landing/Resources.astro';
 import Faq from '../../components/landing/Faq.astro';
 import Contact from '../../components/landing/Contact.astro';
 import Footer from '../../components/landing/Footer.astro';
@@ -53,11 +52,10 @@ const jsonLd = [
     <Hero t={t} />
     <Cases t={t} />
     <Process t={t} />
-    <Model t={t} />
     <Difference t={t} />
-    <Resources t={t} />
-    <Faq t={t} />
+    <Model t={t} />
     <Contact t={t} />
+    <Faq t={t} />
   </main>
   <Footer t={t} locale={locale} />
 </BaseLayout>

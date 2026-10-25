@@ -18,9 +18,10 @@ const { t } = Astro.props;
       {
         t.process.steps.map((step, i) => (
           <li class="step">
-            <span class="step__label mono">
-              {String(i + 1).padStart(2, '0')} — {step.label}
-            </span>
+            <div class="step__head">
+              <span class="step__index mono">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="step__title">{step.label}</h3>
+            </div>
             <p>{step.text}</p>
           </li>
         ))
@@ -43,15 +44,24 @@ const { t } = Astro.props;
     list-style: none;
   }
   .step {
-    padding-top: 28px;
-    border-top: 1px dashed var(--faint);
     color: var(--body);
   }
-  .step__label {
-    display: block;
-    margin-bottom: 20px;
-    font-size: 12px;
-    text-transform: uppercase;
+  .step__head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    border-bottom: 1px dashed var(--faint);
+  }
+  .step__index {
+    font-size: 20px;
+    color: var(--accent);
+  }
+  .step__title {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
     color: var(--accent);
   }
 </style>
