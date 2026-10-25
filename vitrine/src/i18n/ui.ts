@@ -7,9 +7,9 @@ export const ogLocales: Record<Locale, string> = { fr: 'fr_FR', en: 'en_US' };
 
 const fr = {
   meta: {
-    title: 'ilipro — Automatisation sur-mesure pour PME, payée à la livraison',
+    title: "Agence d'automatisation",
     description:
-      "Agence d'automatisation pour PME : prospection email, routage de leads Salesforce, réponse aux devis. Vous ne payez qu'à la livraison, si ça répond au besoin.",
+      "Moins de manuel, moins d'oublis, plus de réactivité. Des automatisations construites autour de vos outils.",
   },
   nav: {
     cases: 'Automatisations',
@@ -164,9 +164,8 @@ export type Dictionary = typeof fr;
 
 const en: Dictionary = {
   meta: {
-    title: 'ilipro — Custom automation for SMBs, paid on delivery',
-    description:
-      'Automation agency for SMBs: cold email infrastructure, Salesforce lead routing, quote request handling. You only pay on delivery, if it meets the need.',
+    title: 'Automation agency',
+    description: 'Less manual work, fewer oversights, faster response. Automations built around your tools.',
   },
   nav: {
     cases: 'Automations',
