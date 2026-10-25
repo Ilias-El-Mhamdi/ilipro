@@ -17,7 +17,8 @@ const { title, description, path = '', jsonLd = [] } = Astro.props;
 const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : defaultLocale;
 const canonical = getAbsoluteLocaleUrl(locale, path);
 const alternates = locales.map((l) => ({ hreflang: l, href: getAbsoluteLocaleUrl(l, path) }));
-const xDefault = getAbsoluteLocaleUrl('en', path);
+// La racine choisit la langue du visiteur (functions/index.ts) : c'est elle, le x-default de la landing.
+const xDefault = path ? getAbsoluteLocaleUrl('en', path) : new URL('/', Astro.site).toString();
 ---
 
 <!doctype html>

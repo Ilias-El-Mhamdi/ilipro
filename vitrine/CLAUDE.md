@@ -32,7 +32,8 @@ src/
   styles/global.css          ← tokens de la palette + classes partagées (.container, .section, .eyebrow, .em, .btn…)
   components/landing/        ← une section de la landing par composant (Nav, Hero, Cases, Process, Model…)
   pages/[locale]/index.astro ← landing, générée pour chaque locale via getStaticPaths
-  pages/index.astro          ← redirection / → /fr/
+  pages/index.astro          ← redirection / → /fr/ de secours (dev, preview) ; en prod, functions/index.ts prend le relais
+functions/index.ts           ← Cloudflare Pages Function sur « / » : 302 vers /fr/ ou /en/ selon Accept-Language
 canva/                       ← maquettes de référence (format canvas Design, pas du code exécutable)
 ```
 
@@ -48,14 +49,16 @@ canva/                       ← maquettes de référence (format canvas Design,
 
 ## SEO
 
-- `BaseLayout` émet canonical, `hreflang` par locale et `x-default` (→ `/en/`, audience internationale). Les hreflang
+- `BaseLayout` émet canonical, `hreflang` par locale et `x-default` (→ la racine `/`, qui choisit la langue du visiteur). Les hreflang
   vivent **dans le `<head>`**, pas dans le sitemap : l'option i18n du plugin sitemap suppose une locale par défaut sans
   préfixe, ce qui n'est pas notre cas.
 - JSON-LD passé par la page (`jsonLd`) : `ProfessionalService` + `FAQPage` sur la landing. Garder le JSON-LD de la FAQ
   synchronisé avec le contenu affiché (il est généré depuis le même dictionnaire).
 - Un seul `<h1>` par page ; sections en `<h2>`, éléments en `<h3>`.
-- En production, la redirection `/` → `/fr/` doit être un **301 côté hébergeur** : la page générée par Astro n'est
-  qu'un meta-refresh de secours.
+- En production, `/` est servi par la Pages Function [`functions/index.ts`](functions/index.ts) : **302** + `Vary:
+  Accept-Language` vers la locale préférée du navigateur, `/fr/` sans en-tête (robots, aperçus de lien). Jamais de 301
+  ici, et jamais de redirection par langue sur `/fr/` ou `/en/` eux-mêmes : Google doit pouvoir explorer les deux.
+  La page Astro `pages/index.astro` n'est qu'un meta-refresh de secours.
 
 ## Design
 
@@ -81,4 +84,4 @@ l'`action` du formulaire.
 - Brancher le formulaire de contact (`PUBLIC_CONTACT_ENDPOINT`) — aujourd'hui il ne poste nulle part.
 - Pages **Mentions légales** et **Confidentialité** (obligatoires en France), puis les lier dans le footer.
 - Une page par cas d'usage, image Open Graph.
-- Domaine définitif dans `PUBLIC_SITE_URL` et 301 `/` → `/fr/` chez l'hébergeur.
+- Domaine définitif dans `PUBLIC_SITE_URL`.
