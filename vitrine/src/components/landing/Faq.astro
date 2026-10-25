@@ -1,0 +1,102 @@
+---
+import type { Dictionary } from '../../i18n/ui';
+
+interface Props {
+  t: Dictionary;
+}
+
+const { t } = Astro.props;
+---
+
+<section class="section faq">
+  <div class="container faq__inner">
+    <div class="faq__head">
+      <p class="eyebrow">[ {t.faq.eyebrow} ]</p>
+      <h2 class="h2">{t.faq.titleStart} <span class="em">{t.faq.titleEm}</span></h2>
+    </div>
+    <div class="faq__list">
+      {
+        t.faq.items.map((item, i) => (
+          <details class="faq__item" open={i === 0}>
+            <summary>
+              <h3>{item.q}</h3>
+              <span class="faq__icon" aria-hidden="true" />
+            </summary>
+            <p>{item.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq {
+    background: var(--surface);
+  }
+  .faq__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 72px;
+  }
+  .faq__head {
+    flex: 1 1 320px;
+    min-width: 0;
+  }
+  .faq__list {
+    flex: 2 1 560px;
+    min-width: 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .faq__item {
+    border-top: 1px dashed var(--line);
+  }
+  .faq__item summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    padding-block: 28px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq__item summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq__item h3 {
+    font-size: 19px;
+  }
+  .faq__icon {
+    position: relative;
+    flex: 0 0 14px;
+    height: 14px;
+  }
+  .faq__icon::before,
+  .faq__icon::after {
+    content: '';
+    position: absolute;
+    background: var(--accent);
+  }
+  .faq__icon::before {
+    left: 0;
+    right: 0;
+    top: 6px;
+    height: 2px;
+  }
+  .faq__icon::after {
+    top: 0;
+    bottom: 0;
+    left: 6px;
+    width: 2px;
+    transition: transform 0.2s ease;
+  }
+  .faq__item[open] .faq__icon::after {
+    transform: scaleY(0);
+  }
+  .faq__item p {
+    padding-bottom: 28px;
+    max-width: 640px;
+    font-size: 15px;
+    color: var(--muted);
+  }
+</style>

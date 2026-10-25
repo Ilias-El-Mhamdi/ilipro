@@ -1,0 +1,187 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Artisanal.dc.html": {
+      "expand": "fill",
+      "h": 2950,
+      "title": "3 — Artisanal / Color blocking",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Atelier.dc.html": {
+      "expand": "fill",
+      "h": 5400,
+      "title": "11a — Atelier · Encre & laiton",
+      "w": 1440,
+      "x": 0,
+      "y": 6800
+    },
+    "AtelierForest.dc.html": {
+      "expand": "fill",
+      "h": 5400,
+      "title": "11d — Atelier · Forêt (originale)",
+      "w": 1440,
+      "x": 4560,
+      "y": 6800
+    },
+    "AtelierNight.dc.html": {
+      "expand": "fill",
+      "h": 5400,
+      "title": "11b — Atelier · Bleu nuit",
+      "w": 1440,
+      "x": 1520,
+      "y": 6800
+    },
+    "AtelierSignature.dc.html": {
+      "expand": "fill",
+      "h": 5400,
+      "title": "11e — Atelier · Votre palette",
+      "w": 1440,
+      "x": 6053,
+      "y": 6759
+    },
+    "AtelierTerracotta.dc.html": {
+      "expand": "fill",
+      "h": 5400,
+      "title": "11c — Atelier · Terracotta",
+      "w": 1440,
+      "x": 3040,
+      "y": 6800
+    },
+    "Bento.dc.html": {
+      "expand": "fill",
+      "h": 2950,
+      "title": "10 — Bento modulaire",
+      "w": 1440,
+      "x": 6080,
+      "y": 3400
+    },
+    "Blueprint.dc.html": {
+      "expand": "fill",
+      "h": 2950,
+      "title": "2 — Blueprint technique",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Brutalist.dc.html": {
+      "expand": "fill",
+      "h": 2950,
+      "title": "6 — Néo-brutaliste",
+      "w": 1440,
+      "x": 0,
+      "y": 3400
+    },
+    "ControlRoom.dc.html": {
+      "expand": "fill",
+      "h": 2950,
+      "title": "4 — Control room (dark)",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 2950,
+      "title": "1 — Éditorial / Agence noire",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Notebook.dc.html": {
+      "expand": "fill",
+      "h": 2950,
+      "title": "8 — Carnet annoté",
+      "w": 1440,
+      "x": 3040,
+      "y": 3400
+    },
+    "Premium.dc.html": {
+      "expand": "fill",
+      "h": 2950,
+      "title": "7 — Conseil premium (vert profond)",
+      "w": 1440,
+      "x": 1520,
+      "y": 3400
+    },
+    "Retro.dc.html": {
+      "expand": "fill",
+      "h": 2950,
+      "title": "9 — Rétro 70s",
+      "w": 1440,
+      "x": 4560,
+      "y": 3400
+    },
+    "Swiss.dc.html": {
+      "expand": "fill",
+      "h": 2950,
+      "title": "5 — Swiss minimal",
+      "w": 1440,
+      "x": 6080,
+      "y": 0
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-25T10:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "s3": {
+      "fill": "teal",
+      "size": 24,
+      "text": "Direction 11 — inspirée de galadrim.fr, version plus premium : alternance clair / sombre, labels mono entre crochets, séparateurs pointillés, accent serif italique. Même page, 5 palettes. Page complète : process, modèle, différenciants, ressources SEO, FAQ, formulaire de qualification.",
+      "w": 420,
+      "x": 7600,
+      "y": 6800
+    },
+    "t1": {
+      "kind": "title1",
+      "maxW": 7520,
+      "text": "5 directions — landing page ilipro",
+      "w": 240,
+      "x": 0,
+      "y": -320
+    },
+    "t2": {
+      "kind": "title1",
+      "maxW": 7520,
+      "text": "5 directions supplémentaires",
+      "w": 240,
+      "x": 0,
+      "y": 3080
+    },
+    "t3": {
+      "kind": "title1",
+      "maxW": 7520,
+      "text": "Direction 11 — Atelier premium · 5 palettes",
+      "w": 240,
+      "x": 0,
+      "y": 6480
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Blueprint.dc.html",
+    "Artisanal.dc.html",
+    "ControlRoom.dc.html",
+    "Swiss.dc.html",
+    "Brutalist.dc.html",
+    "Premium.dc.html",
+    "Notebook.dc.html",
+    "Retro.dc.html",
+    "Bento.dc.html",
+    "Atelier.dc.html",
+    "AtelierNight.dc.html",
+    "AtelierTerracotta.dc.html",
+    "AtelierForest.dc.html",
+    "AtelierSignature.dc.html"
+  ],
+  "pages": [],
+  "title": "Vitrine ilipro — 5 directions design"
+}

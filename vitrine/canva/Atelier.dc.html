@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>ilipro — Direction 11 : Atelier premium</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&family=Newsreader:ital,opsz,wght@1,6..72,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;font-family:'Jost',sans-serif;}
+  a{color:inherit;text-decoration:none;}
+  a:hover{opacity:0.75;}
+  .mono{font-family:'DM Mono',monospace;}
+  .it{font-family:'Newsreader',serif;font-style:italic;font-weight:400;}
+  input,textarea{font-family:'Jost',sans-serif;}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;color:{{c.ink}};background:{{c.bg}};">
+
+  <!-- NAV -->
+  <nav style="background:{{c.bg}};border-bottom:1px dashed {{c.line}};">
+    <div style="max-width:1240px;margin:0 auto;padding:22px 48px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;">
+      <div style="font-size:22px;font-weight:500;letter-spacing:-0.02em;">ilipro</div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:32px;font-size:15px;">
+        <a href="#cases">Automatisations</a>
+        <a href="#process">Méthode</a>
+        <a href="#model">Modèle</a>
+        <a href="#resources">Ressources</a>
+        <span class="mono" style="font-size:12px;color:{{c.muted}};">FR / <a href="#" style="color:{{c.accent}};">EN</a></span>
+        <a href="#contact" class="mono" style="padding:12px 18px;background:{{c.accent}};color:{{c.onAccent}};font-size:12px;letter-spacing:0.06em;">→ PRENONS CONTACT</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section style="padding:136px 48px 96px;text-align:center;">
+    <div class="mono" style="font-size:12px;letter-spacing:0.14em;color:{{c.muted}};margin-bottom:32px;">[ AGENCE D'AUTOMATISATION · PME INTERNATIONALES ]</div>
+    <h1 style="font-size:72px;line-height:1.02;font-weight:500;letter-spacing:-0.035em;max-width:980px;margin:0 auto 32px;">Vos process, automatisés. <span class="it" style="color:{{c.em}};">Payés à la livraison.</span></h1>
+    <p style="font-size:19px;line-height:1.6;color:{{c.muted}};max-width:600px;margin:0 auto 48px;">Nous concevons, livrons et maintenons les automatisations qui libèrent vos équipes. Vous ne payez que si elles répondent au besoin.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">
+      <a href="#contact" class="mono" style="padding:17px 26px;background:{{c.accent}};color:{{c.onAccent}};font-size:13px;letter-spacing:0.06em;">→ DISCUTONS DE VOTRE PROCESS</a>
+      <a href="#cases" class="mono" style="padding:17px 26px;background:{{c.surface}};color:{{c.ink}};font-size:13px;letter-spacing:0.06em;border:1px solid {{c.lineSoft}};">→ VOIR NOS AUTOMATISATIONS</a>
+    </div>
+  </section>
+
+  <!-- HERO VISUAL -->
+  <section style="padding:0 48px 112px;">
+    <div style="max-width:1240px;margin:0 auto;background:{{c.dark}};border-radius:6px;padding:56px;overflow-x:auto;">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:40px;">
+        <span class="mono" style="font-size:12px;letter-spacing:0.1em;color:{{c.darkMuted}};">EXEMPLE · RÉPONSE AUX DEVIS</span>
+        <span class="mono" style="font-size:12px;letter-spacing:0.1em;color:{{c.accentSoft}};">● EN PRODUCTION</span>
+      </div>
+      <div style="display:flex;align-items:stretch;min-width:880px;">
+        <div style="flex:1 1 0;padding:24px;border:1px solid {{c.darkLine}};border-radius:4px;">
+          <div class="mono" style="font-size:11px;color:{{c.darkMuted}};margin-bottom:14px;">01</div>
+          <div style="font-size:17px;color:{{c.onDark}};">Lecture de la boîte mail</div>
+        </div>
+        <div style="flex:0 0 48px;align-self:center;border-top:1px dashed {{c.darkMuted}};"></div>
+        <div style="flex:1 1 0;padding:24px;border:1px solid {{c.darkLine}};border-radius:4px;">
+          <div class="mono" style="font-size:11px;color:{{c.darkMuted}};margin-bottom:14px;">02</div>
+          <div style="font-size:17px;color:{{c.onDark}};">Détection des demandes de devis</div>
+        </div>
+        <div style="flex:0 0 48px;align-self:center;border-top:1px dashed {{c.darkMuted}};"></div>
+        <div style="flex:1 1 0;padding:24px;border:1px solid {{c.darkLine}};border-radius:4px;">
+          <div class="mono" style="font-size:11px;color:{{c.darkMuted}};margin-bottom:14px;">03</div>
+          <div style="font-size:17px;color:{{c.onDark}};">Transmission au secrétariat</div>
+        </div>
+        <div style="flex:0 0 48px;align-self:center;border-top:1px dashed {{c.darkMuted}};"></div>
+        <div style="flex:1 1 0;padding:24px;border-radius:4px;background:{{c.nodeBg}};">
+          <div class="mono" style="font-size:11px;color:{{c.nodeLabel}};margin-bottom:14px;">04</div>
+          <div style="font-size:17px;color:{{c.nodeText}};">Envoi au client, devis en copie</div>
+        </div>
+      </div>
+    </div>
+    <div style="max-width:1240px;margin:56px auto 0;padding-top:32px;border-top:1px dashed {{c.line}};display:flex;flex-wrap:wrap;gap:24px 56px;align-items:center;justify-content:center;">
+      <span class="mono" style="font-size:11px;letter-spacing:0.12em;color:{{c.muted}};">BRANCHÉ SUR VOS OUTILS</span>
+      <span style="font-size:20px;color:{{c.faint}};font-weight:500;">Salesforce</span>
+      <span style="font-size:20px;color:{{c.faint}};font-weight:500;">SharePoint</span>
+      <span style="font-size:20px;color:{{c.faint}};font-weight:500;">Excel</span>
+      <span style="font-size:20px;color:{{c.faint}};font-weight:500;">Outlook</span>
+      <span style="font-size:20px;color:{{c.faint}};font-weight:500;">Gmail</span>
+    </div>
+  </section>
+
+  <!-- CASES (dark) -->
+  <section id="cases" style="background:{{c.dark}};color:{{c.onDark}};padding:136px 48px;">
+    <div style="max-width:1240px;margin:0 auto;">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:32px;margin-bottom:64px;">
+        <div>
+          <div class="mono" style="font-size:12px;letter-spacing:0.14em;color:{{c.darkMuted}};margin-bottom:20px;">[ NOS AUTOMATISATIONS ]</div>
+          <h2 style="font-size:48px;line-height:1.08;font-weight:500;letter-spacing:-0.03em;margin:0;max-width:620px;">Trois cas, livrés et <span class="it" style="color:{{c.accentSoft}};">en production.</span></h2>
+        </div>
+        <p style="font-size:16px;line-height:1.6;color:{{c.darkMuted}};max-width:380px;margin:0;">Chaque automatisation est construite pour votre contexte — vos outils, vos équipes, vos règles métier.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;">
+        <a href="#" style="display:flex;flex-direction:column;justify-content:space-between;min-height:400px;background:{{c.darkCard}};border:1px solid {{c.darkCardBorder}};border-radius:6px;padding:36px;color:{{c.onDark}};">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span class="mono" style="font-size:11px;letter-spacing:0.08em;padding:5px 9px;background:{{c.darkChip}};border:1px solid {{c.darkChipBorder}};">PROSPECTION</span>
+            <span class="mono" style="font-size:11px;letter-spacing:0.08em;padding:5px 9px;background:{{c.darkChip}};border:1px solid {{c.darkChipBorder}};">OUTBOUND</span>
+          </div>
+          <div>
+            <h3 style="font-size:28px;line-height:1.15;font-weight:500;letter-spacing:-0.02em;margin:0 0 14px;">Boîtes mail en masse pour la prospection</h3>
+            <p style="font-size:15px;line-height:1.6;color:{{c.darkMuted}};margin:0 0 24px;">Création et chauffe d'une infrastructure d'envoi qui tient à l'échelle sans finir en spam.</p>
+            <span class="mono" style="font-size:12px;letter-spacing:0.06em;color:{{c.accentSoft}};">→ LIRE LE CAS</span>
+          </div>
+        </a>
+        <a href="#" style="display:flex;flex-direction:column;justify-content:space-between;min-height:400px;background:{{c.darkCard}};border:1px solid {{c.darkCardBorder}};border-radius:6px;padding:36px;color:{{c.onDark}};">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span class="mono" style="font-size:11px;letter-spacing:0.08em;padding:5px 9px;background:{{c.darkChip}};border:1px solid {{c.darkChipBorder}};">CRM</span>
+            <span class="mono" style="font-size:11px;letter-spacing:0.08em;padding:5px 9px;background:{{c.darkChip}};border:1px solid {{c.darkChipBorder}};">DISTRIBUTION</span>
+          </div>
+          <div>
+            <h3 style="font-size:28px;line-height:1.15;font-weight:500;letter-spacing:-0.02em;margin:0 0 14px;">Leads routés par pays vers vos distributeurs</h3>
+            <p style="font-size:15px;line-height:1.6;color:{{c.darkMuted}};margin:0 0 24px;">Salesforce → Excel/SharePoint, puis requalification automatique dans Salesforce. Aucun handoff manuel.</p>
+            <span class="mono" style="font-size:12px;letter-spacing:0.06em;color:{{c.accentSoft}};">→ LIRE LE CAS</span>
+          </div>
+        </a>
+        <a href="#" style="display:flex;flex-direction:column;justify-content:space-between;min-height:400px;background:{{c.darkCard}};border:1px solid {{c.darkCardBorder}};border-radius:6px;padding:36px;color:{{c.onDark}};">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span class="mono" style="font-size:11px;letter-spacing:0.08em;padding:5px 9px;background:{{c.darkChip}};border:1px solid {{c.darkChipBorder}};">VENTES</span>
+            <span class="mono" style="font-size:11px;letter-spacing:0.08em;padding:5px 9px;background:{{c.darkChip}};border:1px solid {{c.darkChipBorder}};">EMAIL</span>
+          </div>
+          <div>
+            <h3 style="font-size:28px;line-height:1.15;font-weight:500;letter-spacing:-0.02em;margin:0 0 14px;">Réponse automatique aux demandes de devis</h3>
+            <p style="font-size:15px;line-height:1.6;color:{{c.darkMuted}};margin:0 0 24px;">Détection, secrétariat, écoute de la réponse, envoi au lead avec le devis en copie.</p>
+            <span class="mono" style="font-size:12px;letter-spacing:0.06em;color:{{c.accentSoft}};">→ LIRE LE CAS</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section id="process" style="padding:136px 48px;">
+    <div style="max-width:1240px;margin:0 auto;">
+      <div class="mono" style="font-size:12px;letter-spacing:0.14em;color:{{c.muted}};margin-bottom:20px;">[ MÉTHODE ]</div>
+      <h2 style="font-size:48px;line-height:1.08;font-weight:500;letter-spacing:-0.03em;margin:0 0 72px;max-width:700px;">On vous conseille <span class="it" style="color:{{c.em}};">avant</span> de construire.</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:40px;">
+        <div style="border-top:1px dashed {{c.faint}};padding-top:28px;">
+          <div class="mono" style="font-size:12px;color:{{c.accent}};margin-bottom:20px;">01 — DIAGNOSTIC</div>
+          <p style="font-size:16px;line-height:1.6;color:{{c.body}};margin:0;">Un appel de qualification pour cartographier le process et chiffrer le temps perdu.</p>
+        </div>
+        <div style="border-top:1px dashed {{c.faint}};padding-top:28px;">
+          <div class="mono" style="font-size:12px;color:{{c.accent}};margin-bottom:20px;">02 — CONCEPTION</div>
+          <p style="font-size:16px;line-height:1.6;color:{{c.body}};margin:0;">On définit ensemble le résultat attendu : c'est lui qui conditionne le paiement.</p>
+        </div>
+        <div style="border-top:1px dashed {{c.faint}};padding-top:28px;">
+          <div class="mono" style="font-size:12px;color:{{c.accent}};margin-bottom:20px;">03 — LIVRAISON</div>
+          <p style="font-size:16px;line-height:1.6;color:{{c.body}};margin:0;">L'automatisation tourne sur vos outils. Vous validez — ou vous ne payez pas.</p>
+        </div>
+        <div style="border-top:1px dashed {{c.faint}};padding-top:28px;">
+          <div class="mono" style="font-size:12px;color:{{c.accent}};margin-bottom:20px;">04 — SUIVI</div>
+          <p style="font-size:16px;line-height:1.6;color:{{c.body}};margin:0;">Maintenance continue, livrables et factures dans votre espace client.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODEL -->
+  <section id="model" style="background:{{c.surface}};padding:136px 48px;">
+    <div style="max-width:1240px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:80px;">
+        <div class="mono" style="font-size:12px;letter-spacing:0.14em;color:{{c.muted}};margin-bottom:20px;">[ MODÈLE ]</div>
+        <h2 style="font-size:48px;line-height:1.08;font-weight:500;letter-spacing:-0.03em;margin:0 auto;max-width:720px;">Le risque est <span class="it" style="color:{{c.em}};">de notre côté.</span></h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));border-top:1px solid {{c.lineSoft}};border-bottom:1px solid {{c.lineSoft}};">
+        <div style="padding:48px 40px;border-right:1px solid {{c.lineSoft}};">
+          <div style="font-size:64px;font-weight:500;letter-spacing:-0.04em;line-height:1;margin-bottom:20px;">0&nbsp;€</div>
+          <div class="mono" style="font-size:12px;letter-spacing:0.08em;color:{{c.accent}};margin-bottom:12px;">AVANT VALIDATION</div>
+          <p style="font-size:15px;line-height:1.6;color:{{c.muted}};margin:0;">Vous payez à la livraison, uniquement si l'automatisation répond au besoin convenu.</p>
+        </div>
+        <div style="padding:48px 40px;border-right:1px solid {{c.lineSoft}};">
+          <div style="font-size:64px;font-weight:500;letter-spacing:-0.04em;line-height:1;margin-bottom:20px;">1&nbsp;000&nbsp;€<span style="font-size:22px;color:{{c.faint}};">/mois</span></div>
+          <div class="mono" style="font-size:12px;letter-spacing:0.08em;color:{{c.accent}};margin-bottom:12px;">À PARTIR DE</div>
+          <p style="font-size:15px;line-height:1.6;color:{{c.muted}};margin:0;">Abonnement avec engagement annuel, dimensionné selon la complexité.</p>
+        </div>
+        <div style="padding:48px 40px;">
+          <div class="it" style="font-size:64px;line-height:1;margin-bottom:20px;color:{{c.em}};">Incluse</div>
+          <div class="mono" style="font-size:12px;letter-spacing:0.08em;color:{{c.accent}};margin-bottom:12px;">MAINTENANCE</div>
+          <p style="font-size:15px;line-height:1.6;color:{{c.muted}};margin:0;">Évolutions d'API, pannes, ajustements : on garde votre automatisation en état de marche.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIFFERENCE (dark) -->
+  <section style="background:{{c.dark}};color:{{c.onDark}};padding:136px 48px;">
+    <div style="max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;gap:72px;">
+      <div style="flex:1 1 340px;min-width:0;">
+        <div class="mono" style="font-size:12px;letter-spacing:0.14em;color:{{c.darkMuted}};margin-bottom:20px;">[ CE QUI NOUS DISTINGUE ]</div>
+        <h2 style="font-size:44px;line-height:1.08;font-weight:500;letter-spacing:-0.03em;margin:0;">Une agence qui <span class="it" style="color:{{c.accentSoft}};">s'engage</span> sur le résultat.</h2>
+      </div>
+      <div style="flex:2 1 560px;min-width:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:48px 40px;">
+        <div style="border-top:1px dashed {{c.darkLine}};padding-top:24px;">
+          <h3 style="font-size:20px;font-weight:500;margin:0 0 12px;">Payé au résultat</h3>
+          <p style="font-size:15px;line-height:1.6;color:{{c.darkMuted}};margin:0;">Pas de devis d'heures. Un résultat défini ensemble, validé par vous.</p>
+        </div>
+        <div style="border-top:1px dashed {{c.darkLine}};padding-top:24px;">
+          <h3 style="font-size:20px;font-weight:500;margin:0 0 12px;">Vos outils, pas les nôtres</h3>
+          <p style="font-size:15px;line-height:1.6;color:{{c.darkMuted}};margin:0;">Salesforce, SharePoint, votre messagerie : aucune nouvelle plateforme à adopter.</p>
+        </div>
+        <div style="border-top:1px dashed {{c.darkLine}};padding-top:24px;">
+          <h3 style="font-size:20px;font-weight:500;margin:0 0 12px;">Un interlocuteur direct</h3>
+          <p style="font-size:15px;line-height:1.6;color:{{c.darkMuted}};margin:0;">Celui qui conçoit votre automatisation est celui qui vous répond.</p>
+        </div>
+        <div style="border-top:1px dashed {{c.darkLine}};padding-top:24px;">
+          <h3 style="font-size:20px;font-weight:500;margin:0 0 12px;">Un espace client dédié</h3>
+          <p style="font-size:15px;line-height:1.6;color:{{c.darkMuted}};margin:0;">Livrables, factures et suivi de vos automatisations, au même endroit.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESOURCES -->
+  <section id="resources" style="padding:136px 48px;">
+    <div style="max-width:1240px;margin:0 auto;">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:56px;">
+        <div>
+          <div class="mono" style="font-size:12px;letter-spacing:0.14em;color:{{c.muted}};margin-bottom:20px;">[ RESSOURCES ]</div>
+          <h2 style="font-size:44px;line-height:1.08;font-weight:500;letter-spacing:-0.03em;margin:0;max-width:640px;">Guides et retours d'expérience</h2>
+        </div>
+        <a href="#" class="mono" style="font-size:12px;letter-spacing:0.06em;color:{{c.accent}};">→ TOUS LES ARTICLES</a>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:32px;">
+        <a href="#" style="display:block;">
+          <div style="height:220px;background:{{c.tile1}};border-radius:6px;margin-bottom:24px;display:flex;align-items:center;justify-content:center;"><span class="mono" style="font-size:11px;color:{{c.tileText}};">[ VISUEL ARTICLE ]</span></div>
+          <div class="mono" style="font-size:11px;letter-spacing:0.1em;color:{{c.accent}};margin-bottom:12px;">GUIDE</div>
+          <h3 style="font-size:22px;line-height:1.3;font-weight:500;margin:0;">Automatiser la réponse aux devis : le guide pour PME</h3>
+        </a>
+        <a href="#" style="display:block;">
+          <div style="height:220px;background:{{c.tile2}};border-radius:6px;margin-bottom:24px;display:flex;align-items:center;justify-content:center;"><span class="mono" style="font-size:11px;color:{{c.tileText}};">[ VISUEL ARTICLE ]</span></div>
+          <div class="mono" style="font-size:11px;letter-spacing:0.1em;color:{{c.accent}};margin-bottom:12px;">CRM</div>
+          <h3 style="font-size:22px;line-height:1.3;font-weight:500;margin:0;">Salesforce → SharePoint : router ses leads sans ressaisie</h3>
+        </a>
+        <a href="#" style="display:block;">
+          <div style="height:220px;background:{{c.tile3}};border-radius:6px;margin-bottom:24px;display:flex;align-items:center;justify-content:center;"><span class="mono" style="font-size:11px;color:{{c.tileText}};">[ VISUEL ARTICLE ]</span></div>
+          <div class="mono" style="font-size:11px;letter-spacing:0.1em;color:{{c.accent}};margin-bottom:12px;">PROSPECTION</div>
+          <h3 style="font-size:22px;line-height:1.3;font-weight:500;margin:0;">Cold emailing : une infrastructure d'envoi qui ne finit pas en spam</h3>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section style="background:{{c.surface}};padding:136px 48px;">
+    <div style="max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;gap:72px;">
+      <div style="flex:1 1 320px;min-width:0;">
+        <div class="mono" style="font-size:12px;letter-spacing:0.14em;color:{{c.muted}};margin-bottom:20px;">[ FAQ ]</div>
+        <h2 style="font-size:44px;line-height:1.08;font-weight:500;letter-spacing:-0.03em;margin:0;">Questions <span class="it" style="color:{{c.em}};">fréquentes</span></h2>
+      </div>
+      <div style="flex:2 1 560px;min-width:0;">
+        <div style="display:flex;justify-content:space-between;gap:24px;padding:28px 0;border-top:1px dashed {{c.line}};">
+          <div>
+            <h3 style="font-size:19px;font-weight:500;margin:0 0 10px;">Et si l'automatisation ne répond pas au besoin&nbsp;?</h3>
+            <p style="font-size:15px;line-height:1.6;color:{{c.muted}};margin:0;">Vous ne payez pas. Le résultat attendu est défini ensemble avant de commencer.</p>
+          </div>
+          <span aria-hidden="true" style="font-size:22px;color:{{c.accent}};">−</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:24px;padding:28px 0;border-top:1px dashed {{c.line}};">
+          <h3 style="font-size:19px;font-weight:500;margin:0;">Combien de temps pour livrer une automatisation&nbsp;?</h3>
+          <span aria-hidden="true" style="font-size:22px;color:{{c.accent}};">+</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:24px;padding:28px 0;border-top:1px dashed {{c.line}};">
+          <h3 style="font-size:19px;font-weight:500;margin:0;">Travaillez-vous avec des entreprises hors de France&nbsp;?</h3>
+          <span aria-hidden="true" style="font-size:22px;color:{{c.accent}};">+</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:24px;padding:28px 0;border-top:1px dashed {{c.line}};border-bottom:1px dashed {{c.line}};">
+          <h3 style="font-size:19px;font-weight:500;margin:0;">Que comprend la maintenance&nbsp;?</h3>
+          <span aria-hidden="true" style="font-size:22px;color:{{c.accent}};">+</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" style="background:{{c.accent}};color:{{c.onAccent}};padding:136px 48px;">
+    <div style="max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;gap:72px;">
+      <div style="flex:1 1 400px;min-width:0;">
+        <div class="mono" style="font-size:12px;letter-spacing:0.14em;color:{{c.accentTint}};margin-bottom:20px;">[ CONTACT ]</div>
+        <h2 style="font-size:56px;line-height:1.04;font-weight:500;letter-spacing:-0.035em;margin:0 0 28px;">Concrétisons votre <span class="it">première automatisation.</span></h2>
+        <p style="font-size:17px;line-height:1.6;color:{{c.accentTint}};max-width:440px;margin:0;">Décrivez le process qui vous coûte du temps. On revient vers vous pour un appel de qualification.</p>
+      </div>
+      <form style="flex:1 1 440px;min-width:0;background:{{c.bg}};color:{{c.ink}};border-radius:6px;padding:40px;display:flex;flex-direction:column;gap:20px;">
+        <div style="display:flex;flex-wrap:wrap;gap:20px;">
+          <label style="flex:1 1 180px;display:flex;flex-direction:column;gap:8px;"><span class="mono" style="font-size:11px;letter-spacing:0.08em;color:{{c.muted}};">NOM</span><input type="text" style="padding:14px;border:1px solid {{c.line}};background:{{c.surface}};font-size:15px;border-radius:2px;"></label>
+          <label style="flex:1 1 180px;display:flex;flex-direction:column;gap:8px;"><span class="mono" style="font-size:11px;letter-spacing:0.08em;color:{{c.muted}};">ENTREPRISE</span><input type="text" style="padding:14px;border:1px solid {{c.line}};background:{{c.surface}};font-size:15px;border-radius:2px;"></label>
+        </div>
+        <label style="display:flex;flex-direction:column;gap:8px;"><span class="mono" style="font-size:11px;letter-spacing:0.08em;color:{{c.muted}};">EMAIL PROFESSIONNEL</span><input type="email" style="padding:14px;border:1px solid {{c.line}};background:{{c.surface}};font-size:15px;border-radius:2px;"></label>
+        <label style="display:flex;flex-direction:column;gap:8px;"><span class="mono" style="font-size:11px;letter-spacing:0.08em;color:{{c.muted}};">LE PROCESS À AUTOMATISER</span><textarea rows="4" style="padding:14px;border:1px solid {{c.line}};background:{{c.surface}};font-size:15px;border-radius:2px;resize:vertical;"></textarea></label>
+        <button type="submit" class="mono" style="padding:17px 26px;background:{{c.ink}};color:{{c.onDark}};border:none;font-size:13px;letter-spacing:0.06em;cursor:pointer;font-family:'DM Mono',monospace;">→ ENVOYER MA DEMANDE</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="background:{{c.footer}};color:{{c.darkMuted}};padding:72px 48px 40px;">
+    <div style="max-width:1240px;margin:0 auto;">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:48px;padding-bottom:56px;border-bottom:1px dashed {{c.darkLine}};">
+        <div style="max-width:300px;">
+          <div style="font-size:24px;font-weight:500;color:{{c.onDark}};letter-spacing:-0.02em;margin-bottom:14px;">ilipro</div>
+          <p style="font-size:14px;line-height:1.6;margin:0;">Agence d'automatisation pour PME, en France et à l'international.</p>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:72px;font-size:14px;">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <span class="mono" style="font-size:11px;letter-spacing:0.1em;color:{{c.onDark}};">AUTOMATISATIONS</span>
+            <a href="#">Prospection email</a>
+            <a href="#">Routage de leads</a>
+            <a href="#">Réponse aux devis</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <span class="mono" style="font-size:11px;letter-spacing:0.1em;color:{{c.onDark}};">AGENCE</span>
+            <a href="#">Méthode</a>
+            <a href="#">Ressources</a>
+            <a href="#">Espace client</a>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;padding-top:28px;font-size:13px;">
+        <span>© 2026 ilipro</span>
+        <div style="display:flex;gap:24px;flex-wrap:wrap;">
+          <a href="#">Mentions légales</a>
+          <a href="#">Confidentialité</a>
+          <span class="mono" style="font-size:12px;">FR / <a href="#" style="color:{{c.onDark}};">EN</a></span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":5400},"palette":{"editor":"enum","default":"ink","options":["ink","night","terracotta","forest","signature"],"section":"Palette"}}'>
+var PALETTES = {
+  signature: {
+    bg: '#F1F4F6', surface: '#F1F4F6', ink: '#16181B', body: '#2E3135', muted: '#55595F', faint: '#80858C',
+    line: '#94B0C6', lineSoft: '#94B0C6',
+    dark: '#0E2A40', darkCard: '#163650', darkCardBorder: '#163650', darkChip: '#21445E', darkChipBorder: '#21445E',
+    darkLine: '#2D5470', darkMuted: '#94B0C6', onDark: '#F1F4F6', footer: '#0E2A40',
+    accent: '#1375C4', onAccent: '#F1F4F6', accentSoft: '#C1996D', accentTint: '#F1F4F6', em: '#AD723F',
+    nodeBg: '#F1F4F6', nodeLabel: '#AD723F', nodeText: '#16181B',
+    tile1: '#94B0C6', tile2: '#C1996D', tile3: '#AD723F', tileText: '#16181B'
+  },
+  ink: {
+    bg: '#F5F2EC', surface: '#FFFFFF', ink: '#16181D', body: '#33363C', muted: '#5B5F66', faint: '#8B8F96',
+    line: '#D3CEC4', lineSoft: '#E6E1D8',
+    dark: '#1B1D22', darkCard: '#25282E', darkChip: '#33373E', darkLine: '#3A3E46', darkMuted: '#A3A7AE',
+    accent: '#7E6238', onAccent: '#F5F2EC', accentSoft: '#D6BC8F', accentTint: '#EBDFC8',
+    tile1: '#E8E1D3', tile2: '#DFE2E6', tile3: '#EBE2D8'
+  },
+  night: {
+    bg: '#F4F5F7', surface: '#FFFFFF', ink: '#0F1B2D', body: '#2E3846', muted: '#556070', faint: '#8691A0',
+    line: '#CDD3DC', lineSoft: '#E3E7ED',
+    dark: '#0F1B2D', darkCard: '#1A2A42', darkChip: '#26385A', darkLine: '#2C3F60', darkMuted: '#9BA8BC',
+    accent: '#1F4E8C', onAccent: '#F4F5F7', accentSoft: '#9DBCE6', accentTint: '#D2E0F3',
+    tile1: '#E2E8F0', tile2: '#DDE7E3', tile3: '#E8E3EE'
+  },
+  terracotta: {
+    bg: '#F6F0E8', surface: '#FFFCF8', ink: '#2A1E18', body: '#43342B', muted: '#6B5A4E', faint: '#948376',
+    line: '#D9CBBE', lineSoft: '#EADFD4',
+    dark: '#2A1E18', darkCard: '#3A2A22', darkChip: '#4A372D', darkLine: '#54403A', darkMuted: '#BBA799',
+    accent: '#A8492B', onAccent: '#FFF8F2', accentSoft: '#F0B79E', accentTint: '#F6DACB',
+    tile1: '#EEDFD2', tile2: '#E3E2D3', tile3: '#EBDCD8'
+  },
+  forest: {
+    bg: '#F7F3ED', surface: '#FFFFFF', ink: '#1D1C1A', body: '#3B3834', muted: '#5E5850', faint: '#8A8276',
+    line: '#CFC7BA', lineSoft: '#E5DED3',
+    dark: '#262422', darkCard: '#33302D', darkChip: '#45413D', darkLine: '#45413D', darkMuted: '#A39B8E',
+    accent: '#2E4B3C', onAccent: '#F7F3ED', accentSoft: '#BFD3C5', accentTint: '#D3E0D7',
+    tile1: '#E9E2D6', tile2: '#DCE3DA', tile3: '#E4DFE6'
+  }
+};
+class Component extends DCLogic {
+  renderVals() {
+    var p = PALETTES[this.props.palette] || PALETTES.ink;
+    return { c: Object.assign({
+      em: p.accent, onDark: p.bg, footer: p.ink, darkCardBorder: p.darkCard, darkChipBorder: p.darkChip,
+      nodeBg: p.accent, nodeLabel: p.accentTint, nodeText: p.onAccent, tileText: p.muted
+    }, p) };
+  }
+}
+</script>
+</body>
+</html>

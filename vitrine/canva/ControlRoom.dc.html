@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>ilipro — Direction 4 : Control room</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#0B0E11;font-family:'IBM Plex Sans',sans-serif;}
+  a{color:#22D3B4;text-decoration:none;}
+  a:hover{color:#8FF0DC;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;color:#E8ECEF;">
+
+  <!-- NAV -->
+  <nav style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px;padding:26px 64px;border-bottom:1px solid #1E2530;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#22D3B4;display:inline-block;"></span>
+      <span class="mono" style="font-size:15px;font-weight:500;">ilipro</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:32px;font-size:14px;">
+      <a href="#usecases" style="color:#B7C0CC;">Solutions</a>
+      <a href="#model" style="color:#B7C0CC;">Modèle</a>
+      <a href="#" style="color:#B7C0CC;">Tarifs</a>
+      <span class="mono" style="font-size:12px;color:#5A6472;">FR&nbsp;/&nbsp;<a href="#">EN</a></span>
+      <a href="#cta" style="padding:10px 20px;background:#22D3B4;color:#0B0E11;border-radius:4px;font-weight:600;">Réserver un appel</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section style="padding:100px 64px 96px;display:flex;flex-wrap:wrap;gap:56px;">
+    <div style="flex:1 1 480px;min-width:0;">
+      <div class="mono" style="font-size:12px;color:#22D3B4;margin-bottom:24px;">● système opérationnel — agence d'automatisation</div>
+      <h1 style="font-size:50px;line-height:1.14;font-weight:700;margin:0 0 26px;">Vos automatisations, sous contrôle 24/7.</h1>
+      <p style="font-size:17px;line-height:1.6;color:#B7C0CC;max-width:520px;margin:0 0 36px;">Prospection, tri des leads, réponse aux devis : on construit, on surveille, on maintient. Vous ne payez qu'à la livraison.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:20px;">
+        <a href="#cta" style="padding:14px 26px;background:#22D3B4;color:#0B0E11;border-radius:4px;font-weight:600;font-size:15px;">Réserver un appel de qualification</a>
+        <a href="#usecases" style="padding:14px 26px;border:1px solid #1E2530;border-radius:4px;font-size:15px;color:#E8ECEF;">Voir les automatisations</a>
+      </div>
+    </div>
+    <div style="flex:1 1 420px;min-width:300px;background:#11161C;border:1px solid #1E2530;border-radius:8px;padding:24px;">
+      <div class="mono" style="font-size:12px;color:#5A6472;margin-bottom:16px;">devis-responder.log</div>
+      <div class="mono" style="font-size:13px;line-height:1.9;color:#8FF0DC;">
+        <div>&gt; lecture boîte mail commerciale…</div>
+        <div>&gt; 1 nouvelle demande de devis détectée</div>
+        <div style="color:#E8ECEF;">&gt; transmission → secrétariat</div>
+        <div style="color:#E8ECEF;">&gt; devis reçu, en attente d'envoi</div>
+        <div style="color:#22D3B4;">&gt; envoyé au lead, devis en copie ✓</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- USE CASES -->
+  <section id="usecases" style="padding:0 64px 112px;">
+    <h2 style="font-size:30px;font-weight:700;max-width:600px;margin:0 0 56px;">Trois automatisations en production</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1px;background:#1E2530;border:1px solid #1E2530;border-radius:8px;overflow:hidden;">
+      <div style="background:#0B0E11;padding:32px;">
+        <div class="mono" style="font-size:12px;color:#22D3B4;margin-bottom:14px;">01</div>
+        <h3 style="font-size:18px;font-weight:600;margin:0 0 10px;">Prospection email en masse</h3>
+        <p style="font-size:14px;line-height:1.6;color:#B7C0CC;margin:0;">Création et chauffe de boîtes mail pour une prospection outbound qui tient la distance.</p>
+      </div>
+      <div style="background:#0B0E11;padding:32px;">
+        <div class="mono" style="font-size:12px;color:#22D3B4;margin-bottom:14px;">02</div>
+        <h3 style="font-size:18px;font-weight:600;margin:0 0 10px;">Routage de leads Salesforce</h3>
+        <p style="font-size:14px;line-height:1.6;color:#B7C0CC;margin:0;">Catégorisation par pays, Salesforce → Excel/SharePoint, puis requalification auto. Aucun handoff manuel.</p>
+      </div>
+      <div style="background:#0B0E11;padding:32px;">
+        <div class="mono" style="font-size:12px;color:#22D3B4;margin-bottom:14px;">03</div>
+        <h3 style="font-size:18px;font-weight:600;margin:0 0 10px;">Réponse automatique aux devis</h3>
+        <p style="font-size:14px;line-height:1.6;color:#B7C0CC;margin:0;">Détection, secrétariat, suivi, envoi au client — bout en bout, sans intervention.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODEL -->
+  <section id="model" style="padding:0 64px 112px;">
+    <h2 style="font-size:30px;font-weight:700;max-width:560px;margin:0 0 56px;">Le modèle</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:1px;background:#1E2530;border:1px solid #1E2530;border-radius:8px;overflow:hidden;">
+      <div style="flex:1 1 280px;background:#11161C;padding:28px;">
+        <div class="mono" style="font-size:12px;color:#5A6472;margin-bottom:10px;">status: payment</div>
+        <p style="font-size:15px;line-height:1.6;margin:0;">Payé à la livraison, seulement si ça répond au besoin.</p>
+      </div>
+      <div style="flex:1 1 280px;background:#11161C;padding:28px;">
+        <div class="mono" style="font-size:12px;color:#5A6472;margin-bottom:10px;">status: subscription</div>
+        <p style="font-size:15px;line-height:1.6;margin:0;">Dès 1&nbsp;000&nbsp;€/mois, engagement annuel.</p>
+      </div>
+      <div style="flex:1 1 280px;background:#11161C;padding:28px;">
+        <div class="mono" style="font-size:12px;color:#5A6472;margin-bottom:10px;">status: maintenance</div>
+        <p style="font-size:15px;line-height:1.6;margin:0;">Incluse — on garde le système en état de marche.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta" style="padding:96px 64px;text-align:center;border-top:1px solid #1E2530;">
+    <h2 style="font-size:34px;font-weight:700;max-width:620px;margin:0 auto 32px;">Prêt à mettre un process sous contrôle&nbsp;?</h2>
+    <a href="#" style="display:inline-block;padding:15px 30px;background:#22D3B4;color:#0B0E11;border-radius:4px;font-weight:600;font-size:15px;">Parlons-en</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="padding:40px 64px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;font-size:13px;color:#5A6472;border-top:1px solid #1E2530;">
+    <div class="mono">ilipro</div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;">
+      <a href="#" style="color:#5A6472;">Mentions légales</a>
+      <a href="#" style="color:#5A6472;">Confidentialité</a>
+      <a href="#" style="color:#5A6472;">Contact</a>
+    </div>
+    <div>© 2026</div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2950}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+---
+import type { Dictionary } from '../../i18n/ui';
+
+interface Props {
+  t: Dictionary;
+}
+
+const { t } = Astro.props;
+---
+
+<section id="process" class="section">
+  <div class="container">
+    <p class="eyebrow">[ {t.process.eyebrow} ]</p>
+    <h2 class="h2 process__title">
+      {t.process.titleStart} <span class="em">{t.process.titleEm}</span>{' '}{t.process.titleEnd}
+    </h2>
+    <ol class="process__steps">
+      {
+        t.process.steps.map((step, i) => (
+          <li class="step">
+            <span class="step__label mono">
+              {String(i + 1).padStart(2, '0')} — {step.label}
+            </span>
+            <p>{step.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .process__title {
+    max-width: 700px;
+    margin-bottom: 72px;
+  }
+  .process__steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: 40px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .step {
+    padding-top: 28px;
+    border-top: 1px dashed var(--faint);
+    color: var(--body);
+  }
+  .step__label {
+    display: block;
+    margin-bottom: 20px;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+</style>

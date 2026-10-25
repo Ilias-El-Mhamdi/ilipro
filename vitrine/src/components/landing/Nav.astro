@@ -1,0 +1,101 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { locales, localeNames, type Dictionary, type Locale } from '../../i18n/ui';
+
+interface Props {
+  t: Dictionary;
+  locale: Locale;
+  path?: string;
+}
+
+const { t, locale, path = '' } = Astro.props;
+---
+
+<header class="nav">
+  <div class="container nav__inner">
+    <a href={getRelativeLocaleUrl(locale)} class="nav__brand">ilipro</a>
+    <nav class="nav__links" aria-label={t.nav.mainLabel}>
+      <a href="#cases">{t.nav.cases}</a>
+      <a href="#process">{t.nav.process}</a>
+      <a href="#model">{t.nav.model}</a>
+      <a href="#resources">{t.nav.resources}</a>
+    </nav>
+    <div class="nav__actions">
+      <ul class="nav__lang mono" aria-label={t.nav.switchLabel}>
+        {
+          locales.map((l) => (
+            <li>
+              {l === locale ? (
+                <span aria-current="true">{localeNames[l]}</span>
+              ) : (
+                <a href={getRelativeLocaleUrl(l, path)} hreflang={l} lang={l}>
+                  {localeNames[l]}
+                </a>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+      <a href="#contact" class="btn btn--primary nav__cta">→ {t.nav.cta}</a>
+    </div>
+  </div>
+</header>
+
+<style>
+  .nav {
+    background: var(--bg);
+    border-bottom: 1px dashed var(--line);
+  }
+  .nav__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 32px;
+    padding-block: 20px;
+  }
+  .nav__brand {
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  .nav__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 32px;
+    font-size: 15px;
+  }
+  .nav__links a:hover {
+    color: var(--accent);
+  }
+  .nav__actions {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .nav__lang {
+    display: flex;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .nav__lang span {
+    color: var(--ink);
+  }
+  .nav__lang a {
+    color: var(--accent);
+  }
+  .nav__cta {
+    font-size: 12px;
+    padding: 12px 18px;
+  }
+  @media (max-width: 860px) {
+    .nav__links {
+      order: 3;
+      width: 100%;
+    }
+  }
+</style>

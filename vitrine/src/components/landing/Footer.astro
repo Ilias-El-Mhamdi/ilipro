@@ -1,0 +1,132 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { locales, localeNames, type Dictionary, type Locale } from '../../i18n/ui';
+
+interface Props {
+  t: Dictionary;
+  locale: Locale;
+  path?: string;
+}
+
+const { t, locale, path = '' } = Astro.props;
+const appUrl = import.meta.env.PUBLIC_APP_URL;
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <p class="footer__name">ilipro</p>
+        <p>{t.footer.tagline}</p>
+      </div>
+      <div class="footer__cols">
+        <nav aria-label={t.footer.casesTitle}>
+          <p class="footer__title mono">{t.footer.casesTitle}</p>
+          <ul>
+            {
+              t.footer.caseLinks.map((label) => (
+                <li>
+                  <a href="#cases">{label}</a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+        <nav aria-label={t.footer.agencyTitle}>
+          <p class="footer__title mono">{t.footer.agencyTitle}</p>
+          <ul>
+            <li><a href="#process">{t.nav.process}</a></li>
+            <li><a href="#resources">{t.nav.resources}</a></li>
+            {appUrl && <li><a href={appUrl}>{t.footer.clientArea}</a></li>}
+          </ul>
+        </nav>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© {new Date().getFullYear()} ilipro</span>
+      <ul class="footer__lang mono">
+        {
+          locales.map((l) => (
+            <li>
+              {l === locale ? (
+                <span aria-current="true">{localeNames[l]}</span>
+              ) : (
+                <a href={getRelativeLocaleUrl(l, path)} hreflang={l} lang={l}>
+                  {localeNames[l]}
+                </a>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--dark);
+    color: var(--dark-muted);
+    padding-block: 72px 40px;
+    font-size: 14px;
+  }
+  .footer ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .footer a:hover {
+    color: var(--on-dark);
+  }
+  .footer__top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 48px;
+    padding-bottom: 56px;
+    border-bottom: 1px dashed var(--dark-line);
+  }
+  .footer__brand {
+    max-width: 300px;
+  }
+  .footer__name {
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--on-dark);
+    margin-bottom: 14px;
+  }
+  .footer__cols {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 72px;
+  }
+  .footer__cols ul {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .footer__title {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark);
+    margin-bottom: 16px;
+  }
+  .footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+    padding-top: 28px;
+    font-size: 13px;
+  }
+  .footer__lang {
+    display: flex;
+    gap: 10px;
+    font-size: 12px;
+  }
+  .footer__lang span {
+    color: var(--on-dark);
+  }
+</style>

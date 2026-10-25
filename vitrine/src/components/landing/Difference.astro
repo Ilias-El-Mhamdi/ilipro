@@ -1,0 +1,64 @@
+---
+import type { Dictionary } from '../../i18n/ui';
+
+interface Props {
+  t: Dictionary;
+}
+
+const { t } = Astro.props;
+---
+
+<section class="section section--dark">
+  <div class="container difference">
+    <div class="difference__head">
+      <p class="eyebrow">[ {t.difference.eyebrow} ]</p>
+      <h2 class="h2">
+        {t.difference.titleStart} <span class="em">{t.difference.titleEm}</span>{' '}{t.difference.titleEnd}
+      </h2>
+    </div>
+    <ul class="difference__grid">
+      {
+        t.difference.items.map((item) => (
+          <li class="difference__item">
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .difference {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 72px;
+  }
+  .difference__head {
+    flex: 1 1 340px;
+    min-width: 0;
+  }
+  .difference__grid {
+    flex: 2 1 560px;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: 48px 40px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .difference__item {
+    padding-top: 24px;
+    border-top: 1px dashed var(--dark-line);
+  }
+  .difference__item h3 {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  .difference__item p {
+    font-size: 15px;
+    color: var(--dark-muted);
+  }
+</style>

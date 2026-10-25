@@ -1,0 +1,63 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getAbsoluteLocaleUrl } from 'astro:i18n';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Nav from '../../components/landing/Nav.astro';
+import Hero from '../../components/landing/Hero.astro';
+import Cases from '../../components/landing/Cases.astro';
+import Process from '../../components/landing/Process.astro';
+import Model from '../../components/landing/Model.astro';
+import Difference from '../../components/landing/Difference.astro';
+import Resources from '../../components/landing/Resources.astro';
+import Faq from '../../components/landing/Faq.astro';
+import Contact from '../../components/landing/Contact.astro';
+import Footer from '../../components/landing/Footer.astro';
+import { locales, ui, type Locale } from '../../i18n/ui';
+
+export const getStaticPaths = (() => locales.map((locale) => ({ params: { locale } }))) satisfies GetStaticPaths;
+
+const locale = Astro.params.locale as Locale;
+const t = ui[locale];
+const url = getAbsoluteLocaleUrl(locale);
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ProfessionalService',
+    name: 'ilipro',
+    url,
+    description: t.meta.description,
+    areaServed: 'Worldwide',
+    knowsLanguage: [...locales],
+    makesOffer: t.cases.items.map((item) => ({
+      '@type': 'Offer',
+      itemOffered: { '@type': 'Service', name: item.title, description: item.text },
+    })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    inLanguage: locale,
+    mainEntity: t.faq.items.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  },
+];
+---
+
+<BaseLayout title={t.meta.title} description={t.meta.description} jsonLd={jsonLd}>
+  <Nav t={t} locale={locale} />
+  <main>
+    <Hero t={t} />
+    <Cases t={t} />
+    <Process t={t} />
+    <Model t={t} />
+    <Difference t={t} />
+    <Resources t={t} />
+    <Faq t={t} />
+    <Contact t={t} />
+  </main>
+  <Footer t={t} locale={locale} />
+</BaseLayout>

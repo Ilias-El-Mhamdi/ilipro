@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>ilipro — Direction 10 : Bento modulaire</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#EEEDE9;font-family:'Manrope',sans-serif;}
+  a{color:#C2410C;text-decoration:none;}
+  a:hover{color:#7C2D12;}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;color:#141414;padding:24px;box-sizing:border-box;">
+
+  <nav style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;padding:18px 28px;background:#FFFFFF;border-radius:18px;margin-bottom:16px;">
+    <div style="font-size:20px;font-weight:800;">ilipro<span style="color:#C2410C;">.</span></div>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:28px;font-size:14px;font-weight:600;">
+      <a href="#usecases" style="color:#141414;">Solutions</a>
+      <a href="#model" style="color:#141414;">Modèle</a>
+      <a href="#" style="color:#141414;">Tarifs</a>
+      <span style="font-size:13px;color:#6B6B66;">FR / <a href="#">EN</a></span>
+      <a href="#cta" style="padding:11px 20px;background:#141414;color:#FFFFFF;border-radius:12px;">Réserver un appel</a>
+    </div>
+  </nav>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;">
+
+    <section style="grid-column:1/-1;background:#FFFFFF;border-radius:24px;padding:72px 56px;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-end;justify-content:space-between;">
+      <div style="flex:1 1 560px;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:#C2410C;margin-bottom:20px;">AGENCE D'AUTOMATISATION · PME</div>
+        <h1 style="font-size:60px;line-height:1.04;font-weight:800;letter-spacing:-0.03em;margin:0;max-width:820px;">Automatisez les process qui ralentissent vos ventes.</h1>
+      </div>
+      <div style="flex:0 1 360px;min-width:0;">
+        <p style="font-size:16px;line-height:1.6;color:#4A4A45;margin:0 0 24px;">Sur-mesure, branché sur vos outils, payé à la livraison si ça marche.</p>
+        <a href="#cta" style="display:inline-block;padding:15px 26px;background:#C2410C;color:#FFFFFF;border-radius:12px;font-weight:700;font-size:15px;">Réserver un appel de qualification</a>
+      </div>
+    </section>
+
+    <div id="usecases" style="background:#141414;color:#FFFFFF;border-radius:24px;padding:36px;display:flex;flex-direction:column;gap:20px;">
+      <div style="font-size:13px;font-weight:700;color:#FDBA74;">01 · PROSPECTION</div>
+      <h3 style="font-size:24px;font-weight:700;margin:0;line-height:1.2;">Boîtes mail créées et chauffées en masse</h3>
+      <div style="background:#262626;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;font-size:13px;">
+        <div style="display:flex;justify-content:space-between;gap:12px;"><span>contact@marque-a.com</span><span style="color:#86EFAC;">chauffée</span></div>
+        <div style="display:flex;justify-content:space-between;gap:12px;"><span>hello@marque-b.com</span><span style="color:#86EFAC;">chauffée</span></div>
+        <div style="display:flex;justify-content:space-between;gap:12px;"><span>team@marque-c.com</span><span style="color:#FDBA74;">en chauffe</span></div>
+      </div>
+      <p style="font-size:14px;line-height:1.6;color:#C9C9C4;margin:0;">Prospection outbound à l'échelle, sans finir en spam.</p>
+    </div>
+
+    <div style="background:#FFFFFF;border-radius:24px;padding:36px;display:flex;flex-direction:column;gap:20px;">
+      <div style="font-size:13px;font-weight:700;color:#C2410C;">02 · CRM</div>
+      <h3 style="font-size:24px;font-weight:700;margin:0;line-height:1.2;">Leads triés par pays, sans ressaisie</h3>
+      <div style="border:1px solid #E2E1DC;border-radius:14px;overflow-x:auto;">
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));font-size:13px;min-width:260px;">
+          <div style="padding:10px 12px;background:#F6F5F1;font-weight:700;">Lead</div>
+          <div style="padding:10px 12px;background:#F6F5F1;font-weight:700;">Pays</div>
+          <div style="padding:10px 12px;background:#F6F5F1;font-weight:700;">Distributeur</div>
+          <div style="padding:10px 12px;border-top:1px solid #E2E1DC;">Société A</div>
+          <div style="padding:10px 12px;border-top:1px solid #E2E1DC;">DE</div>
+          <div style="padding:10px 12px;border-top:1px solid #E2E1DC;">Partenaire DE</div>
+          <div style="padding:10px 12px;border-top:1px solid #E2E1DC;">Société B</div>
+          <div style="padding:10px 12px;border-top:1px solid #E2E1DC;">ES</div>
+          <div style="padding:10px 12px;border-top:1px solid #E2E1DC;">Partenaire ES</div>
+        </div>
+      </div>
+      <p style="font-size:14px;line-height:1.6;color:#4A4A45;margin:0;">Salesforce → Excel/SharePoint, puis requalification auto dans Salesforce.</p>
+    </div>
+
+    <div style="background:#FED7AA;border-radius:24px;padding:36px;display:flex;flex-direction:column;gap:20px;">
+      <div style="font-size:13px;font-weight:700;color:#7C2D12;">03 · VENTES</div>
+      <h3 style="font-size:24px;font-weight:700;margin:0;line-height:1.2;">Chaque demande de devis reçoit sa réponse</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;font-weight:600;">
+        <div style="background:#FFFFFF;border-radius:10px;padding:10px 14px;">1 · Mail de devis détecté</div>
+        <div style="background:#FFFFFF;border-radius:10px;padding:10px 14px;">2 · Transmis au secrétariat</div>
+        <div style="background:#FFFFFF;border-radius:10px;padding:10px 14px;">3 · Devis rédigé, réponse captée</div>
+        <div style="background:#141414;color:#FFFFFF;border-radius:10px;padding:10px 14px;">4 · Envoyé au lead, devis en copie</div>
+      </div>
+    </div>
+
+    <section id="model" style="grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+      <div style="background:#FFFFFF;border-radius:24px;padding:36px;">
+        <div style="font-size:34px;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">0 €</div>
+        <p style="font-size:15px;line-height:1.6;color:#4A4A45;margin:0;">avant livraison. Vous payez seulement si ça répond au besoin.</p>
+      </div>
+      <div style="background:#FFFFFF;border-radius:24px;padding:36px;">
+        <div style="font-size:34px;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">1 000 €<span style="font-size:18px;color:#6B6B66;">/mois</span></div>
+        <p style="font-size:15px;line-height:1.6;color:#4A4A45;margin:0;">à partir de, avec engagement annuel.</p>
+      </div>
+      <div style="background:#FFFFFF;border-radius:24px;padding:36px;">
+        <div style="font-size:34px;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">Inclus</div>
+        <p style="font-size:15px;line-height:1.6;color:#4A4A45;margin:0;">la maintenance : l'automatisation reste en état de marche.</p>
+      </div>
+    </section>
+
+    <section id="cta" style="grid-column:1/-1;background:#C2410C;color:#FFFFFF;border-radius:24px;padding:72px 56px;display:flex;flex-wrap:wrap;gap:32px;align-items:center;justify-content:space-between;">
+      <h2 style="font-size:44px;font-weight:800;letter-spacing:-0.02em;max-width:640px;margin:0;line-height:1.08;">Quel est votre prochain process à automatiser&nbsp;?</h2>
+      <a href="#" style="padding:17px 30px;background:#FFFFFF;color:#141414;border-radius:12px;font-weight:700;font-size:16px;">Réserver un appel</a>
+    </section>
+
+  </div>
+
+  <footer style="padding:28px 28px 8px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;font-size:13px;color:#6B6B66;">
+    <div style="font-weight:800;color:#141414;">ilipro.</div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;">
+      <a href="#" style="color:#6B6B66;">Mentions légales</a>
+      <a href="#" style="color:#6B6B66;">Confidentialité</a>
+      <a href="#" style="color:#6B6B66;">Contact</a>
+    </div>
+    <div>© 2026</div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2950}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

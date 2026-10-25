@@ -1,0 +1,122 @@
+---
+import type { Dictionary } from '../../i18n/ui';
+
+interface Props {
+  t: Dictionary;
+}
+
+const { t } = Astro.props;
+const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT || undefined;
+---
+
+<section id="contact" class="section contact">
+  <div class="container contact__inner">
+    <div class="contact__intro">
+      <p class="eyebrow">[ {t.contact.eyebrow} ]</p>
+      <h2 class="contact__title">{t.contact.titleStart} <span class="contact__em">{t.contact.titleEm}</span></h2>
+      <p class="contact__lead">{t.contact.lead}</p>
+    </div>
+    <form class="contact__form" method="post" action={endpoint}>
+      <div class="contact__row">
+        <label class="field">
+          <span class="field__label mono">{t.contact.name}</span>
+          <input type="text" name="name" autocomplete="name" required />
+        </label>
+        <label class="field">
+          <span class="field__label mono">{t.contact.company}</span>
+          <input type="text" name="company" autocomplete="organization" required />
+        </label>
+      </div>
+      <label class="field">
+        <span class="field__label mono">{t.contact.email}</span>
+        <input type="email" name="email" autocomplete="email" required />
+      </label>
+      <label class="field">
+        <span class="field__label mono">{t.contact.message}</span>
+        <textarea name="message" rows="4" required></textarea>
+      </label>
+      <button type="submit" class="btn contact__submit">→ {t.contact.submit}</button>
+    </form>
+  </div>
+</section>
+
+<style>
+  .contact {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .contact .eyebrow {
+    color: var(--on-accent);
+  }
+  .contact__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 72px;
+  }
+  .contact__intro {
+    flex: 1 1 400px;
+    min-width: 0;
+  }
+  .contact__title {
+    font-size: clamp(40px, 5vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    margin-bottom: 28px;
+  }
+  .contact__em {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .contact__lead {
+    font-size: 17px;
+    max-width: 440px;
+  }
+  .contact__form {
+    flex: 1 1 440px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: clamp(24px, 3vw, 40px);
+    background: var(--bg);
+    color: var(--ink);
+    border-radius: 6px;
+  }
+  .contact__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .contact__row .field {
+    flex: 1 1 180px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .field__label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .field input,
+  .field textarea {
+    font: inherit;
+    font-size: 15px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .field textarea {
+    resize: vertical;
+  }
+  .contact__submit {
+    background: var(--ink);
+    color: var(--bg);
+  }
+</style>

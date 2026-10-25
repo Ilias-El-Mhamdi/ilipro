@@ -1,0 +1,96 @@
+---
+import type { Dictionary } from '../../i18n/ui';
+
+interface Props {
+  t: Dictionary;
+}
+
+const { t } = Astro.props;
+---
+
+<section id="cases" class="section section--dark">
+  <div class="container">
+    <div class="cases__head">
+      <div>
+        <p class="eyebrow">[ {t.cases.eyebrow} ]</p>
+        <h2 class="h2 cases__title">{t.cases.titleStart} <span class="em">{t.cases.titleEm}</span></h2>
+      </div>
+      <p class="cases__lead">{t.cases.lead}</p>
+    </div>
+    <div class="cases__grid">
+      {
+        t.cases.items.map((item) => (
+          <article class="case">
+            <ul class="case__tags mono">
+              {item.tags.map((tag) => (
+                <li>{tag}</li>
+              ))}
+            </ul>
+            <div>
+              <h3 class="case__title">{item.title}</h3>
+              <p class="case__text">{item.text}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .cases__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 32px;
+    margin-bottom: 64px;
+  }
+  .cases__title {
+    max-width: 620px;
+  }
+  .cases__lead {
+    max-width: 380px;
+    color: var(--dark-muted);
+  }
+  .cases__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 16px;
+  }
+  .case {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 64px;
+    min-height: 360px;
+    padding: 36px;
+    background: var(--dark-card);
+    border-radius: 6px;
+  }
+  .case__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .case__tags li {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 9px;
+    background: var(--dark-chip);
+  }
+  .case__title {
+    font-size: 28px;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  .case__text {
+    font-size: 15px;
+    color: var(--dark-muted);
+  }
+</style>
