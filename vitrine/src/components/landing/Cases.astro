@@ -93,4 +93,10 @@ const { t } = Astro.props;
     font-size: 15px;
     color: var(--dark-muted);
   }
+  /* Mobile : « en production. » sur sa propre ligne plutôt que coupé au milieu. */
+  @media (max-width: 640px) {
+    .cases__title .em {
+      display: block;
+    }
+  }
 </style>
