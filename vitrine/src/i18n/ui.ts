@@ -12,7 +12,7 @@ const fr = {
       "Moins de manuel, moins d'oublis, plus de réactivité. Des automatisations construites autour de vos outils.",
   },
   nav: {
-    cases: 'Automatisations',
+    cases: 'Réalisations',
     process: 'Méthode',
     model: 'Modèle',
     cta: 'Prenons contact',
@@ -156,7 +156,7 @@ const fr = {
   },
   footer: {
     tagline: "Agence d'automatisation pour PME, en France et à l'international.",
-    casesTitle: 'Automatisations',
+    casesTitle: 'Réalisations',
     agencyTitle: 'Agence',
     caseLinks: ['Réponse aux devis', 'Routage de leads', 'Prospection email'],
     clientArea: 'Espace client',
@@ -171,7 +171,7 @@ const en: Dictionary = {
     description: 'Less manual work, fewer oversights, faster response. Automations built around your tools.',
   },
   nav: {
-    cases: 'Automations',
+    cases: 'Client work',
     process: 'Method',
     model: 'Pricing model',
     cta: 'Get in touch',
@@ -315,7 +315,7 @@ const en: Dictionary = {
   },
   footer: {
     tagline: 'Automation agency for SMBs, in France and worldwide.',
-    casesTitle: 'Automations',
+    casesTitle: 'Client work',
     agencyTitle: 'Agency',
     caseLinks: ['Quote replies', 'Lead routing', 'Cold email'],
     clientArea: 'Client area',

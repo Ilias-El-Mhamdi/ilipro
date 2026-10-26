@@ -38,15 +38,9 @@
 
 html {
   scroll-behavior: smooth;
-  /* Hauteur du menu sticky (Nav.astro) : une ancre ne doit pas finir cachée dessous. */
-  scroll-padding-top: 88px;
+  /* Hauteur exacte du menu sticky, mesurée par Nav.astro (--nav-h) : une ancre arrive pile sous le menu. */
+  scroll-padding-top: var(--nav-h, 86px);
   -webkit-text-size-adjust: 100%;
-}
-
-@media (max-width: 860px) {
-  html {
-    scroll-padding-top: 100px;
-  }
 }
 
 body {

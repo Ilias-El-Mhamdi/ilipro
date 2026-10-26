@@ -44,6 +44,19 @@ const { t, locale, path = '' } = Astro.props;
   </div>
 </header>
 
+<script>
+  // Expose la hauteur réelle du menu (variable selon la largeur) pour le scroll-padding des ancres.
+  // Arrondi vers le bas : la section glisse d'une fraction de pixel sous le menu au lieu de laisser
+  // apparaître un liseré de la section précédente.
+  const nav = document.querySelector<HTMLElement>('.nav');
+  if (nav) {
+    const setHeight = () =>
+      document.documentElement.style.setProperty('--nav-h', `${Math.floor(nav.getBoundingClientRect().height)}px`);
+    new ResizeObserver(setHeight).observe(nav);
+    setHeight();
+  }
+</script>
+
 <style>
   .nav {
     position: sticky;
