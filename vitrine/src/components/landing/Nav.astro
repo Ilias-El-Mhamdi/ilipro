@@ -80,8 +80,11 @@ const { t, locale, path = '' } = Astro.props;
     gap: 8px 32px;
     font-size: 15px;
   }
-  .nav__links a:hover {
-    color: var(--accent);
+  /* Survol réservé aux vrais pointeurs : sur mobile, le tap laisserait le lien coloré. */
+  @media (hover: hover) {
+    .nav__links a:hover {
+      color: var(--accent);
+    }
   }
   .nav__actions {
     display: flex;

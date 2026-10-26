@@ -147,8 +147,10 @@ h3 {
   transition: opacity 0.15s ease;
 }
 
-.btn:hover {
-  opacity: 0.85;
+@media (hover: hover) {
+  .btn:hover {
+    opacity: 0.85;
+  }
 }
 
 .btn--primary {
