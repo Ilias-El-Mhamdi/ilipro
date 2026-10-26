@@ -24,7 +24,10 @@ const images = [reponseDevis, routageLeads, prospection];
       </div>
       <p class="cases__lead">{t.cases.lead}</p>
     </div>
-    <div class="cases__grid">
+    <div class="cases__carousel" role="region" aria-roledescription="carousel" aria-label={t.cases.carouselLabel}>
+      <button type="button" class="cases__arrow cases__arrow--prev" data-dir="-1" aria-label={t.cases.prev}>←</button>
+      <button type="button" class="cases__arrow cases__arrow--next" data-dir="1" aria-label={t.cases.next}>→</button>
+      <div class="cases__grid">
       {
         t.cases.items.map((item, i) => (
           <article class="case">
@@ -47,9 +50,35 @@ const images = [reponseDevis, routageLeads, prospection];
           </article>
         ))
       }
+      </div>
     </div>
   </div>
 </section>
+
+<script>
+  // Mobile : les flèches font défiler le carrousel d'une carte ; le swipe vient du scroll-snap natif.
+  document.querySelectorAll<HTMLElement>('.cases__carousel').forEach((carousel) => {
+    const track = carousel.querySelector<HTMLElement>('.cases__grid');
+    const arrows = carousel.querySelectorAll<HTMLButtonElement>('.cases__arrow');
+    if (!track) return;
+
+    const update = () => {
+      const max = track.scrollWidth - track.clientWidth - 1;
+      arrows.forEach((arrow) => {
+        arrow.disabled = arrow.dataset.dir === '-1' ? track.scrollLeft <= 0 : track.scrollLeft >= max;
+      });
+    };
+
+    arrows.forEach((arrow) =>
+      arrow.addEventListener('click', () => {
+        track.scrollBy({ left: Number(arrow.dataset.dir) * track.clientWidth, behavior: 'smooth' });
+      }),
+    );
+    track.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  });
+</script>
 
 <style>
   .cases__head {
@@ -113,10 +142,59 @@ const images = [reponseDevis, routageLeads, prospection];
     font-size: 15px;
     color: var(--dark-muted);
   }
-  /* Mobile : « en production. » sur sa propre ligne plutôt que coupé au milieu. */
+  .cases__carousel {
+    position: relative;
+  }
+  .cases__arrow {
+    display: none;
+  }
+  /* Mobile : « en production. » sur sa propre ligne, et les cas en carrousel (swipe + flèches). */
   @media (max-width: 640px) {
     .cases__title .em {
       display: block;
+    }
+    .cases__grid {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+    }
+    .cases__grid::-webkit-scrollbar {
+      display: none;
+    }
+    .case {
+      flex: 0 0 100%;
+      scroll-snap-align: center;
+      padding: 28px 24px;
+    }
+    .cases__arrow {
+      display: grid;
+      place-items: center;
+      position: absolute;
+      top: 50%;
+      z-index: 1;
+      width: 40px;
+      height: 40px;
+      margin-top: -20px;
+      border: 1px solid var(--dark-line);
+      border-radius: 50%;
+      background: var(--on-dark);
+      color: var(--ink);
+      font-size: 18px;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+    .cases__arrow--prev {
+      left: -12px;
+    }
+    .cases__arrow--next {
+      right: -12px;
+    }
+    .cases__arrow:disabled {
+      opacity: 0;
+      pointer-events: none;
     }
   }
 </style>

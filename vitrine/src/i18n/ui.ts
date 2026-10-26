@@ -39,10 +39,13 @@ const fr = {
     toolsLabel: 'Branché sur vos outils',
   },
   cases: {
-    eyebrow: 'Nos automatisations',
-    titleStart: 'Trois cas, livrés et',
-    titleEm: 'en production.',
-    lead: 'Chaque automatisation est construite pour votre contexte — vos outils, vos équipes, vos règles métier.',
+    eyebrow: 'Réalisations',
+    titleStart: 'Leurs réussites,',
+    titleEm: 'notre accompagnement.',
+    lead: 'Trois exemples parmi nos projets en production. Chaque automatisation part du process du client : si le vôtre vous coûte du temps ou vous semble complexe à mettre en place, on peut vous aider.',
+    carouselLabel: 'Réalisations clients',
+    prev: 'Cas précédent',
+    next: 'Cas suivant',
     items: [
       {
         tags: ['Ventes', 'Email'],
@@ -195,10 +198,13 @@ const en: Dictionary = {
     toolsLabel: 'Plugged into your tools',
   },
   cases: {
-    eyebrow: 'Our automations',
-    titleStart: 'Three cases, delivered and',
-    titleEm: 'in production.',
-    lead: 'Every automation is built for your context — your tools, your teams, your business rules.',
+    eyebrow: 'Client work',
+    titleStart: 'Their success,',
+    titleEm: 'our guidance.',
+    lead: 'Three examples from our projects in production. Every automation starts from the client’s own process: if yours is costing you time or seems complex to set up, we can help.',
+    carouselLabel: 'Client success stories',
+    prev: 'Previous case',
+    next: 'Next case',
     items: [
       {
         tags: ['Sales', 'Email'],
